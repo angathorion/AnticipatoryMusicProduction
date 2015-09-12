@@ -25,6 +25,7 @@ function onMIDISuccess(midiAccess) {
         // this just lists our inputs in the console
         listInputs(input);
     }
+    console.log(inputs);
     // listen for connect/disconnect message
     midi.onstatechange = onStateChange;
 }
@@ -42,18 +43,17 @@ function onMIDIMessage(event) {
     // pressure / tilt on
     // pressure: 176, cmd 11:
     // bend: 224, cmd: 14
-
     switch (type) {
         case 144: // noteOn message
-            noop();
+            display.show([new Note(note)]);
             break;
         case 128: // noteOff message
-            noop();
+            $.noop();
             break;
     }
 
     //console.log('data', data, 'cmd', cmd, 'channel', channel);
-    logger(keyData, 'key data', data);
+    logger('key data', data);
 }
 
 function onStateChange(event) {
