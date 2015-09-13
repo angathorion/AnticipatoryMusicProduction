@@ -4,7 +4,7 @@ var log = console.log.bind(console),
 var AudioContext = AudioContext || webkitAudioContext; // for ios/safari
 var context = new AudioContext();
 var data, cmd, channel, type, note, velocity;
-
+var first_msg = true;
 // request MIDI access
 if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess({
@@ -37,6 +37,7 @@ function onMIDIMessage(event) {
         type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
         note = data[1],
         velocity = data[2];
+    console.log(event.timeStamp);
     // with pressure and tilt off
     // note off: 128, cmd: 8
     // note on: 144, cmd: 9
