@@ -20,8 +20,7 @@
             if (parts[2] == '#') {
                 this.semitone += 1;
                 this.direction = 'up';
-            }
-            else if (parts[2] == 'b') {
+            } else if (parts[2] == 'b') {
                 this.semitone -= 1;
                 this.direction = 'down';
             }

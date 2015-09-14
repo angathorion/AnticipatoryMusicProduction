@@ -54,7 +54,6 @@
             type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
             note = data[1],
             velocity = data[2];
-        console.log(event.timeStamp);
         // with pressure and tilt off
         // note off: 128, cmd: 8
         // note on: 144, cmd: 9
@@ -64,14 +63,12 @@
         switch (type) {
             case 144: // noteOn message
                 noteOnListeners.forEach(function(item) {
-                    item.call(item.scope, note);
+                    item.call(item.scope, note, event.timeStamp);
                 });
-                //Painter.activeNotes.push(note);
-                //Painter.show();
                 break;
             case 128: // noteOff message
                 noteOffListeners.forEach(function(item) {
-                    item.call(item.scope, note);
+                    item.call(item.scope, note, event.timeStamp);
                 });
                 break;
         }
