@@ -54,6 +54,7 @@
             type = data[0] & 0xf0, // channel agnostic message type. Thanks, Phil Burk.
             note = data[1],
             velocity = data[2];
+        console.log(data);
         // with pressure and tilt off
         // note off: 128, cmd: 8
         // note on: 144, cmd: 9
