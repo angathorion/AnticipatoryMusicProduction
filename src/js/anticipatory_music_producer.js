@@ -1,6 +1,4 @@
 (function (anticipatoryMusicProducer, $, undefined) {
-    anticipatoryMusicProducer.browserHardwareMIDIInterface =
-        anticipatoryMusicProducer.browserHardwareMIDIInterface || {};
-    anticipatoryMusicProducer.painter =
-        anticipatoryMusicProducer.painter || {};
+    anticipatoryMusicProducer.Interface = anticipatoryMusicProducer.Interface || {};
+    anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);

@@ -1,13 +1,12 @@
-(function (browserHardwareMIDIInterface, $, undefined) {
+(function (Interface, $, undefined) {
     // private properties
-    var painter = window.anticipatoryMusicProducer.painter;
-    var palette = window.anticipatoryMusicProducer.palette;
     var log = console.log.bind(console),
         midi;
     var AudioContext = window.AudioContext || webkitAudioContext; // for ios/safari
     var context = new AudioContext();
     var data, cmd, channel, type, note, velocity;
-
+    var noteOnListeners = [];
+    var noteOffListeners = [];
     // private method
     // request MIDI access
     if (navigator.requestMIDIAccess) {
@@ -17,12 +16,19 @@
     } else {
         alert("No MIDI support in your browser.");
     }
-
-    browserHardwareMIDIInterface.listInputs = function(inputs) {
+    Interface.listInputs = function(inputs) {
         var input = inputs.value;
         log("Input port : [ type:'" + input.type + "' id: '" + input.id +
             "' manufacturer: '" + input.manufacturer + "' name: '" + input.name +
             "' version: '" + input.version + "']");
+    };
+
+    Interface.addNoteOnListener = function(listener) {
+        noteOnListeners.push(listener);
+    };
+
+    Interface.addNoteOffListener = function(listener) {
+        noteOffListeners.push(listener);
     };
 
     // midi functions
@@ -34,7 +40,7 @@
             // listen for midi messages
             input.value.onmidimessage = onMIDIMessage;
             // this just lists our inputs in the console
-            browserHardwareMIDIInterface.listInputs(input);
+            Interface.listInputs(input);
         }
         console.log(inputs);
         // listen for connect/disconnect message
@@ -57,12 +63,16 @@
         // bend: 224, cmd: 14
         switch (type) {
             case 144: // noteOn message
-                painter.activeNotes.push(new palette.Note(note));
-                painter.show();
+                noteOnListeners.forEach(function(item) {
+                    item.call(item.scope, note);
+                });
+                //Painter.activeNotes.push(note);
+                //Painter.show();
                 break;
             case 128: // noteOff message
-                painter.activeNotes = painter.activeNotes.filter(function(noteObj) { return (noteObj.number != note); });
-                painter.show();
+                noteOffListeners.forEach(function(item) {
+                    item.call(item.scope, note);
+                });
                 break;
         }
 
@@ -112,5 +122,5 @@
         var messages = label + " [channel: " + (data[0] & 0xf) + ", cmd: " + (data[0] >> 4) + ", type: " + (data[0] & 0xf0) + " , note: " + data[1] + " , velocity: " + data[2] + "]";
         console.log(messages);
     }
-})(window.anticipatoryMusicProducer.browserHardwareMIDIInterface =
-    window.anticipatoryMusicProducer.browserHardwareMIDIInterface || {}, jQuery);
+})(window.anticipatoryMusicProducer.Interface =
+    window.anticipatoryMusicProducer.Interface || {}, jQuery);
