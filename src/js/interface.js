@@ -73,8 +73,6 @@
                 });
                 break;
         }
-
-        //console.log('data', data, 'cmd', cmd, 'channel', channel);
         logger('key data', data);
     }
 

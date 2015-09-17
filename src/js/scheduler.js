@@ -1,4 +1,4 @@
-(function (scheduler, $, undefined) {
+(function (Scheduler, $, undefined) {
     var tempo = 120;
     var bps = tempo / 60.0;
     var beat_offset = 0; // This needs to change when the player jumps to a new section
@@ -11,7 +11,7 @@
         return Math.round((beat_count * quantization_interval_denominator)) / quantization_interval_denominator;
     };
 
-    scheduler.calculateNoteStartLocation = function(x, note_start_timestamp) {
+    Scheduler.calculateNoteStartLocation = function(x, note_start_timestamp) {
         var elapsed_seconds = (note_start_timestamp - play_start_timestamp) / 1000.0;
         var elapsed_beats = elapsed_seconds * bps;
         console.log("Elapsed Seconds % 10: " + elapsed_seconds % 10 + "; Elapsed beats % 4: " + elapsed_beats % 4);

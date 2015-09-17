@@ -1,5 +1,11 @@
-(function (palette, $, undefined) {
-    palette.Note = function(note, direction) {
+(function (Palette, $, undefined) {
+    /**
+     * @param {number} note The MIDI value of the note
+     * @param {string} direction String indicating the direction of the offset for sharp/flat ('up' or 'down')
+     * @returns {Palette.Note}
+     * @constructor
+     */
+    Palette.Note = function(note, direction) {
         var note_indexes = 'C|D|EF|G|A|B';
         var parts;
 
@@ -34,7 +40,11 @@
         return this;
     };
 
-    palette.Note.prototype.letter = function () {
+    /**
+     * Returns the note name (A-G)
+     * @returns {string} Note name as a string
+     */
+    Palette.Note.prototype.letter = function () {
         // There's probably a more elegant way to do thisâ€¦ but this gets it done.
         var notes = '';
         if (this.direction == 'up') {
@@ -46,7 +56,11 @@
         return notes.charAt(this.semitone);
     };
 
-    palette.Note.prototype.accidental = function () {
+    /**
+     * Returns the accidental of the note
+     * @returns {string} Returns either "", "#" or "b"
+     */
+    Palette.Note.prototype.accidental = function () {
         if ([1, 3, 6, 8, 10].indexOf(this.semitone) == -1) {
             return "";
         }
@@ -56,7 +70,11 @@
         return "b";
     };
 
-    palette.Note.prototype.toString = function () {
+    /**
+     * Converts note to string representation
+     * @returns {string} Returns the string representation of the note
+     */
+    Palette.Note.prototype.toString = function () {
         var parts = [this.letter(), this.accidental()];
         if (this.octave !== null) {
             parts.push('/' + this.octave);
@@ -66,20 +84,38 @@
 })(window.anticipatoryMusicProducer.Palette =
     window.anticipatoryMusicProducer.Palette || {}, jQuery);
 
-(function (painter, $, undefined) {
+(function (Painter, $, undefined) {
+    /**
+     * Array of Notes that are currently active (i.e. note-on messages received, but not note-off)
+     * Will be updated by onNoteOn/onNoteOff callbacks
+     * @type {Palette.Note[]}
+     */
     var activeNotes = [];
 
-    painter.onNoteOn = function(note) {
+    /**
+     * A callback that adds a given note to be drawn on the canvas
+     * @param {number} note The MIDI value of the note
+     */
+    Painter.onNoteOn = function(note) {
         activeNotes.push(new window.anticipatoryMusicProducer.Palette.Note(note));
-        painter.show();
+        Painter.show();
     };
 
-    painter.onNoteOff = function(note) {
+    /**
+     * A callback that removes a given note from the canvas
+     * @param {number} note The MIDI value of the note
+     */
+    Painter.onNoteOff = function(note) {
         activeNotes = activeNotes.filter(function(noteObj) { return (noteObj.number != note); });
-        painter.show();
+        Painter.show();
     };
 
-    painter.show = function(label) {
+    /**
+     *
+     * @todo Fix this function!
+     * @param label
+     */
+    Painter.show = function(label) {
         this.canvas = document.getElementById('canvas');
         this.clear();
         var notes = activeNotes;
@@ -92,7 +128,7 @@
         drawNotes(staves.bass, bass, label);
     };
 
-    painter.clear = function() {
+    Painter.clear = function() {
         while (this.canvas.lastChild) {
             this.canvas.removeChild(this.canvas.lastChild);
         }
@@ -103,22 +139,22 @@
     var drawTrebleStaff = function(x) {
         var y = 110;
         x = x || 20;
-        return new Vex.Flow.Stave(x, y, 400).addClef('treble').setContext(painter.ctx).draw();
+        return new Vex.Flow.Stave(x, y, 400).addClef('treble').setContext(Painter.ctx).draw();
     };
 
     var drawBassStaff = function(x) {
         var y = 170;
         x = x || 20;
-        return new Vex.Flow.Stave(x, y, 400).addClef('bass').setContext(painter.ctx).draw();
+        return new Vex.Flow.Stave(x, y, 400).addClef('bass').setContext(Painter.ctx).draw();
     };
 
     var drawGrandStaff = function() {
         var trebleStave = drawTrebleStaff();
         var bassStave = drawBassStaff();
 
-        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(painter.ctx).draw();
-        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(painter.ctx).draw();
-        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(painter.ctx).draw();
+        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.ctx).draw();
+        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(Painter.ctx).draw();
+        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(Painter.ctx).draw();
 
         return {treble: trebleStave, bass: bassStave};
     };
@@ -150,7 +186,7 @@
         var Voice = new Vex.Flow.Voice({
             num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
         });
-
+        console.log(staveNote);
         // Add notes to voice
         Voice.addTickables([staveNote]);
 
