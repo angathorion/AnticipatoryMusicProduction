@@ -93,12 +93,6 @@
     var activeNotes = [];
 
     /**
-     * Array of staveNotes that are in the bar (note on/off messages already concluded)
-     * @type {Palette.Note[]}
-     */
-    var staveNotes = [];
-
-    /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
      */
