@@ -93,6 +93,12 @@
     var activeNotes = [];
 
     /**
+     * Array of staveNotes that are in the bar (note on/off messages already concluded)
+     * @type {Palette.Note[]}
+     */
+    var staveNotes = [];
+
+    /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
      */
@@ -128,6 +134,9 @@
         drawNotes(staves.bass, bass, label);
     };
 
+    /**
+     * Removes all objects on the canvas
+     */
     Painter.clear = function() {
         while (this.canvas.lastChild) {
             this.canvas.removeChild(this.canvas.lastChild);
@@ -186,7 +195,6 @@
         var Voice = new Vex.Flow.Voice({
             num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
         });
-        console.log(staveNote);
         // Add notes to voice
         Voice.addTickables([staveNote]);
 

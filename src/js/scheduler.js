@@ -2,10 +2,21 @@
     var tempo = 120;
     var bps = tempo / 60.0;
     var beat_offset = 0; // This needs to change when the player jumps to a new section
-    var play_start_timestamp = 0; // update using a callback?
+    var play_start_timestamp = performance.now(); // update using a callback?
     var quantization_interval_denominator = 4; // quantizes to this fraction of a beat
-    // This function assumes you cannot change the tempo, for now. It's a bad assumption, but this will just test
-    // the idea
+
+    var bar_objects = [];
+
+    var quantizeBar = function(bar) {
+        // bar should be an array of objects with MIDI data, noteOn time and noteOff time. If noteOff time is not
+        // available, assume performance.now()
+        // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
+        // should be grouped together
+    };
+
+    var eventLoop = function() {
+
+    };
 
     var quantize = function(beat_count) {
         return Math.round((beat_count * quantization_interval_denominator)) / quantization_interval_denominator;
