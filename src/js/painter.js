@@ -114,22 +114,35 @@
      */
     Painter.show = function(label, bar) {
         var bar_objects = bar.bar_objects;
-
-        console.log(bar_objects);
         this.canvas = document.getElementById('canvas');
         this.clear();
-        var notes = bar_objects;
-        var treble = notes.filter(function(note) { return (note.note.octave >= 4); });
-        var bass = notes.filter(function(note) { return (note.note.octave < 4); });
+        var treble = bar_objects.filter(function(bar_objects) { return (bar_objects.note.octave >= 4); });
+        var bass = bar_objects.filter(function(bar_objects) { return (bar_objects.note.octave < 4); });
 
         var staves = drawGrandStaff();
         if (treble) {
-            drawNotes(staves.treble, treble, label);
+            processNotes(treble);
+            //drawNotes(staves.treble, treble, label);
         }
         if (bass) {
-            drawNotes(staves.bass, bass, label);
+            processNotes(bass);
+            //drawNotes(staves.bass, bass, label);
         }
+    };
 
+    var processNotes = function(bar_objects) {
+        // First group the chords together (i.e. notes that start and end on the same beat)
+        // Can do this using the Cantor function
+        var groups = _.groupBy(bar_objects, function(bar_object) {
+            return 0.5 * (bar_object.startBeat + bar_object.endBeat) *
+                (bar_object.startBeat + bar_object.endBeat + 1) + bar_object.endBeat
+        });
+        // Now sort by note length
+        groups = _.sortBy(_.toArray(groups), function(group) {
+            return group[0].endBeat - group[0].startBeat;
+        });
+        console.log(groups);
+        return groups;
     };
 
     /**
