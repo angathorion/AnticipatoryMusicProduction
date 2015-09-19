@@ -5,7 +5,7 @@
      * @returns {Palette.Note}
      * @constructor
      */
-    Palette.Note = function(note, direction) {
+    Palette.Note = function (note, direction) {
         var note_indexes = 'C|D|EF|G|A|B';
         var parts;
 
@@ -96,7 +96,7 @@
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
      */
-    Painter.onNoteOn = function(note) {
+    Painter.onNoteOn = function (note) {
         activeNotes.push(new window.anticipatoryMusicProducer.Palette.Note(note));
     };
 
@@ -104,41 +104,46 @@
      * A callback that removes a given note from the canvas
      * @param {number} note The MIDI value of the note
      */
-    Painter.onNoteOff = function(note) {
-        activeNotes = activeNotes.filter(function(noteObj) { return (noteObj.number != note); });
+    Painter.onNoteOff = function (note) {
+        activeNotes = activeNotes.filter(function (noteObj) {
+            return (noteObj.number != note);
+        });
     };
 
     /**
      * @todo Fix this function!
      * @param label
      */
-    Painter.show = function(label, bar) {
-        var bar_objects = bar.bar_objects;
+    Painter.show = function (label, bar) {
+        var time_signature = bar.time_signature;
+        var bar_objects = bar.bar_objects.filter(function (bar_object) {
+            return bar_object.endBeat > bar_object.startBeat;
+        });
         this.canvas = document.getElementById('canvas');
         this.clear();
-        var treble = bar_objects.filter(function(bar_objects) { return (bar_objects.note.octave >= 4); });
-        var bass = bar_objects.filter(function(bar_objects) { return (bar_objects.note.octave < 4); });
+
+        var treble = bar_objects.filter(function (bar_object) {return (bar_object.note.octave >= 4);});
+        var bass = bar_objects.filter(function (bar_object) {return (bar_object.note.octave < 4);});
 
         var staves = drawGrandStaff();
         if (treble) {
             processNotes(treble);
-            //drawNotes(staves.treble, treble, label);
+            drawNotes(staves.treble, processNotes(treble), time_signature, label);
         }
         if (bass) {
-            processNotes(bass);
-            //drawNotes(staves.bass, bass, label);
+            drawNotes(staves.bass, processNotes(bass), time_signature, label);
         }
     };
 
-    var processNotes = function(bar_objects) {
+    var processNotes = function (bar_objects) {
         // First group the chords together (i.e. notes that start and end on the same beat)
         // Can do this using the Cantor pairing function
-        var groups = _.groupBy(bar_objects, function(bar_object) {
+        var groups = _.groupBy(bar_objects, function (bar_object) {
             return 0.5 * (bar_object.startBeat + bar_object.endBeat) *
                 (bar_object.startBeat + bar_object.endBeat + 1) + bar_object.endBeat
         });
         // Now sort by start time
-        groups = _.sortBy(_.toArray(groups), function(group) {
+        groups = _.sortBy(_.toArray(groups), function (group) {
             return group[0].endBeat;
         });
         // Use greedy interval packing algorithm
@@ -148,7 +153,7 @@
         var voices = [[groups.shift()]];
         while (groups.length > 0) {
             // See if there are non overlapping intervals, and get the first one
-            var first_non_overlapping = _.find(groups, function(group) {
+            var first_non_overlapping = _.find(groups, function (group) {
                 return group[0].startBeat >= _.last(_.last(voices))[0].endBeat;
             });
 
@@ -161,14 +166,13 @@
                 voices.push([groups.shift()])
             }
         }
-        console.log(voices);
-        return groups;
+        return voices;
     };
 
     /**
      * Removes all objects on the canvas
      */
-    Painter.clear = function() {
+    Painter.clear = function () {
         while (this.canvas.lastChild) {
             this.canvas.removeChild(this.canvas.lastChild);
         }
@@ -176,19 +180,19 @@
         this.ctx = this.renderer.getContext();
     };
 
-    var drawTrebleStaff = function(x) {
+    var drawTrebleStaff = function (x) {
         var y = 110;
         x = x || 20;
         return new Vex.Flow.Stave(x, y, 400).addClef('treble').setContext(Painter.ctx).draw();
     };
 
-    var drawBassStaff = function(x) {
+    var drawBassStaff = function (x) {
         var y = 170;
         x = x || 20;
         return new Vex.Flow.Stave(x, y, 400).addClef('bass').setContext(Painter.ctx).draw();
     };
 
-    var drawGrandStaff = function() {
+    var drawGrandStaff = function () {
         var trebleStave = drawTrebleStaff();
         var bassStave = drawBassStaff();
 
@@ -199,15 +203,30 @@
         return {treble: trebleStave, bass: bassStave};
     };
 
-    var drawNotes = function(stave, notes, label) {
+    var drawNotes = function (stave, notes, time_signature, label) {
         if (!notes.length) return;
-
+        // Must pad with rests
+        var voices = notes.map(function(currentVoice) {
+            return currentVoice.map(function(staveNote) {
+                return new Vex.Flow.StaveNote({
+                    clef: stave.clef,
+                    duration: staveNote.map(function(n) {
+                        return time_signature.count / (n.endBeat - n.startBeat);
+                    }),
+                    keys: staveNote.map(function (n) {
+                        return n.note.toString();
+                    })
+                });
+            })
+        });
         var staveNote = new Vex.Flow.StaveNote({
             clef: stave.clef, duration: "w",
-            keys: notes.map(function(n) { return n.toString(); })
+            keys: notes.map(function (n) {
+                return n.toString();
+            })
         });
 
-        notes.forEach(function(note, i) {
+        notes.forEach(function (note, i) {
             if (note.accidental()) {
                 staveNote.addAccidental(i, new Vex.Flow.Accidental(note.accidental()));
             }

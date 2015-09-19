@@ -15,7 +15,7 @@
         // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
         // should be grouped together
         // values returned are relative to the beginning of the bar
-        var quantized_bar = {bar_number: 0, bar_objects: []};
+        var quantized_bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff));
