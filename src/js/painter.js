@@ -98,7 +98,6 @@
      */
     Painter.onNoteOn = function(note) {
         activeNotes.push(new window.anticipatoryMusicProducer.Palette.Note(note));
-        Painter.show();
     };
 
     /**
@@ -107,25 +106,30 @@
      */
     Painter.onNoteOff = function(note) {
         activeNotes = activeNotes.filter(function(noteObj) { return (noteObj.number != note); });
-        Painter.show();
     };
 
     /**
-     *
      * @todo Fix this function!
      * @param label
      */
-    Painter.show = function(label) {
+    Painter.show = function(label, bar) {
+        var bar_objects = bar.bar_objects;
+
+        console.log(bar_objects);
         this.canvas = document.getElementById('canvas');
         this.clear();
-        var notes = activeNotes;
-        var treble = notes.filter(function(note) { return (note.octave >= 4); });
-        var bass = notes.filter(function(note) { return (note.octave < 4); });
+        var notes = bar_objects;
+        var treble = notes.filter(function(note) { return (note.note.octave >= 4); });
+        var bass = notes.filter(function(note) { return (note.note.octave < 4); });
 
         var staves = drawGrandStaff();
+        if (treble) {
+            drawNotes(staves.treble, treble, label);
+        }
+        if (bass) {
+            drawNotes(staves.bass, bass, label);
+        }
 
-        drawNotes(staves.treble, treble, label);
-        drawNotes(staves.bass, bass, label);
     };
 
     /**
