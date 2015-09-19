@@ -4,11 +4,10 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
     var play_start_timestamp = performance.now(); // update using a callback?
+    var begin = play_start_timestamp;
     var quantization_interval_denominator = 4; // quantizes to this fraction of a beat
     var bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
     Scheduler.interval = (1.0 / bps) / quantization_interval_denominator * 1000;
-    // array of bar objects
-    var bars = [[], [], [], [], [], [], [], [], [], []];
 
     var quantizeBar = function (bar) {
         // bar should be an array of objects with note, timeOn, timeOff. If noteOff time is not
@@ -42,13 +41,17 @@
         beat_offset = (beat_offset + 1 / quantization_interval_denominator) % time_signature.count;
         if (beat_offset == 0) {
             bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
+            play_start_timestamp = performance.now();
             anticipatoryMusicProducer.Painter.clear();
         }
         // pass bars to painter to draw
         anticipatoryMusicProducer.Painter.show("", quantizeBar(bar));
-        if (performance.now() - play_start_timestamp > 10000) {
+
+        // Stop after 10 seconds
+        if (performance.now() - begin > 10000) {
             window.clearInterval(anticipatoryMusicProducer.interval);
         }
+        console.log(beat_offset);
     };
     /**
      * A callback that adds a given note to be drawn on the canvas

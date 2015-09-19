@@ -132,16 +132,36 @@
 
     var processNotes = function(bar_objects) {
         // First group the chords together (i.e. notes that start and end on the same beat)
-        // Can do this using the Cantor function
+        // Can do this using the Cantor pairing function
         var groups = _.groupBy(bar_objects, function(bar_object) {
             return 0.5 * (bar_object.startBeat + bar_object.endBeat) *
                 (bar_object.startBeat + bar_object.endBeat + 1) + bar_object.endBeat
         });
-        // Now sort by note length
+        // Now sort by start time
         groups = _.sortBy(_.toArray(groups), function(group) {
-            return group[0].endBeat - group[0].startBeat;
+            return group[0].endBeat;
         });
-        console.log(groups);
+        // Use greedy interval packing algorithm
+        // https://www.cs.duke.edu/courses/fall03/cps260/notes/lecture05.pdf
+
+        // Remove the interval that ends first
+        var voices = [[groups.shift()]];
+        while (groups.length > 0) {
+            // See if there are non overlapping intervals, and get the first one
+            var first_non_overlapping = _.find(groups, function(group) {
+                return group[0].startBeat >= _.last(_.last(voices))[0].endBeat;
+            });
+
+            if (first_non_overlapping) {
+                // If it exists, then put it in the latest voice
+                _.last(voices).push(first_non_overlapping);
+                groups = _.without(groups, first_non_overlapping);
+            } else {
+                // This interval doesn't exist; we create a new voice
+                voices.push([groups.shift()])
+            }
+        }
+        console.log(voices);
         return groups;
     };
 
