@@ -51,7 +51,6 @@
         if (performance.now() - begin > 10000) {
             window.clearInterval(anticipatoryMusicProducer.interval);
         }
-        console.log(beat_offset);
     };
     /**
      * A callback that adds a given note to be drawn on the canvas

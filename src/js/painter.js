@@ -121,16 +121,13 @@
         });
         this.canvas = document.getElementById('canvas');
         this.clear();
-
         var treble = bar_objects.filter(function (bar_object) {return (bar_object.note.octave >= 4);});
         var bass = bar_objects.filter(function (bar_object) {return (bar_object.note.octave < 4);});
-
         var staves = drawGrandStaff();
-        if (treble) {
-            processNotes(treble);
+        if (treble.length > 0) {
             drawNotes(staves.treble, processNotes(treble), time_signature, label);
         }
-        if (bass) {
+        if (bass.length > 0) {
             drawNotes(staves.bass, processNotes(bass), time_signature, label);
         }
     };
@@ -208,28 +205,31 @@
         // Must pad with rests
         var voices = notes.map(function(currentVoice) {
             return currentVoice.map(function(staveNote) {
-                return new Vex.Flow.StaveNote({
-                    clef: stave.clef,
-                    duration: staveNote.map(function(n) {
-                        return time_signature.count / (n.endBeat - n.startBeat);
-                    }),
-                    keys: staveNote.map(function (n) {
-                        return n.note.toString();
-                    })
-                });
-            })
-        });
-        var staveNote = new Vex.Flow.StaveNote({
-            clef: stave.clef, duration: "w",
-            keys: notes.map(function (n) {
-                return n.toString();
-            })
-        });
+                /*
+                return staveNote.map(function(note) {
+                    return new Vex.Flow.StaveNote({
+                        clef: stave.clef,
+                        duration: "w",
+                        // I doubt this will work for other signatures though; need to check
+                        keys: [note.note.toString()]
+                    });
+                });*/
 
-        notes.forEach(function (note, i) {
-            if (note.accidental()) {
-                staveNote.addAccidental(i, new Vex.Flow.Accidental(note.accidental()));
-            }
+                var noteGroup = new Vex.Flow.StaveNote({
+                    clef: stave.clef,
+                    duration: "q",
+                    // I doubt this will work for other signatures though; need to check
+                    keys: staveNote.map(function(note) { return note.note.toString();})
+                });
+                noteGroup.keys.forEach(function(key, index, keys) {
+                    var pitch = key.split("/")[0];
+                    if (pitch.length > 1) {
+                        noteGroup.addAccidental(index, new Vex.Flow.Accidental(pitch[1]));
+                    }
+                });
+                return noteGroup;
+
+            });
         });
 
         if (label) {
@@ -240,13 +240,13 @@
                     .setVerticalJustification(just)
             );
         }
-
+        console.log(voices);
         // Create a voice in 4/4
         var Voice = new Vex.Flow.Voice({
             num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
         });
         // Add notes to voice
-        Voice.addTickables([staveNote]);
+        Voice.addTickables(voices[0]);
 
         // Format and justify the notes
         new Vex.Flow.Formatter().joinVoices([Voice]).format([Voice], 300);
