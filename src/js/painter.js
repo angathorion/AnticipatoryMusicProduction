@@ -124,17 +124,17 @@
         var treble = bar_objects.filter(function (bar_object) {return (bar_object.note.octave >= 4);});
         var bass = bar_objects.filter(function (bar_object) {return (bar_object.note.octave < 4);});
         var staves = drawGrandStaff();
-        if (treble.length > 0) {
-            drawNotes(staves.treble, processNotes(treble), time_signature, label);
-        }
-        if (bass.length > 0) {
-            drawNotes(staves.bass, processNotes(bass), time_signature, label);
-        }
+        drawNotes(staves.treble, processNotes(treble), time_signature, label);
+        drawNotes(staves.bass, processNotes(bass), time_signature, label);
+
     };
 
     var processNotes = function (bar_objects) {
         // First group the chords together (i.e. notes that start and end on the same beat)
         // Can do this using the Cantor pairing function
+        if (bar_objects.length == 0) {
+            return bar_objects;
+        }
         var groups = _.groupBy(bar_objects, function (bar_object) {
             return 0.5 * (bar_object.startBeat + bar_object.endBeat) *
                 (bar_object.startBeat + bar_object.endBeat + 1) + bar_object.endBeat
@@ -200,61 +200,135 @@
         return {treble: trebleStave, bass: bassStave};
     };
 
+    var calculateStaveNoteSplit = function(full_value) {
+        var base_value = Math.pow(2,full_value.toString(2).length - 1);
+        var tentative_dotted_val = 0;
+        var n = 0;
+        while (tentative_dotted_val < full_value) {
+            n += 1;
+            tentative_dotted_val = base_value * (2 - 1/Math.pow(2, n));
+        }
+        var log_val = Math.pow(2, n-1);
+        var dotted_value = base_value * (2 - 1/log_val);
+        var num_dots = n - 1;
+        var remainder = full_value - dotted_value;
+        return {base_value: base_value, num_dots: num_dots, remainder: remainder};
+    };
+    var stringFill = function(x, n) {
+        var s = '';
+        for (;;) {
+            if (n & 1) s += x;
+            n >>= 1;
+            if (n) x += x;
+            else break;
+        }
+        return s;
+    };
+
+    var buildSeparateNotes = function(staveNote, value, note_type, stave, time_signature, staveNoteArray, tieArray) {
+        var staveNoteSplitData = calculateStaveNoteSplit(value);
+        var noteGroup = new Vex.Flow.StaveNote({
+            clef: stave.clef,
+            duration: (16 / (staveNoteSplitData.base_value / time_signature.value)).toString() +
+            stringFill("d", staveNoteSplitData.num_dots) + note_type,
+            keys: staveNote.map(function(note) { return note.note.toString();})
+        });
+        noteGroup.setStave(stave);
+        // add dots if any
+        for (var i = 0; i < staveNoteSplitData.num_dots; i++) {
+            noteGroup.addDotToAll();
+        }
+        // add accidentals if any to all notes
+        noteGroup.keys.forEach(function(key, index) {
+            var pitch = key.split("/")[0];
+            if (pitch.length > 1) {
+                noteGroup.addAccidental(index, new Vex.Flow.Accidental(pitch[1]));
+            }
+        });
+        staveNoteArray.push(noteGroup);
+
+        if (staveNoteSplitData.remainder > 0) {
+            var notes = buildSeparateNotes(staveNote, staveNoteSplitData.remainder, note_type, stave, time_signature, staveNoteArray, tieArray);
+            staveNoteArray = notes.staveNoteArray;
+            tieArray = notes.tieArray;
+            if (staveNoteArray.length > 1 && note_type == "") {
+                var ties = new Vex.Flow.StaveTie({
+                    first_note: staveNoteArray[staveNoteArray.length - 2],
+                    last_note: staveNoteArray[staveNoteArray.length - 1],
+                    first_indices: [0, staveNoteArray[staveNoteArray.length - 2].length],
+                    last_indices: [0, staveNoteArray[staveNoteArray.length - 1].length]
+                });
+                tieArray.push(ties);
+            }
+        }
+        return {staveNoteArray: staveNoteArray, tieArray: tieArray};
+    };
+
     var drawNotes = function (stave, voices, time_signature, label) {
-        if (!voices.length) return;
-        voices.forEach(function(voice, index, keys) {
+        var rest_pos = stave.clef == "treble" ? 71:50;
+        // This does rest padding
+        for (var j = 0; j < voices.length; j++) {
+            var voice = voices[j];
             var end = time_signature.count;
             for (var i = voice.length - 1; i >= 0; i--) {
                 if (voice[i][0].endBeat < end) {
                     voice.splice(i + 1, 0, [{rest: 1, endBeat: end, startBeat: voice[i][0].endBeat,
-                        note: new anticipatoryMusicProducer.Palette.Note(71)}]);
+                        note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]);
                 }
                 end = voice[i][0].startBeat;
             }
             if (voice[0][0].startBeat > 0) {
                 voice.splice(0, 0, [{rest: 1, endBeat: voice[0][0].startBeat, startBeat: 0,
-                    note: new anticipatoryMusicProducer.Palette.Note(71)}]);
+                    note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]);
             }
-        });
-        console.log(voices);
-        voices = voices.map(function(currentVoice) {
-            return currentVoice.map(function(staveNote) {
-                var noteGroup = new Vex.Flow.StaveNote({
-                    clef: stave.clef,
-                    duration: staveNote[0].note.type ? "qr" : "q",
-                    // I doubt this will work for other signatures though; need to check
-                    keys: staveNote.map(function(note) { return note.note.toString();})
-                });
-                noteGroup.keys.forEach(function(key, index) {
-                    var pitch = key.split("/")[0];
-                    if (pitch.length > 1) {
-                        noteGroup.addAccidental(index, new Vex.Flow.Accidental(pitch[1]));
-                    }
-                });
-                return noteGroup;
-            });
-        });
-
-        if (label) {
-            var just = Vex.Flow.Annotation.VerticalJustify[stave.clef == 'bass' ? 'BOTTOM' : 'TOP'];
-            staveNote.addAnnotation(0, (new Vex.Flow.Annotation(label))
-                    .setFont("Times", 12)
-                    .setJustification(Vex.Flow.Annotation.Justify.CENTER)
-                    .setVerticalJustification(just)
-            );
         }
-        // Create a voice in 4/4
-        var Voice = new Vex.Flow.Voice({
-            num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
+        if (voices.length == 0) {
+            voices = [[[{rest: 1, endBeat: time_signature.count, startBeat: 0,
+                note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]]];
+        }
+        // This breaks up the notes
+        var tiesArray = [];
+        voices = voices.map(function(currentVoice) {
+            var staveNoteArray = [];
+            currentVoice.forEach(function(staveNote) {
+                var beat_multiplier =
+                        time_signature.value * anticipatoryMusicProducer.Scheduler.quantization_interval_denominator;
+                var full_value = (staveNote[0].endBeat-staveNote[0].startBeat) * beat_multiplier;
+                var note_type = (staveNote[0].rest == 1 ? "r" : "");
+                var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, staveNoteArray, tiesArray);
+
+                staveNoteArray = notes.staveNoteArray;
+                tiesArray = notes.tieArray;
+            });
+            var beams = Vex.Flow.Beam.generateBeams(staveNoteArray);
+            beams.forEach(function(beam) {
+                //beam.setContext(Painter.ctx).draw();
+            });
+            return staveNoteArray;
         });
-        // Add notes to voice
-        Voice.addTickables(voices[0]);
+        // Create a voice in 4/4
+        var Voices = voices.map(function(voice) {
+            var Voice = new Vex.Flow.Voice({
+                num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
+            });
+            // Add notes to voice
+            Voice.addTickables(voice);
 
+            // Render voice
+            //Voice.draw(Painter.ctx, stave);
+            return Voice;
+        });
+        var formatter = new Vex.Flow.Formatter();
+        formatter.joinVoices(Voices).format(Voices, 300,
+            {align_rests: true, context: Painter.ctx, stave: stave});
         // Format and justify the notes
-        new Vex.Flow.Formatter().joinVoices([Voice]).format([Voice], 300);
+        Voices.forEach(function(voice) {
+            voice.draw(Painter.ctx, stave);
+        });
+        tiesArray.forEach(function(tie){
+            tie.setContext(stave.getContext()).draw();
+        })
 
-        // Render voice
-        Voice.draw(stave.getContext(), stave);
     };
 })(window.anticipatoryMusicProducer.Painter =
     window.anticipatoryMusicProducer.Painter || {}, jQuery);
