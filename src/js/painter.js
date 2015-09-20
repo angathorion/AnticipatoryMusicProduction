@@ -200,35 +200,38 @@
         return {treble: trebleStave, bass: bassStave};
     };
 
-    var drawNotes = function (stave, notes, time_signature, label) {
-        if (!notes.length) return;
-        // Must pad with rests
-        var voices = notes.map(function(currentVoice) {
+    var drawNotes = function (stave, voices, time_signature, label) {
+        if (!voices.length) return;
+        voices.forEach(function(voice, index, keys) {
+            var end = time_signature.count;
+            for (var i = voice.length - 1; i >= 0; i--) {
+                if (voice[i][0].endBeat < end) {
+                    voice.splice(i + 1, 0, [{rest: 1, endBeat: end, startBeat: voice[i][0].endBeat,
+                        note: new anticipatoryMusicProducer.Palette.Note(71)}]);
+                }
+                end = voice[i][0].startBeat;
+            }
+            if (voice[0][0].startBeat > 0) {
+                voice.splice(0, 0, [{rest: 1, endBeat: voice[0][0].startBeat, startBeat: 0,
+                    note: new anticipatoryMusicProducer.Palette.Note(71)}]);
+            }
+        });
+        console.log(voices);
+        voices = voices.map(function(currentVoice) {
             return currentVoice.map(function(staveNote) {
-                /*
-                return staveNote.map(function(note) {
-                    return new Vex.Flow.StaveNote({
-                        clef: stave.clef,
-                        duration: "w",
-                        // I doubt this will work for other signatures though; need to check
-                        keys: [note.note.toString()]
-                    });
-                });*/
-
                 var noteGroup = new Vex.Flow.StaveNote({
                     clef: stave.clef,
-                    duration: "q",
+                    duration: staveNote[0].note.type ? "qr" : "q",
                     // I doubt this will work for other signatures though; need to check
                     keys: staveNote.map(function(note) { return note.note.toString();})
                 });
-                noteGroup.keys.forEach(function(key, index, keys) {
+                noteGroup.keys.forEach(function(key, index) {
                     var pitch = key.split("/")[0];
                     if (pitch.length > 1) {
                         noteGroup.addAccidental(index, new Vex.Flow.Accidental(pitch[1]));
                     }
                 });
                 return noteGroup;
-
             });
         });
 
@@ -240,7 +243,6 @@
                     .setVerticalJustification(just)
             );
         }
-        console.log(voices);
         // Create a voice in 4/4
         var Voice = new Vex.Flow.Voice({
             num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
