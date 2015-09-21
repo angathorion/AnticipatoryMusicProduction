@@ -1,14 +1,14 @@
 (function (Scheduler, $, undefined) {
     Scheduler.currentTempo = 60;
     var bps = Scheduler.currentTempo / 60.0;
-    var time_signature = {value: 4, count: 4};
+    var time_signature = {value: 4, count: 3};
     var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
     var play_start_timestamp = performance.now(); // update using a callback?
     var begin = play_start_timestamp;
-    Scheduler.quantization_interval_denominator = 4; // quantizes to this fraction of a beat
+    Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
     var bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
     Scheduler.interval = (1.0 / bps) / Scheduler.quantization_interval_denominator * 1000;
-
+    Scheduler.multiplier = 0.5;
     var quantizeBar = function (bar) {
         // bar should be an array of objects with note, timeOn, timeOff. If noteOff time is not
         // available, assume performance.now()

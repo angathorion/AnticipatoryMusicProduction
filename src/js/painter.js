@@ -126,7 +126,18 @@
         var staves = drawGrandStaff();
         drawNotes(staves.treble, processNotes(treble), time_signature, label);
         drawNotes(staves.bass, processNotes(bass), time_signature, label);
+    };
 
+
+    /**
+     * Removes all objects on the canvas
+     */
+    Painter.clear = function () {
+        while (this.canvas.lastChild) {
+            this.canvas.removeChild(this.canvas.lastChild);
+        }
+        this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.RAPHAEL);
+        this.ctx = this.renderer.getContext();
     };
 
     var processNotes = function (bar_objects) {
@@ -143,6 +154,8 @@
         groups = _.sortBy(_.toArray(groups), function (group) {
             return group[0].endBeat;
         });
+
+
         // Use greedy interval packing algorithm
         // https://www.cs.duke.edu/courses/fall03/cps260/notes/lecture05.pdf
 
@@ -166,16 +179,6 @@
         return voices;
     };
 
-    /**
-     * Removes all objects on the canvas
-     */
-    Painter.clear = function () {
-        while (this.canvas.lastChild) {
-            this.canvas.removeChild(this.canvas.lastChild);
-        }
-        this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.RAPHAEL);
-        this.ctx = this.renderer.getContext();
-    };
 
     var drawTrebleStaff = function (x) {
         var y = 110;
@@ -184,7 +187,7 @@
     };
 
     var drawBassStaff = function (x) {
-        var y = 170;
+        var y = 200;
         x = x || 20;
         return new Vex.Flow.Stave(x, y, 400).addClef('bass').setContext(Painter.ctx).draw();
     };
@@ -200,6 +203,7 @@
         return {treble: trebleStave, bass: bassStave};
     };
 
+    // Calculate how a single note should be split; does single pass
     var calculateStaveNoteSplit = function(full_value) {
         var base_value = Math.pow(2,full_value.toString(2).length - 1);
         var tentative_dotted_val = 0;
@@ -214,6 +218,8 @@
         var remainder = full_value - dotted_value;
         return {base_value: base_value, num_dots: num_dots, remainder: remainder};
     };
+
+    // Helper function to build string
     var stringFill = function(x, n) {
         var s = '';
         for (;;) {
@@ -225,13 +231,14 @@
         return s;
     };
 
-    var buildSeparateNotes = function(staveNote, value, note_type, stave, time_signature, staveNoteArray, tieArray) {
+    var buildSeparateNotes = function(staveNote, value, note_type, stave, time_signature, startRendered, staveNoteArray, tieArray) {
         var staveNoteSplitData = calculateStaveNoteSplit(value);
         var noteGroup = new Vex.Flow.StaveNote({
             clef: stave.clef,
             duration: (16 / (staveNoteSplitData.base_value / time_signature.value)).toString() +
             stringFill("d", staveNoteSplitData.num_dots) + note_type,
-            keys: staveNote.map(function(note) { return note.note.toString();})
+            keys: staveNote.map(function(note) { return note.note.toString();}),
+            auto_stem: true
         });
         noteGroup.setStave(stave);
         // add dots if any
@@ -248,24 +255,25 @@
         staveNoteArray.push(noteGroup);
 
         if (staveNoteSplitData.remainder > 0) {
-            var notes = buildSeparateNotes(staveNote, staveNoteSplitData.remainder, note_type, stave, time_signature, staveNoteArray, tieArray);
+            var notes = buildSeparateNotes(staveNote, staveNoteSplitData.remainder, note_type, stave, time_signature, true, staveNoteArray, tieArray);
             staveNoteArray = notes.staveNoteArray;
             tieArray = notes.tieArray;
-            if (staveNoteArray.length > 1 && note_type == "") {
+            if (staveNoteArray.length > 1 && note_type == "" && startRendered == true) {
                 var ties = new Vex.Flow.StaveTie({
                     first_note: staveNoteArray[staveNoteArray.length - 2],
                     last_note: staveNoteArray[staveNoteArray.length - 1],
                     first_indices: [0, staveNoteArray[staveNoteArray.length - 2].length],
                     last_indices: [0, staveNoteArray[staveNoteArray.length - 1].length]
                 });
+                ties.setContext(stave.getContext());
                 tieArray.push(ties);
             }
         }
         return {staveNoteArray: staveNoteArray, tieArray: tieArray};
     };
 
-    var drawNotes = function (stave, voices, time_signature, label) {
-        var rest_pos = stave.clef == "treble" ? 71:50;
+    var drawNotes = function (stave, voices, time_signature) {
+        var rest_pos = stave.clef == "treble" ? 71 : 50;
         // This does rest padding
         for (var j = 0; j < voices.length; j++) {
             var voice = voices[j];
@@ -282,40 +290,40 @@
                     note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]);
             }
         }
+
         if (voices.length == 0) {
             voices = [[[{rest: 1, endBeat: time_signature.count, startBeat: 0,
                 note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]]];
         }
         // This breaks up the notes
         var tiesArray = [];
+        var beamsArray = [];
         voices = voices.map(function(currentVoice) {
             var staveNoteArray = [];
             currentVoice.forEach(function(staveNote) {
-                var beat_multiplier =
-                        time_signature.value * anticipatoryMusicProducer.Scheduler.quantization_interval_denominator;
-                var full_value = (staveNote[0].endBeat-staveNote[0].startBeat) * beat_multiplier;
+                var full_value = (staveNote[0].endBeat-staveNote[0].startBeat) * 16;
                 var note_type = (staveNote[0].rest == 1 ? "r" : "");
-                var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, staveNoteArray, tiesArray);
+                var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, false, staveNoteArray, tiesArray);
 
                 staveNoteArray = notes.staveNoteArray;
                 tiesArray = notes.tieArray;
             });
-            var beams = Vex.Flow.Beam.generateBeams(staveNoteArray);
-            beams.forEach(function(beam) {
-                //beam.setContext(Painter.ctx).draw();
-            });
+            beamsArray.push(Vex.Flow.Beam.generateBeams(staveNoteArray, {
+                beam_rests: true,
+                beam_middle_only: true
+            }));
+
             return staveNoteArray;
         });
+
         // Create a voice in 4/4
         var Voices = voices.map(function(voice) {
             var Voice = new Vex.Flow.Voice({
-                num_beats: 4, beat_value: 4, resolution: Vex.Flow.RESOLUTION
+                num_beats: time_signature.count, beat_value: time_signature.value, resolution: Vex.Flow.RESOLUTION
             });
             // Add notes to voice
             Voice.addTickables(voice);
 
-            // Render voice
-            //Voice.draw(Painter.ctx, stave);
             return Voice;
         });
         var formatter = new Vex.Flow.Formatter();
@@ -325,9 +333,15 @@
         Voices.forEach(function(voice) {
             voice.draw(Painter.ctx, stave);
         });
+
         tiesArray.forEach(function(tie){
             tie.setContext(stave.getContext()).draw();
-        })
+        });
+        
+        beamsArray = _.flatten(beamsArray);
+        beamsArray.forEach(function(beam) {
+            beam.setContext(Painter.ctx).draw();
+        });
 
     };
 })(window.anticipatoryMusicProducer.Painter =
