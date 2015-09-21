@@ -328,7 +328,7 @@
         });
         var formatter = new Vex.Flow.Formatter();
         formatter.joinVoices(Voices).format(Voices, 300,
-            {align_rests: true, context: Painter.ctx, stave: stave});
+            {align_rests: false, context: Painter.ctx, stave: stave});
         // Format and justify the notes
         Voices.forEach(function(voice) {
             voice.draw(Painter.ctx, stave);
@@ -337,7 +337,7 @@
         tiesArray.forEach(function(tie){
             tie.setContext(stave.getContext()).draw();
         });
-        
+
         beamsArray = _.flatten(beamsArray);
         beamsArray.forEach(function(beam) {
             beam.setContext(Painter.ctx).draw();
