@@ -1,4 +1,15 @@
 (function (Scheduler, $, undefined) {
+    Scheduler.Bar = function(bar_number, time_signature, bar_objects) {
+        this.bar_number = bar_number || 0;
+        this.bar_objects = bar_objects || [];
+        this.time_signature = time_signature || {value: 4, count: 4};
+        return this;
+    };
+
+    Scheduler.BarObject = function(objects) {
+        return this;
+    };
+
     Scheduler.currentTempo = 60;
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 3};
@@ -9,6 +20,7 @@
     var bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
     Scheduler.interval = (1.0 / bps) / Scheduler.quantization_interval_denominator * 1000;
     Scheduler.multiplier = 0.5;
+
     var quantizeBar = function (bar) {
         // bar should be an array of objects with note, timeOn, timeOff. If noteOff time is not
         // available, assume performance.now()
@@ -48,7 +60,7 @@
         // pass bars to painter to draw
         anticipatoryMusicProducer.Painter.show("", quantizeBar(bar));
 
-        // Stop after 10 seconds
+        // Stop after 20 seconds
         if (performance.now() - begin > 20000) {
             window.clearInterval(anticipatoryMusicProducer.interval);
         }
@@ -56,6 +68,7 @@
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
+     * @param {number} time DOMHighResTimeStamp representing time on
      */
     Scheduler.onNoteOn = function (note, time) {
         bar.bar_objects.push(
@@ -71,13 +84,14 @@
     /**
      * A callback that removes a given note from the canvas
      * @param {number} note The MIDI value of the note
+     * @param {number} time DOMHighResTimeStamp representing time off
      */
-    Scheduler.onNoteOff = function (note) {
+    Scheduler.onNoteOff = function (note, time) {
         var releasedNote = bar.bar_objects.filter(function (noteObj) {
             return (noteObj.note.number == note);
         })[0];
         if (releasedNote) {
-            releasedNote.timeOff = performance.now();
+            releasedNote.timeOff = time;
         }
     };
 

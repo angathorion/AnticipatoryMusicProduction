@@ -326,6 +326,7 @@
 
             return Voice;
         });
+        
         var formatter = new Vex.Flow.Formatter();
         formatter.joinVoices(Voices).format(Voices, 300,
             {align_rests: false, context: Painter.ctx, stave: stave});
