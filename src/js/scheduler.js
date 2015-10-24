@@ -1,8 +1,9 @@
 (function (Scheduler, $, undefined) {
-    Scheduler.Bar = function (bar_number, time_signature, bar_objects) {
+    Scheduler.Bar = function (bar_number, time_signature, bar_objects, bar_start) {
         this.bar_number = bar_number || 0;
         this.bar_objects = bar_objects || [];
         this.time_signature = time_signature || {value: 4, count: 4};
+        this.bar_start = bar_start || performance.now();
         return this;
     };
 
@@ -14,9 +15,7 @@
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
-    var play_start_timestamp = performance.now(); // update using a callback?
-    var begin = play_start_timestamp;
-    Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
+    Scheduler.quantization_interval_denominator = 4; // quantizes to this fraction of a beat
     Scheduler.interval = (1.0 / bps) / Scheduler.quantization_interval_denominator * 1000;
     Scheduler.multiplier = 0.5;
     var currentBar = 0;
@@ -35,9 +34,10 @@
         // should be grouped together
         // values returned are relative to the beginning of the bar
         var quantized_bar = new Scheduler.Bar(0, time_signature, []);
+        var bar_start = bar.bar_start;
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
-            var startBeatLocation = quantize(getBeatLocation(note.timeOn));
-            var endBeatLocation = quantize(getBeatLocation(note.timeOff));
+            var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
+            var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
             return {
                 note     : note.note,
                 startBeat: startBeatLocation % time_signature.count,
@@ -57,7 +57,6 @@
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        console.log(bars.length);
         beat_offset = (beat_offset + 1 / Scheduler.quantization_interval_denominator) % time_signature.count;
         console.log(beat_offset);
         if (beat_offset == 0) {
@@ -65,7 +64,6 @@
             //bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
             bars[currentBar] = new Scheduler.Bar(0, time_signature, []);
             bar = bars[currentBar];
-            play_start_timestamp = performance.now();
             anticipatoryMusicProducer.Painter.clear();
         }
 
@@ -117,8 +115,8 @@
     };
 
     // Calculate elapsed beats since play start timestamp
-    var getBeatLocation = function (note_start_timestamp) {
-        var elapsed_seconds = (note_start_timestamp - play_start_timestamp) / 1000.0;
+    var getBeatLocation = function (note_start_timestamp, bar_start_timestamp) {
+        var elapsed_seconds = (note_start_timestamp - bar_start_timestamp) / 1000.0;
         return elapsed_seconds * bps;
     };
 
