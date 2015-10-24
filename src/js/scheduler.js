@@ -12,12 +12,12 @@
 
     Scheduler.currentTempo = 60;
     var bps = Scheduler.currentTempo / 60.0;
-    var time_signature = {value: 4, count: 3};
+    var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
     var play_start_timestamp = performance.now(); // update using a callback?
     var begin = play_start_timestamp;
     Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
-    var bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
+    var bar = new Scheduler.Bar(0, time_signature, []);
     Scheduler.interval = (1.0 / bps) / Scheduler.quantization_interval_denominator * 1000;
     Scheduler.multiplier = 0.5;
 
@@ -27,7 +27,7 @@
         // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
         // should be grouped together
         // values returned are relative to the beginning of the bar
-        var quantized_bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
+        var quantized_bar = new Scheduler.Bar(0, time_signature, []);
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff));
@@ -53,7 +53,8 @@
         beat_offset = (beat_offset + 1 / Scheduler.quantization_interval_denominator) % time_signature.count;
         console.log(beat_offset);
         if (beat_offset == 0) {
-            bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
+            //bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
+            bar = new Scheduler.Bar(0, time_signature, []);
             play_start_timestamp = performance.now();
             anticipatoryMusicProducer.Painter.clear();
         }
@@ -62,7 +63,7 @@
 
         // Stop after 20 seconds
         if (performance.now() - begin > 20000) {
-            window.clearInterval(anticipatoryMusicProducer.interval);
+            //window.clearInterval(anticipatoryMusicProducer.interval);
         }
     };
     /**

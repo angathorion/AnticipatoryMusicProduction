@@ -121,8 +121,12 @@
         });
         this.canvas = document.getElementById('canvas');
         this.clear();
-        var treble = bar_objects.filter(function (bar_object) {return (bar_object.note.octave >= 4);});
-        var bass = bar_objects.filter(function (bar_object) {return (bar_object.note.octave < 4);});
+        var treble = bar_objects.filter(function (bar_object) {
+            return (bar_object.note.octave >= 4);
+        });
+        var bass = bar_objects.filter(function (bar_object) {
+            return (bar_object.note.octave < 4);
+        });
         var staves = drawGrandStaff();
         drawNotes(staves.treble, processNotes(treble), time_signature, label);
         drawNotes(staves.bass, processNotes(bass), time_signature, label);
@@ -204,25 +208,25 @@
     };
 
     // Calculate how a single note should be split; does single pass
-    var calculateStaveNoteSplit = function(full_value) {
-        var base_value = Math.pow(2,full_value.toString(2).length - 1);
+    var calculateStaveNoteSplit = function (full_value) {
+        var base_value = Math.pow(2, full_value.toString(2).length - 1);
         var tentative_dotted_val = 0;
         var n = 0;
         while (tentative_dotted_val < full_value) {
             n += 1;
-            tentative_dotted_val = base_value * (2 - 1/Math.pow(2, n));
+            tentative_dotted_val = base_value * (2 - 1 / Math.pow(2, n));
         }
-        var log_val = Math.pow(2, n-1);
-        var dotted_value = base_value * (2 - 1/log_val);
+        var log_val = Math.pow(2, n - 1);
+        var dotted_value = base_value * (2 - 1 / log_val);
         var num_dots = n - 1;
         var remainder = full_value - dotted_value;
         return {base_value: base_value, num_dots: num_dots, remainder: remainder};
     };
 
     // Helper function to build string
-    var stringFill = function(x, n) {
+    var stringFill = function (x, n) {
         var s = '';
-        for (;;) {
+        for (; ;) {
             if (n & 1) s += x;
             n >>= 1;
             if (n) x += x;
@@ -231,13 +235,15 @@
         return s;
     };
 
-    var buildSeparateNotes = function(staveNote, value, note_type, stave, time_signature, startRendered, staveNoteArray, tieArray) {
+    var buildSeparateNotes = function (staveNote, value, note_type, stave, time_signature, startRendered, staveNoteArray, tieArray) {
         var staveNoteSplitData = calculateStaveNoteSplit(value);
         var noteGroup = new Vex.Flow.StaveNote({
-            clef: stave.clef,
-            duration: (16 / (staveNoteSplitData.base_value / time_signature.value)).toString() +
+            clef     : stave.clef,
+            duration : (16 / (staveNoteSplitData.base_value / time_signature.value)).toString() +
             stringFill("d", staveNoteSplitData.num_dots) + note_type,
-            keys: staveNote.map(function(note) { return note.note.toString();}),
+            keys     : staveNote.map(function (note) {
+                return note.note.toString();
+            }),
             auto_stem: true
         });
         noteGroup.setStave(stave);
@@ -246,7 +252,7 @@
             noteGroup.addDotToAll();
         }
         // add accidentals if any to all notes
-        noteGroup.keys.forEach(function(key, index) {
+        noteGroup.keys.forEach(function (key, index) {
             var pitch = key.split("/")[0];
             if (pitch.length > 1) {
                 noteGroup.addAccidental(index, new Vex.Flow.Accidental(pitch[1]));
@@ -260,10 +266,10 @@
             tieArray = notes.tieArray;
             if (staveNoteArray.length > 1 && note_type == "" && startRendered == true) {
                 var ties = new Vex.Flow.StaveTie({
-                    first_note: staveNoteArray[staveNoteArray.length - 2],
-                    last_note: staveNoteArray[staveNoteArray.length - 1],
+                    first_note   : staveNoteArray[staveNoteArray.length - 2],
+                    last_note    : staveNoteArray[staveNoteArray.length - 1],
                     first_indices: [0, staveNoteArray[staveNoteArray.length - 2].length],
-                    last_indices: [0, staveNoteArray[staveNoteArray.length - 1].length]
+                    last_indices : [0, staveNoteArray[staveNoteArray.length - 1].length]
                 });
                 ties.setContext(stave.getContext());
                 tieArray.push(ties);
@@ -280,28 +286,34 @@
             var end = time_signature.count;
             for (var i = voice.length - 1; i >= 0; i--) {
                 if (voice[i][0].endBeat < end) {
-                    voice.splice(i + 1, 0, [{rest: 1, endBeat: end, startBeat: voice[i][0].endBeat,
-                        note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]);
+                    voice.splice(i + 1, 0, [{
+                        rest: 1, endBeat: end, startBeat: voice[i][0].endBeat,
+                        note: new anticipatoryMusicProducer.Palette.Note(rest_pos)
+                    }]);
                 }
                 end = voice[i][0].startBeat;
             }
             if (voice[0][0].startBeat > 0) {
-                voice.splice(0, 0, [{rest: 1, endBeat: voice[0][0].startBeat, startBeat: 0,
-                    note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]);
+                voice.splice(0, 0, [{
+                    rest: 1, endBeat: voice[0][0].startBeat, startBeat: 0,
+                    note: new anticipatoryMusicProducer.Palette.Note(rest_pos)
+                }]);
             }
         }
 
         if (voices.length == 0) {
-            voices = [[[{rest: 1, endBeat: time_signature.count, startBeat: 0,
-                note: new anticipatoryMusicProducer.Palette.Note(rest_pos)}]]];
+            voices = [[[{
+                rest: 1, endBeat: time_signature.count, startBeat: 0,
+                note: new anticipatoryMusicProducer.Palette.Note(rest_pos)
+            }]]];
         }
         // This breaks up the notes
         var tiesArray = [];
         var beamsArray = [];
-        voices = voices.map(function(currentVoice) {
+        voices = voices.map(function (currentVoice) {
             var staveNoteArray = [];
-            currentVoice.forEach(function(staveNote) {
-                var full_value = (staveNote[0].endBeat-staveNote[0].startBeat) * 16;
+            currentVoice.forEach(function (staveNote) {
+                var full_value = (staveNote[0].endBeat - staveNote[0].startBeat) * 16;
                 var note_type = (staveNote[0].rest == 1 ? "r" : "");
                 var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, false, staveNoteArray, tiesArray);
 
@@ -309,15 +321,15 @@
                 tiesArray = notes.tieArray;
             });
             beamsArray.push(Vex.Flow.Beam.generateBeams(staveNoteArray, {
-                beam_rests: true,
-                beam_middle_only: true
+                beam_rests      : false,
+                beam_middle_only: false
             }));
 
             return staveNoteArray;
         });
 
         // Create a voice in 4/4
-        var Voices = voices.map(function(voice) {
+        var Voices = voices.map(function (voice) {
             var Voice = new Vex.Flow.Voice({
                 num_beats: time_signature.count, beat_value: time_signature.value, resolution: Vex.Flow.RESOLUTION
             });
@@ -326,21 +338,21 @@
 
             return Voice;
         });
-        
+
         var formatter = new Vex.Flow.Formatter();
         formatter.joinVoices(Voices).format(Voices, 300,
             {align_rests: false, context: Painter.ctx, stave: stave});
         // Format and justify the notes
-        Voices.forEach(function(voice) {
+        Voices.forEach(function (voice) {
             voice.draw(Painter.ctx, stave);
         });
 
-        tiesArray.forEach(function(tie){
+        tiesArray.forEach(function (tie) {
             tie.setContext(stave.getContext()).draw();
         });
 
         beamsArray = _.flatten(beamsArray);
-        beamsArray.forEach(function(beam) {
+        beamsArray.forEach(function (beam) {
             beam.setContext(Painter.ctx).draw();
         });
 
