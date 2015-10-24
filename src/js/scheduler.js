@@ -1,12 +1,12 @@
 (function (Scheduler, $, undefined) {
-    Scheduler.Bar = function(bar_number, time_signature, bar_objects) {
+    Scheduler.Bar = function (bar_number, time_signature, bar_objects) {
         this.bar_number = bar_number || 0;
         this.bar_objects = bar_objects || [];
         this.time_signature = time_signature || {value: 4, count: 4};
         return this;
     };
 
-    Scheduler.BarObject = function(objects) {
+    Scheduler.BarObject = function (objects) {
         return this;
     };
 
@@ -17,9 +17,16 @@
     var play_start_timestamp = performance.now(); // update using a callback?
     var begin = play_start_timestamp;
     Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
-    var bar = new Scheduler.Bar(0, time_signature, []);
     Scheduler.interval = (1.0 / bps) / Scheduler.quantization_interval_denominator * 1000;
     Scheduler.multiplier = 0.5;
+    var currentBar = 0;
+
+    var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
+        new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
+        new Scheduler.Bar(0, time_signature, [])];
+
+
+    var bar = bars[currentBar];
 
     var quantizeBar = function (bar) {
         // bar should be an array of objects with note, timeOn, timeOff. If noteOff time is not
@@ -50,20 +57,24 @@
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
+        console.log(bars.length);
         beat_offset = (beat_offset + 1 / Scheduler.quantization_interval_denominator) % time_signature.count;
         console.log(beat_offset);
         if (beat_offset == 0) {
+            currentBar++;
             //bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
-            bar = new Scheduler.Bar(0, time_signature, []);
+            bars[currentBar] = new Scheduler.Bar(0, time_signature, []);
+            bar = bars[currentBar];
             play_start_timestamp = performance.now();
             anticipatoryMusicProducer.Painter.clear();
         }
+
         // pass bars to painter to draw
-        anticipatoryMusicProducer.Painter.show("", quantizeBar(bar));
+        anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar));
 
         // Stop after 20 seconds
-        if (performance.now() - begin > 20000) {
-            //window.clearInterval(anticipatoryMusicProducer.interval);
+        if (currentBar >= 4) {
+            window.clearInterval(anticipatoryMusicProducer.interval);
         }
     };
     /**
@@ -79,7 +90,7 @@
                 timeOff: performance.now(),
                 tempo  : Scheduler.currentTempo
             });
-        quantizeBar(bar);
+        //quantizeBar(bar);
     };
 
     /**

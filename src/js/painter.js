@@ -114,22 +114,43 @@
      * @todo Fix this function!
      * @param label
      */
-    Painter.show = function (label, bar) {
-        var time_signature = bar.time_signature;
-        var bar_objects = bar.bar_objects.filter(function (bar_object) {
-            return bar_object.endBeat > bar_object.startBeat;
-        });
+    Painter.show = function (label, bars) {
+        var x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector, drawEndConnector;
+        y = 110;
+        x = 20;
+        width = 400;
+        y_separation = 90;
+        drawClef = true;
+        drawStaffBrackets = true;
+        drawFrontConnector = true;
+        drawEndConnector = false;
         this.canvas = document.getElementById('canvas');
         this.clear();
-        var treble = bar_objects.filter(function (bar_object) {
-            return (bar_object.note.octave >= 4);
-        });
-        var bass = bar_objects.filter(function (bar_object) {
-            return (bar_object.note.octave < 4);
-        });
-        var staves = drawGrandStaff();
-        drawNotes(staves.treble, processNotes(treble), time_signature, label);
-        drawNotes(staves.bass, processNotes(bass), time_signature, label);
+        bars.forEach(function(bar, index, array) {
+            if (index != 0) {
+                drawClef = false;
+                drawStaffBrackets = false;
+            }
+            if (index == array.length - 1) {
+                drawEndConnector = true;
+            }
+            var time_signature = bar.time_signature;
+            var bar_objects = bar.bar_objects.filter(function (bar_object) {
+                return bar_object.endBeat > bar_object.startBeat;
+            });
+            this.canvas = document.getElementById('canvas');
+            //this.clear();
+            var treble = bar_objects.filter(function (bar_object) {
+                return (bar_object.note.octave >= 4);
+            });
+            var bass = bar_objects.filter(function (bar_object) {
+                return (bar_object.note.octave < 4);
+            });
+            var staves = drawGrandStaff(x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector, drawEndConnector);
+            drawNotes(staves.treble, processNotes(treble), time_signature, label);
+            drawNotes(staves.bass, processNotes(bass), time_signature, label);
+            x += width;
+        }.bind(this));
     };
 
 
@@ -183,26 +204,30 @@
         return voices;
     };
 
-
-    var drawTrebleStaff = function (x) {
-        var y = 110;
+    var drawStaff = function (x, y, width, drawClef, type) {
+        y = y || 110;
         x = x || 20;
-        return new Vex.Flow.Stave(x, y, 400).addClef('treble').setContext(Painter.ctx).draw();
+        width = width || 400;
+        var stave = new Vex.Flow.Stave(x, y, width);
+        // Setting clef type and drawing it is separate because of decoupled engraving logic
+        stave.clef = type;
+        if (drawClef) {
+            stave.addClef(type);
+        }
+        return stave.setContext(Painter.ctx).draw();
     };
 
-    var drawBassStaff = function (x) {
-        var y = 200;
-        x = x || 20;
-        return new Vex.Flow.Stave(x, y, 400).addClef('bass').setContext(Painter.ctx).draw();
-    };
+    var drawGrandStaff = function (x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector,
+                                   drawEndConnector) {
+        var trebleStave = drawStaff(x, y, width, drawClef, 'treble');
+        var bassStave = drawStaff(x, y + y_separation, width, drawClef, 'bass');
 
-    var drawGrandStaff = function () {
-        var trebleStave = drawTrebleStaff();
-        var bassStave = drawBassStaff();
-
-        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.ctx).draw();
+        if (drawStaffBrackets)
+            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.ctx).draw();
+        if (drawFrontConnector)
         new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(Painter.ctx).draw();
-        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(Painter.ctx).draw();
+        if (drawEndConnector)
+            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(Painter.ctx).draw();
 
         return {treble: trebleStave, bass: bassStave};
     };
@@ -346,7 +371,6 @@
         Voices.forEach(function (voice) {
             voice.draw(Painter.ctx, stave);
         });
-
         tiesArray.forEach(function (tie) {
             tie.setContext(stave.getContext()).draw();
         });
@@ -355,7 +379,6 @@
         beamsArray.forEach(function (beam) {
             beam.setContext(Painter.ctx).draw();
         });
-
     };
 })(window.anticipatoryMusicProducer.Painter =
     window.anticipatoryMusicProducer.Painter || {}, jQuery);
