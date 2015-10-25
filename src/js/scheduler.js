@@ -15,14 +15,14 @@
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
-    Scheduler.quantization_interval_denominator = 4; // quantizes to this fraction of a beat
-    Scheduler.interval = (1.0 / bps) / Scheduler.quantization_interval_denominator * 1000;
-    Scheduler.multiplier = 0.5;
+    Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
+    Scheduler.multiplier = 2;
+    Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
+    var loop_count = 0;
     var currentBar = 0;
-
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
         new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
-        new Scheduler.Bar(0, time_signature, [])];
+        new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, [])];
 
 
     var bar = bars[currentBar];
@@ -53,26 +53,29 @@
         return Math.floor(beat_offset / time_signature.count);
     };
 
+    var drawClef = true;
+    var finishedFirstBar = true;
 
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
         beat_offset = (beat_offset + 1 / Scheduler.quantization_interval_denominator) % time_signature.count;
-        console.log(beat_offset);
         if (beat_offset == 0) {
-            currentBar++;
-            //bar = {bar_number: 0, bar_objects: [], time_signature: time_signature};
+            bars.splice(0, 1);
+            finishedFirstBar = true;
+            bars.push(new Scheduler.Bar(0, time_signature, []));
             bars[currentBar] = new Scheduler.Bar(0, time_signature, []);
             bar = bars[currentBar];
-            anticipatoryMusicProducer.Painter.clear();
+            drawClef = false;
+            //anticipatoryMusicProducer.Painter.clear();
         }
 
         // pass bars to painter to draw
-        anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar));
-
+        anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar),
+            beat_offset / time_signature.count, drawClef);
         // Stop after 20 seconds
         if (currentBar >= 4) {
-            window.clearInterval(anticipatoryMusicProducer.interval);
+            //window.clearInterval(anticipatoryMusicProducer.interval);
         }
     };
     /**

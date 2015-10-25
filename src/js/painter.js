@@ -114,19 +114,17 @@
      * @todo Fix this function!
      * @param label
      */
-    Painter.show = function (label, bars) {
-        var x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector, drawEndConnector;
-        y = 110;
-        x = 20;
+    Painter.show = function (label, bars, beatOffset, drawClef) {
+        var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
+        y = 110;
+        x = 260 - beatOffset * width;
         y_separation = 90;
-        drawClef = true;
         drawStaffBrackets = true;
         drawFrontConnector = true;
         drawEndConnector = false;
         this.canvas = document.getElementById('canvas');
         this.clear();
-        console.log(bars);
         bars.forEach(function(bar, index, array) {
             if (index != 0) {
                 drawClef = false;
@@ -150,7 +148,9 @@
             var staves = drawGrandStaff(x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector, drawEndConnector);
             drawNotes(staves.treble, processNotes(treble), time_signature, label);
             drawNotes(staves.bass, processNotes(bass), time_signature, label);
+
             x += width;
+
         }.bind(this));
     };
 
@@ -263,7 +263,7 @@
 
     var buildSeparateNotes = function (staveNote, value, note_type, stave, time_signature, startRendered, staveNoteArray, tieArray) {
         var staveNoteSplitData = calculateStaveNoteSplit(value);
-        var noteGroup = new Vex.Flow.StaveNote({
+        var opts = {
             clef     : stave.clef,
             duration : (16 / (staveNoteSplitData.base_value / time_signature.value)).toString() +
             stringFill("d", staveNoteSplitData.num_dots) + note_type,
@@ -271,7 +271,8 @@
                 return note.note.toString();
             }),
             auto_stem: true
-        });
+        };
+        var noteGroup = new Vex.Flow.StaveNote(opts);
         noteGroup.setStave(stave);
         // add dots if any
         for (var i = 0; i < staveNoteSplitData.num_dots; i++) {
@@ -307,6 +308,7 @@
     var drawNotes = function (stave, voices, time_signature) {
         var rest_pos = stave.clef == "treble" ? 71 : 50;
         // This does rest padding
+
         for (var j = 0; j < voices.length; j++) {
             var voice = voices[j];
             var end = time_signature.count;
@@ -353,7 +355,6 @@
 
             return staveNoteArray;
         });
-
         // Create a voice in 4/4
         var Voices = voices.map(function (voice) {
             var Voice = new Vex.Flow.Voice({
@@ -373,7 +374,7 @@
             voice.draw(Painter.ctx, stave);
         });
         tiesArray.forEach(function (tie) {
-            tie.setContext(stave.getContext()).draw();
+            //tie.setContext(stave.getContext()).draw();
         });
 
         beamsArray = _.flatten(beamsArray);

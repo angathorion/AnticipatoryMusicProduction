@@ -67,6 +67,7 @@
                     item.call(item.scope, note, performance.now());
                 });
                 // TODO Create new object for Player
+                /*
                 MIDI.loadPlugin({
                     soundfontUrl: "./soundfont/",
                     instrument: "acoustic_grand_piano",
@@ -79,7 +80,7 @@
                         MIDI.noteOn(0, note, velocity, 0);
                         MIDI.noteOff(0, note, 0.75);
                     }.bind(this, note, velocity)
-                });
+                });*/
                 break;
             case 128: // noteOff message
                 noteOffListeners.forEach(function(item) {
