@@ -7,10 +7,6 @@
         return this;
     };
 
-    Scheduler.BarObject = function (objects) {
-        return this;
-    };
-
     Scheduler.currentTempo = 120;
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 4};
@@ -18,7 +14,6 @@
     Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
     Scheduler.multiplier = 2;
     Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
-    var loop_count = 0;
     var currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
         new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
