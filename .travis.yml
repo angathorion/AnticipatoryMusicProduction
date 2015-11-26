@@ -81,4 +81,4 @@ before_script:
 
 script: grunt test --verbose --force
 
-sudo: required
+sudo: no
