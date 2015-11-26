@@ -6,7 +6,6 @@
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);
 
 (function (Palette, $, undefined) {
-
     Palette.BarObject = function (isRest, endBeat, startBeat, note) {
         this.rest = isRest ? 1 : 0;
         this.endBeat = endBeat;
