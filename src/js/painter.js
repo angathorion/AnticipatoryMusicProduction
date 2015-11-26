@@ -110,24 +110,20 @@
         });
     };
 
-    /**
-     * @todo Fix this function!
-     * @param label
-     */
-    Painter.show = function (label, bars, beatOffset, drawClef) {
+    Painter.show = function (label, bars, beatOffset) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
-        x = 260 - beatOffset * width;
+        x = -80 - beatOffset * width;
         y_separation = 90;
         drawStaffBrackets = true;
         drawFrontConnector = true;
         drawEndConnector = false;
         this.canvas = document.getElementById('canvas');
         this.clear();
-        bars.forEach(function(bar, index, array) {
+
+        bars.forEach(function (bar, index, array) {
             if (index != 0) {
-                drawClef = false;
                 drawStaffBrackets = false;
             }
             if (index == array.length - 1) {
@@ -145,7 +141,7 @@
             var bass = bar_objects.filter(function (bar_object) {
                 return (bar_object.note.octave < 4);
             });
-            var staves = drawGrandStaff(x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector, drawEndConnector);
+            var staves = drawGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
             drawNotes(staves.treble, processNotes(treble), time_signature, label);
             drawNotes(staves.bass, processNotes(bass), time_signature, label);
 
@@ -205,28 +201,25 @@
         return voices;
     };
 
-    var drawStaff = function (x, y, width, drawClef, type) {
+    var drawStaff = function (x, y, width, type) {
         y = y || 110;
         x = x || 20;
         width = width || 400;
         var stave = new Vex.Flow.Stave(x, y, width);
         // Setting clef type and drawing it is separate because of decoupled engraving logic
         stave.clef = type;
-        if (drawClef) {
-            stave.addClef(type);
-        }
         return stave.setContext(Painter.ctx).draw();
     };
 
-    var drawGrandStaff = function (x, y, width, y_separation, drawClef, drawStaffBrackets, drawFrontConnector,
+    var drawGrandStaff = function (x, y, width, y_separation, drawStaffBrackets, drawFrontConnector,
                                    drawEndConnector) {
-        var trebleStave = drawStaff(x, y, width, drawClef, 'treble');
-        var bassStave = drawStaff(x, y + y_separation, width, drawClef, 'bass');
+        var trebleStave = drawStaff(x, y, width, 'treble');
+        var bassStave = drawStaff(x, y + y_separation, width, 'bass');
 
         if (drawStaffBrackets)
             new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.ctx).draw();
         if (drawFrontConnector)
-        new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(Painter.ctx).draw();
+            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(Painter.ctx).draw();
         if (drawEndConnector)
             new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(Painter.ctx).draw();
 
@@ -307,8 +300,8 @@
 
     var drawNotes = function (stave, voices, time_signature) {
         var rest_pos = stave.clef == "treble" ? 71 : 50;
-        // This does rest padding
 
+        // This does rest padding
         for (var j = 0; j < voices.length; j++) {
             var voice = voices[j];
             var end = time_signature.count;
@@ -355,6 +348,7 @@
 
             return staveNoteArray;
         });
+
         // Create a voice in 4/4
         var Voices = voices.map(function (voice) {
             var Voice = new Vex.Flow.Voice({
@@ -368,7 +362,7 @@
 
         var formatter = new Vex.Flow.Formatter();
         formatter.joinVoices(Voices).format(Voices, 300,
-            {autobeam: true, align_rests: true, context: Painter.ctx, stave: stave});
+            {autobeam: true, align_rests: false, context: Painter.ctx, stave: stave});
         // Format and justify the notes
         Voices.forEach(function (voice) {
             voice.draw(Painter.ctx, stave);

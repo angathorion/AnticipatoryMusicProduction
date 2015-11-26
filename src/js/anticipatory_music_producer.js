@@ -4,3 +4,4 @@
     anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
 
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);
+
