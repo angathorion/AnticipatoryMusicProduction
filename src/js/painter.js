@@ -1,5 +1,3 @@
-
-
 (function (Painter, $, undefined) {
     /**
      * Array of Notes that are currently active (i.e. note-on messages received, but not note-off)
