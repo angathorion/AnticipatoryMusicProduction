@@ -78,6 +78,7 @@ node_js:
 before_script:
   - npm install -g grunt-cli
   - npm install grunt --save
+  - npm install grunt-contrib-qunit
 
 script: grunt test --verbose --force
 
