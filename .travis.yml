@@ -76,8 +76,8 @@ node_js:
   - "4.0"
 
 before_script:
-  - npm install -g grunt
   - npm install -g grunt-cli
+  - npm install grunt --save
 
 script: grunt test --verbose --force
 
