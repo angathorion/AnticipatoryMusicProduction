@@ -12,15 +12,14 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
     Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
-    Scheduler.multiplier = 2;
     Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
-    var currentBar = 1;
+    Scheduler.currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
         new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
         new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, [])];
 
 
-    var bar = bars[currentBar];
+    var bar = bars[Scheduler.currentBar];
 
     var quantizeBar = function (bar) {
         // bar should be an array of objects with note, timeOn, timeOff. If noteOff time is not
@@ -55,15 +54,15 @@
         if (beat_offset == 0) {
             bars.splice(0, 1);
             bars.push(new Scheduler.Bar(0, time_signature, []));
-            bars[currentBar] = new Scheduler.Bar(0, time_signature, []);
-            bar = bars[currentBar];
+            bars[Scheduler.currentBar] = new Scheduler.Bar(0, time_signature, []);
+            bar = bars[Scheduler.currentBar];
         }
 
         // pass bars to painter to draw
         anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar),
             beat_offset / time_signature.count);
         // Stop after 20 seconds
-        if (currentBar >= 4) {
+        if (Scheduler.currentBar >= 4) {
             //window.clearInterval(anticipatoryMusicProducer.interval);
         }
     };
@@ -75,7 +74,7 @@
     Scheduler.onNoteOn = function (note, time) {
         bar.bar_objects.push(
             {
-                note   : new window.anticipatoryMusicProducer.Palette.Note(note),
+                note   : new Palette.Note(note),
                 timeOn : time,
                 timeOff: performance.now(),
                 tempo  : Scheduler.currentTempo

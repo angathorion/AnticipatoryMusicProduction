@@ -5,13 +5,14 @@
      * @type {Palette.Note[]}
      */
     var activeNotes = [];
-
+    var unprocessedCache = [];
+    var cachedResults = [];
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
      */
     Painter.onNoteOn = function (note) {
-        activeNotes.push(new window.anticipatoryMusicProducer.Palette.Note(note));
+        activeNotes.push(new Palette.Note(note));
     };
 
     /**
@@ -36,7 +37,15 @@
         this.canvas = document.getElementById('canvas');
         this.clear();
 
+        console.log(_.isEqual(Painter.unprocessedCache, bars));
+        console.log(Painter.unprocessedCache);
+        console.log(bars);
+        if (Painter.unprocessedCache == null) {
+            Painter.unprocessedCache = bars;
+        }
+
         bars.forEach(function (bar, index, array) {
+            console.log(bar.toString());
             if (index != 0) {
                 drawStaffBrackets = false;
             }
@@ -55,15 +64,36 @@
             var bass = bar_objects.filter(function (bar_object) {
                 return (bar_object.note.octave < 4);
             });
-            var staves = drawGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
-            drawNotes(staves.treble, processNotes(treble), time_signature, label);
-            drawNotes(staves.bass, processNotes(bass), time_signature, label);
+            var staves = makeGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
+            staves.treble.draw();
+            staves.bass.draw();
+            var trebleBarObjects = makeBarObjects(staves.treble, processNotes(treble), time_signature, label);
+            var bassBarObjects = makeBarObjects(staves.bass, processNotes(bass), time_signature, label);
 
+            drawBarObjects(trebleBarObjects, staves.treble);
+            drawBarObjects(bassBarObjects, staves.bass);
             x += width;
-
         }.bind(this));
     };
 
+
+    var drawBarObjects = function(barObjects, stave) {
+        var Voices = barObjects.voices;
+        var tiesArray = barObjects.ties;
+        var beamsArray = barObjects.beams;
+
+        Voices.forEach(function (voice) {
+            voice.draw(Painter.ctx, stave);
+        });
+
+        tiesArray.forEach(function (tie) {
+            //tie.setContext(stave.getContext()).draw();
+        });
+
+        beamsArray.forEach(function (beam) {
+            beam.setContext(Painter.ctx).draw();
+        });
+    };
 
     /**
      * Removes all objects on the canvas
@@ -115,20 +145,20 @@
         return voices;
     };
 
-    var drawStaff = function (x, y, width, type) {
+    var makeStaff = function (x, y, width, type) {
         y = y || 110;
         x = x || 20;
         width = width || 400;
         var stave = new Vex.Flow.Stave(x, y, width);
         // Setting clef type and drawing it is separate because of decoupled engraving logic
         stave.clef = type;
-        return stave.setContext(Painter.ctx).draw();
+        return stave.setContext(Painter.ctx);
     };
 
-    var drawGrandStaff = function (x, y, width, y_separation, drawStaffBrackets, drawFrontConnector,
+    var makeGrandStaff = function (x, y, width, y_separation, drawStaffBrackets, drawFrontConnector,
                                    drawEndConnector) {
-        var trebleStave = drawStaff(x, y, width, 'treble');
-        var bassStave = drawStaff(x, y + y_separation, width, 'bass');
+        var trebleStave = makeStaff(x, y, width, 'treble');
+        var bassStave = makeStaff(x, y + y_separation, width, 'bass');
 
         if (drawStaffBrackets)
             new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.ctx).draw();
@@ -212,7 +242,7 @@
         return {staveNoteArray: staveNoteArray, tieArray: tieArray};
     };
 
-    var drawNotes = function (stave, voices, time_signature) {
+    var makeBarObjects = function (stave, voices, time_signature) {
         var rest_pos = stave.clef == "treble" ? 71 : 50;
 
         // This does rest padding
@@ -223,7 +253,7 @@
                 if (voice[i][0].endBeat < end) {
                     voice.splice(i + 1, 0, [{
                         rest: 1, endBeat: end, startBeat: voice[i][0].endBeat,
-                        note: new anticipatoryMusicProducer.Palette.Note(rest_pos)
+                        note: new Palette.Note(rest_pos)
                     }]);
                 }
                 end = voice[i][0].startBeat;
@@ -231,7 +261,7 @@
             if (voice[0][0].startBeat > 0) {
                 voice.splice(0, 0, [{
                     rest: 1, endBeat: voice[0][0].startBeat, startBeat: 0,
-                    note: new anticipatoryMusicProducer.Palette.Note(rest_pos)
+                    note: new Palette.Note(rest_pos)
                 }]);
             }
         }
@@ -239,7 +269,7 @@
         if (voices.length == 0) {
             voices = [[[{
                 rest: 1, endBeat: time_signature.count, startBeat: 0,
-                note: new anticipatoryMusicProducer.Palette.Note(rest_pos)
+                note: new Palette.Note(rest_pos)
             }]]];
         }
         // This breaks up the notes
@@ -278,17 +308,12 @@
         formatter.joinVoices(Voices).format(Voices, 300,
             {autobeam: true, align_rests: false, context: Painter.ctx, stave: stave});
         // Format and justify the notes
-        Voices.forEach(function (voice) {
-            voice.draw(Painter.ctx, stave);
-        });
-        tiesArray.forEach(function (tie) {
-            //tie.setContext(stave.getContext()).draw();
-        });
+
 
         beamsArray = _.flatten(beamsArray);
-        beamsArray.forEach(function (beam) {
-            beam.setContext(Painter.ctx).draw();
-        });
+
+        return {voices: Voices, ties: tiesArray, beams: beamsArray};
     };
+
 })(window.anticipatoryMusicProducer.Painter =
     window.anticipatoryMusicProducer.Painter || {}, jQuery);

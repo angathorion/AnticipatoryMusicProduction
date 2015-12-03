@@ -14,6 +14,10 @@
         return this;
     };
 
+    Palette.BarObject.prototype.toString = function() {
+        return String.concat(this.rest.toString(), this.endBeat.toString(), this.startBeat.toString(), this.note.toString());
+    };
+
     /**
      * @param {number} note The MIDI value of the note
      * @param {string} direction String indicating the direction of the offset for sharp/flat ('up' or 'down')
@@ -96,5 +100,5 @@
         }
         return parts.join('');
     };
-})(window.anticipatoryMusicProducer.Palette =
-    window.anticipatoryMusicProducer.Palette || {}, jQuery);
+})(window.Palette =
+    window.Palette || {}, jQuery);
