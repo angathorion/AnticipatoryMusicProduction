@@ -7,11 +7,16 @@
         return this;
     };
 
-    Scheduler.currentTempo = 120;
+    Scheduler.Bar.prototype.toString = function () {
+        return "".concat(this.bar_objects);
+    };
+
+    Scheduler.currentTempo = 80;
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 4};
-    var beat_offset = 0; // This is the number of beats away from the start; update from GUI or something
-    Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
+    var beat_offset = 0; // This is the number of beats away from start of current bar
+    Scheduler.quantization_interval_denominator = 4; // quantizes to this fraction of a beat
+    Scheduler.refreshMultiplier = 4;
     Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
     Scheduler.currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
@@ -32,13 +37,11 @@
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
-            return {
-                note     : note.note,
-                startBeat: startBeatLocation % time_signature.count,
-                endBeat  : endBeatLocation > time_signature.count ? time_signature.count :
-                    (endBeatLocation > startBeatLocation ?
-                        endBeatLocation : endBeatLocation + 1 / Scheduler.quantization_interval_denominator)
-            };
+            return new Palette.BarObject(false,
+                endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
+                    endBeatLocation : endBeatLocation + 1 / Scheduler.quantization_interval_denominator),
+                startBeatLocation % time_signature.count,
+                note.note);
         });
         return quantized_bar;
     };
@@ -50,7 +53,7 @@
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        beat_offset = (beat_offset + 1 / Scheduler.quantization_interval_denominator) % time_signature.count;
+        beat_offset = (beat_offset + (1 / Scheduler.quantization_interval_denominator) / Scheduler.refreshMultiplier) % time_signature.count;
         if (beat_offset == 0) {
             bars.splice(0, 1);
             bars.push(new Scheduler.Bar(0, time_signature, []));
@@ -59,12 +62,9 @@
         }
 
         // pass bars to painter to draw
-        anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar),
-            beat_offset / time_signature.count);
-        // Stop after 20 seconds
-        if (Scheduler.currentBar >= 4) {
-            //window.clearInterval(anticipatoryMusicProducer.interval);
-        }
+        //if (refresh_offset % Scheduler.refreshMultiplier == 0)
+            anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar), beat_offset / time_signature.count);
+        //refresh_offset = refresh_offset % Scheduler.refreshMultiplier + 1;
     };
     /**
      * A callback that adds a given note to be drawn on the canvas

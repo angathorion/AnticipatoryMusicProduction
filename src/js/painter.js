@@ -5,8 +5,8 @@
      * @type {Palette.Note[]}
      */
     var activeNotes = [];
-    var unprocessedCache = [];
-    var cachedResults = [];
+    Painter.unprocessedCache = [{}, {}, {}, {}, {}, {}];
+    Painter.cachedResults = [null, null, null, null, null, null];
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
@@ -37,41 +37,41 @@
         this.canvas = document.getElementById('canvas');
         this.clear();
 
-        console.log(_.isEqual(Painter.unprocessedCache, bars));
-        console.log(Painter.unprocessedCache);
-        console.log(bars);
-        if (Painter.unprocessedCache == null) {
-            Painter.unprocessedCache = bars;
-        }
-
         bars.forEach(function (bar, index, array) {
-            console.log(bar.toString());
             if (index != 0) {
                 drawStaffBrackets = false;
             }
             if (index == array.length - 1) {
                 drawEndConnector = true;
             }
-            var time_signature = bar.time_signature;
-            var bar_objects = bar.bar_objects.filter(function (bar_object) {
-                return bar_object.endBeat > bar_object.startBeat;
-            });
-            this.canvas = document.getElementById('canvas');
-            //this.clear();
-            var treble = bar_objects.filter(function (bar_object) {
-                return (bar_object.note.octave >= 4);
-            });
-            var bass = bar_objects.filter(function (bar_object) {
-                return (bar_object.note.octave < 4);
-            });
             var staves = makeGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
+
+            if (Painter.unprocessedCache[index].toString() != bar.toString()) {
+                console.log("Recalculating bar" + index);
+                var bar_objects = bar.bar_objects.filter(function (bar_object) {
+                    return bar_object.endBeat > bar_object.startBeat;
+                });
+                this.canvas = document.getElementById('canvas');
+                var treble = bar_objects.filter(function (bar_object) {
+                    return (bar_object.note.octave >= 4);
+                });
+                var bass = bar_objects.filter(function (bar_object) {
+                    return (bar_object.note.octave < 4);
+                });
+
+                var time_signature = bar.time_signature;
+
+                var trebleBarObjects = makeBarObjects(staves.treble, processNotes(treble), time_signature, label);
+                var bassBarObjects = makeBarObjects(staves.bass, processNotes(bass), time_signature, label);
+
+                Painter.unprocessedCache[index] = bar;
+                Painter.cachedResults[index] = {treble: trebleBarObjects, bass: bassBarObjects};
+            }
             staves.treble.draw();
             staves.bass.draw();
-            var trebleBarObjects = makeBarObjects(staves.treble, processNotes(treble), time_signature, label);
-            var bassBarObjects = makeBarObjects(staves.bass, processNotes(bass), time_signature, label);
+            drawBarObjects(Painter.cachedResults[index].treble, staves.treble);
+            drawBarObjects(Painter.cachedResults[index].bass, staves.bass);
 
-            drawBarObjects(trebleBarObjects, staves.treble);
-            drawBarObjects(bassBarObjects, staves.bass);
             x += width;
         }.bind(this));
     };
@@ -81,7 +81,6 @@
         var Voices = barObjects.voices;
         var tiesArray = barObjects.ties;
         var beamsArray = barObjects.beams;
-
         Voices.forEach(function (voice) {
             voice.draw(Painter.ctx, stave);
         });
@@ -243,6 +242,9 @@
     };
 
     var makeBarObjects = function (stave, voices, time_signature) {
+        console.log(stave);
+        console.log(voices);
+        console.log(time_signature);
         var rest_pos = stave.clef == "treble" ? 71 : 50;
 
         // This does rest padding
@@ -251,26 +253,18 @@
             var end = time_signature.count;
             for (var i = voice.length - 1; i >= 0; i--) {
                 if (voice[i][0].endBeat < end) {
-                    voice.splice(i + 1, 0, [{
-                        rest: 1, endBeat: end, startBeat: voice[i][0].endBeat,
-                        note: new Palette.Note(rest_pos)
-                    }]);
+                    voice.splice(i + 1, 0,
+                        [new Palette.BarObject(true, end, voice[i][0].endBeat, new Palette.Note(rest_pos))]);
                 }
                 end = voice[i][0].startBeat;
             }
             if (voice[0][0].startBeat > 0) {
-                voice.splice(0, 0, [{
-                    rest: 1, endBeat: voice[0][0].startBeat, startBeat: 0,
-                    note: new Palette.Note(rest_pos)
-                }]);
+                voice.splice(0, 0, [new Palette.BarObject(true, voice[0][0].startBeat, 0, new Palette.Note(rest_pos))]);
             }
         }
 
         if (voices.length == 0) {
-            voices = [[[{
-                rest: 1, endBeat: time_signature.count, startBeat: 0,
-                note: new Palette.Note(rest_pos)
-            }]]];
+            voices = [[[new Palette.BarObject(true, time_signature.count, 0, new Palette.Note(rest_pos))]]];
         }
         // This breaks up the notes
         var tiesArray = [];
@@ -307,12 +301,10 @@
         var formatter = new Vex.Flow.Formatter();
         formatter.joinVoices(Voices).format(Voices, 300,
             {autobeam: true, align_rests: false, context: Painter.ctx, stave: stave});
-        // Format and justify the notes
-
 
         beamsArray = _.flatten(beamsArray);
 
-        return {voices: Voices, ties: tiesArray, beams: beamsArray};
+        return {voices: Voices, ties: tiesArray, beams: beamsArray, minWidth: formatter.getMinTotalWidth()};
     };
 
 })(window.anticipatoryMusicProducer.Painter =

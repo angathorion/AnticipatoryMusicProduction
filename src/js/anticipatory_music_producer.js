@@ -1,7 +1,37 @@
 (function (anticipatoryMusicProducer, $, undefined) {
+    anticipatoryMusicProducer.setInterval = function(fn, duration){
+        this.baseline = undefined;
+
+        this.run = function(){
+            if(this.baseline === undefined){
+                this.baseline = new Date().getTime()
+            }
+            fn()
+            var end = new Date().getTime()
+            this.baseline += duration
+
+            var nextTick = duration - (end - this.baseline)
+            if(nextTick<0){
+                nextTick = 0
+            }
+            (function(i){
+                i.timer = setTimeout(function(){
+                    i.run(end)
+                }, nextTick)
+            }(this))
+        }
+
+        this.stop = function(){
+            clearTimeout(this.timer)
+        }
+    };
+
     anticipatoryMusicProducer.Interface = anticipatoryMusicProducer.Interface || {};
     anticipatoryMusicProducer.Scheduler = anticipatoryMusicProducer.Scheduler || {};
     anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
+
+
+
 
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);
 
@@ -15,7 +45,7 @@
     };
 
     Palette.BarObject.prototype.toString = function() {
-        return String.concat(this.rest.toString(), this.endBeat.toString(), this.startBeat.toString(), this.note.toString());
+        return "".concat(this.rest.toString(), this.endBeat.toString(), this.startBeat.toString(), this.note.toString());
     };
 
     /**
