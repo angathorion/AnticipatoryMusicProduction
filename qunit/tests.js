@@ -1,7 +1,6 @@
 var Scheduler = anticipatoryMusicProducer.Scheduler;
 var Painter = anticipatoryMusicProducer.Painter;
-function readTextFile(file)
-{
+function readTextFile(file) {
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", file, false);
     rawFile.onreadystatechange = function ()
@@ -11,13 +10,16 @@ function readTextFile(file)
             if(rawFile.status === 200 || rawFile.status == 0)
             {
                 var allText = rawFile.responseText;
-                alert(allText);
+                return allText;
             }
         }
-    }
+    };
     rawFile.send(null);
 }
-QUnit.test( "hello test", function( assert ) {
+
+var base_url = "https://raw.githubusercontent.com/angathorion/AnticipatoryMusicProduction/master/qunit/ground_truth/";
+
+QUnit.test( "Full Note", function( assert ) {
     var time_signature = {value: 4, count: 4};
     var bar = new Scheduler.Bar(0, time_signature, []);
     bar.initializeStartTime();
@@ -38,10 +40,9 @@ QUnit.test( "hello test", function( assert ) {
 
     var content = s.serializeToString(Painter.ctx.paper.canvas);
 
-    if (content == full_note) {
+    if (content == readTextFile(base_url + "full_note.svg")) {
         console.log("YAY");
     }
 
-    readTextFile("ground_truth/full_note.svg");
     assert.ok( 1 == "1", "Passed!" );
 });
