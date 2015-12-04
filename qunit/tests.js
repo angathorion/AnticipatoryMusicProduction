@@ -1,6 +1,23 @@
 var Scheduler = anticipatoryMusicProducer.Scheduler;
 var Painter = anticipatoryMusicProducer.Painter;
-
+function readTextFile(file)
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                alert(allText);
+            }
+        }
+    }
+    rawFile.send(null);
+}
+readTextFile("ground_truth/full_note.svg");
 QUnit.test( "hello test", function( assert ) {
     var time_signature = {value: 4, count: 4};
     var bar = new Scheduler.Bar(0, time_signature, []);
@@ -10,7 +27,7 @@ QUnit.test( "hello test", function( assert ) {
         note   : new Palette.Note(60),
         done   : true,
         timeOn : performance.now(),
-        timeOff: performance.now() + 2500,
+        timeOff: performance.now() + 2000,
         tempo  : Scheduler.currentTempo
     };
 
@@ -21,7 +38,10 @@ QUnit.test( "hello test", function( assert ) {
     console.log(Painter.ctx);
 
     var content = s.serializeToString(Painter.ctx.paper.canvas);
-    var ans = anticipatoryMusicProducer.Scheduler.quantizeBar(bar);
-    console.log(content);
+
+    if (content == full_note) {
+        console.log("YAY");
+    }
+
     assert.ok( 1 == "1", "Passed!" );
 });
