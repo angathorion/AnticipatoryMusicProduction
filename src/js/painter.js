@@ -43,7 +43,8 @@
         drawEndConnector = false;
         this.canvas = document.getElementById('canvas');
         this.clear();
-
+        // Draw NOW marker
+        var line = this.ctx.paper.path( "M260,60 L260,800" );
         bars.forEach(function (bar, index, array) {
             if (index != 0) {
                 drawStaffBrackets = false;
