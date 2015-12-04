@@ -17,7 +17,6 @@ function readTextFile(file)
     }
     rawFile.send(null);
 }
-readTextFile("ground_truth/full_note.svg");
 QUnit.test( "hello test", function( assert ) {
     var time_signature = {value: 4, count: 4};
     var bar = new Scheduler.Bar(0, time_signature, []);
@@ -43,5 +42,6 @@ QUnit.test( "hello test", function( assert ) {
         console.log("YAY");
     }
 
+    readTextFile("ground_truth/full_note.svg");
     assert.ok( 1 == "1", "Passed!" );
 });
