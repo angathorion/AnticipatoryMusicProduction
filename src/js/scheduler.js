@@ -19,8 +19,8 @@
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
-    Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
-    Scheduler.refreshMultiplier = 8;
+    Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
+    Scheduler.refreshMultiplier = 1;
     Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
     Scheduler.currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
@@ -65,6 +65,15 @@
             bar = bars[Scheduler.currentBar];
         }
 
+        // Dynamically updates the note depending on how long you hold it
+        var activeNotes = bar.bar_objects.filter(function (noteObj) {
+            return (noteObj.done == false);
+        });
+        console.log(activeNotes.length);
+        activeNotes.forEach(function(noteObj) {
+            noteObj.timeOff = performance.now();
+        });
+
         // pass bars to painter to draw
         anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar), beat_offset / time_signature.count);
     };
@@ -77,8 +86,9 @@
         bar.bar_objects.push(
             {
                 note   : new Palette.Note(note),
+                done   : false,
                 timeOn : time,
-                timeOff: performance.now(),
+                timeOff: -1,
                 tempo  : Scheduler.currentTempo
             });
         //quantizeBar(bar);
@@ -95,6 +105,7 @@
         })[0];
         if (releasedNote) {
             releasedNote.timeOff = time;
+            releasedNote.done = true;
         }
     };
 
