@@ -6,11 +6,11 @@
             if(this.baseline === undefined){
                 this.baseline = new Date().getTime()
             }
-            fn()
-            var end = new Date().getTime()
-            this.baseline += duration
+            fn();
+            var end = new Date().getTime();
+            this.baseline += duration;
 
-            var nextTick = duration - (end - this.baseline)
+            var nextTick = duration - (end - this.baseline);
             if(nextTick<0){
                 nextTick = 0
             }
@@ -19,7 +19,7 @@
                     i.run(end)
                 }, nextTick)
             }(this))
-        }
+        };
 
         this.stop = function(){
             clearTimeout(this.timer)

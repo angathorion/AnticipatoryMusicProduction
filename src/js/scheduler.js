@@ -11,14 +11,39 @@
         return "".concat(this.bar_objects);
     };
 
-    Scheduler.Bar.initializeStartTime = function() {
+    Scheduler.Bar.prototype.initializeStartTime = function() {
         this.bar_start = performance.now();
-    }
+    };
+
+    Scheduler.Debugger = function () {
+        this.data_div = $('#debug_data')[0];
+        this.last_beat = 0;
+        this.time_taken = 0;
+    };
+
+    Scheduler.Debugger.prototype.update = function (beat_offset, currentTempo, bps, now) {
+        this.beat_offset = beat_offset;
+        this.currentTempo = currentTempo || this.currentTempo;
+        this.bps = bps || this.bps;
+        this.now = now || this.now;
+        if (this.beat_offset % 1 == 0) {
+            this.time_taken = this.now - this.last_beat;
+            this.last_beat = this.now;
+        }
+    };
+
+    Scheduler.Debugger.prototype.write = function () {
+        this.data_div.innerText = "Current Beat Offset: " + this.beat_offset.toString() + "\n" +
+            "Tempo: " + this.currentTempo + "\nSeconds per beat: " + 1/bps + "\nTime taken last beat: " + this.time_taken;
+    };
+
+    Scheduler.debugger = new Scheduler.Debugger();
 
     Scheduler.currentTempo = 120;
     var bps = Scheduler.currentTempo / 60.0;
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
+    var last_beat = 0;
     Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 1;
     Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
@@ -30,7 +55,7 @@
 
     var bar = bars[Scheduler.currentBar];
 
-    var quantizeBar = function (bar) {
+    Scheduler.quantizeBar = function (bar) {
         // bar should be an array of objects with note, timeOn, timeOff. If noteOff time is not
         // available, assume performance.now()
         // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
@@ -41,12 +66,14 @@
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
+            
             return new Palette.BarObject(false,
                 endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
                     endBeatLocation : endBeatLocation + 1 / Scheduler.quantization_interval_denominator),
                 startBeatLocation % time_signature.count,
                 note.note);
         });
+
         return quantized_bar;
     };
 
@@ -58,6 +85,10 @@
         // run every tick
         // update beat offset
         beat_offset = (beat_offset + (1 / Scheduler.quantization_interval_denominator) / Scheduler.refreshMultiplier) % time_signature.count;
+        var now = performance.now();
+        Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, now, last_beat);
+        Scheduler.debugger.write();
+
         if (beat_offset == 0) {
             bars.splice(0, 1);
             bars.push(new Scheduler.Bar(0, time_signature, []));
@@ -69,13 +100,12 @@
         var activeNotes = bar.bar_objects.filter(function (noteObj) {
             return (noteObj.done == false);
         });
-        console.log(activeNotes.length);
         activeNotes.forEach(function(noteObj) {
-            noteObj.timeOff = performance.now();
+            noteObj.timeOff = now;
         });
 
         // pass bars to painter to draw
-        anticipatoryMusicProducer.Painter.show("", bars.map(quantizeBar), beat_offset / time_signature.count);
+        anticipatoryMusicProducer.Painter.show("", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count);
     };
     /**
      * A callback that adds a given note to be drawn on the canvas
@@ -83,15 +113,13 @@
      * @param {number} time DOMHighResTimeStamp representing time on
      */
     Scheduler.onNoteOn = function (note, time) {
-        bar.bar_objects.push(
-            {
+        bar.bar_objects.push({
                 note   : new Palette.Note(note),
                 done   : false,
                 timeOn : time,
                 timeOff: -1,
                 tempo  : Scheduler.currentTempo
             });
-        //quantizeBar(bar);
     };
 
     /**
@@ -102,10 +130,13 @@
     Scheduler.onNoteOff = function (note, time) {
         var releasedNote = bar.bar_objects.filter(function (noteObj) {
             return (noteObj.note.number == note);
-        })[0];
+        });
+
         if (releasedNote) {
-            releasedNote.timeOff = time;
-            releasedNote.done = true;
+            releasedNote.forEach(function(note) {
+                note.timeOff = time;
+                note.done = true;
+            })
         }
     };
 

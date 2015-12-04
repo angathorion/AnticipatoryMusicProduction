@@ -5,6 +5,7 @@
      * @type {Palette.Note[]}
      */
     var activeNotes = [];
+    var cache = false;
     Painter.unprocessedCache = [{}, {}, {}, {}, {}, {}];
     Painter.cachedResults = [null, null, null, null, null, null];
 
@@ -52,7 +53,7 @@
             }
             var staves = makeGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
 
-            if (Painter.unprocessedCache[index].toString() != bar.toString()) {
+            if (!cache || Painter.unprocessedCache[index].toString() != bar.toString()) {
                 console.log("Recalculating bar" + index);
                 var bar_objects = bar.bar_objects.filter(function (bar_object) {
                     return bar_object.endBeat > bar_object.startBeat;
@@ -145,7 +146,7 @@
                 groups = _.without(groups, first_non_overlapping);
             } else {
                 // This interval doesn't exist; we create a new voice
-                voices.push([groups.shift()])
+                voices.push([groups.shift()]);
                 maxVoices -= 1;
             }
         }
