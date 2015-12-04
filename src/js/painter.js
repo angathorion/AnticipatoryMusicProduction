@@ -7,6 +7,7 @@
     var activeNotes = [];
     Painter.unprocessedCache = [{}, {}, {}, {}, {}, {}];
     Painter.cachedResults = [null, null, null, null, null, null];
+
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
@@ -26,6 +27,11 @@
     };
 
     Painter.show = function (label, bars, beatOffset) {
+        // Clean all active notes at the start of each bar
+        if (beatOffset == 0 && activeNotes.length != 0) {
+            activeNotes = [];
+        }
+
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
@@ -125,8 +131,9 @@
         // https://www.cs.duke.edu/courses/fall03/cps260/notes/lecture05.pdf
 
         // Remove the interval that ends first
+        var maxVoices = 7;
         var voices = [[groups.shift()]];
-        while (groups.length > 0) {
+        while (groups.length > 0 && maxVoices > 0) {
             // See if there are non overlapping intervals, and get the first one
             var first_non_overlapping = _.find(groups, function (group) {
                 return group[0].startBeat >= _.last(_.last(voices))[0].endBeat;
@@ -139,6 +146,7 @@
             } else {
                 // This interval doesn't exist; we create a new voice
                 voices.push([groups.shift()])
+                maxVoices -= 1;
             }
         }
         return voices;
@@ -197,11 +205,11 @@
         return s;
     };
 
-    var buildSeparateNotes = function (staveNote, value, note_type, stave, time_signature, startRendered, staveNoteArray, tieArray) {
+    var buildSeparateNotes = function (staveNote, value, note_type, stave, time_signature, startRendered, staveNoteArray, tieArray, color) {
         var staveNoteSplitData = calculateStaveNoteSplit(value);
         var opts = {
             clef     : stave.clef,
-            duration : (16 / (staveNoteSplitData.base_value / time_signature.value)).toString() +
+            duration : (anticipatoryMusicProducer.Scheduler.quantization_interval_denominator / (staveNoteSplitData.base_value / time_signature.value)).toString() +
             stringFill("d", staveNoteSplitData.num_dots) + note_type,
             keys     : staveNote.map(function (note) {
                 return note.note.toString();
@@ -209,6 +217,7 @@
             auto_stem: true
         };
         var noteGroup = new Vex.Flow.StaveNote(opts);
+        noteGroup.setStyle({fillStyle: color,  strokeStyle: color, stemStyle: color});
         noteGroup.setStave(stave);
         // add dots if any
         for (var i = 0; i < staveNoteSplitData.num_dots; i++) {
@@ -224,7 +233,7 @@
         staveNoteArray.push(noteGroup);
 
         if (staveNoteSplitData.remainder > 0) {
-            var notes = buildSeparateNotes(staveNote, staveNoteSplitData.remainder, note_type, stave, time_signature, true, staveNoteArray, tieArray);
+            var notes = buildSeparateNotes(staveNote, staveNoteSplitData.remainder, note_type, stave, time_signature, true, staveNoteArray, tieArray, color);
             staveNoteArray = notes.staveNoteArray;
             tieArray = notes.tieArray;
             if (staveNoteArray.length > 1 && note_type == "" && startRendered == true) {
@@ -242,9 +251,6 @@
     };
 
     var makeBarObjects = function (stave, voices, time_signature) {
-        console.log(stave);
-        console.log(voices);
-        console.log(time_signature);
         var rest_pos = stave.clef == "treble" ? 71 : 50;
 
         // This does rest padding
@@ -271,13 +277,16 @@
         var beamsArray = [];
         voices = voices.map(function (currentVoice) {
             var staveNoteArray = [];
+            var colors = ["red", "black", "orange", "green", "blue", "purple"];
+            var colorIndex = 0;
             currentVoice.forEach(function (staveNote) {
-                var full_value = (staveNote[0].endBeat - staveNote[0].startBeat) * 16;
+                var full_value = (staveNote[0].endBeat - staveNote[0].startBeat) * anticipatoryMusicProducer.Scheduler.quantization_interval_denominator;
                 var note_type = (staveNote[0].rest == 1 ? "r" : "");
-                var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, false, staveNoteArray, tiesArray);
+                var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, false, staveNoteArray, tiesArray, colors[colorIndex]);
 
                 staveNoteArray = notes.staveNoteArray;
                 tiesArray = notes.tieArray;
+                colorIndex += 1;
             });
             beamsArray.push(Vex.Flow.Beam.generateBeams(staveNoteArray, {
                 beam_rests      : false,
