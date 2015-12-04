@@ -27,12 +27,41 @@
         });
     };
 
-    Painter.show = function (label, bars, beatOffset) {
+    Painter.clearActiveNotes = function(beatOffset){
         // Clean all active notes at the start of each bar
         if (beatOffset == 0 && activeNotes.length != 0) {
             activeNotes = [];
         }
+    };
 
+    // Clear canvas for new frame
+    Painter.clearCanvas = function() {
+        this.canvas = document.getElementById('canvas');
+        this.clear();
+    };
+
+    Painter.drawNowMarker = function() {
+        Painter.ctx.paper.path( "M260,60 L260,800" );
+    };
+
+    var drawBarObjects = function(barObjects, stave) {
+        var Voices = barObjects.voices;
+        var tiesArray = barObjects.ties;
+        var beamsArray = barObjects.beams;
+        Voices.forEach(function (voice) {
+            voice.draw(Painter.ctx, stave);
+        });
+
+        tiesArray.forEach(function (tie) {
+            //tie.setContext(stave.getContext()).draw();
+        });
+
+        beamsArray.forEach(function (beam) {
+            beam.setContext(Painter.ctx).draw();
+        });
+    };
+
+    Painter.drawBars = function (beatOffset, bars, label) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
@@ -41,10 +70,6 @@
         drawStaffBrackets = true;
         drawFrontConnector = true;
         drawEndConnector = false;
-        this.canvas = document.getElementById('canvas');
-        this.clear();
-        // Draw NOW marker
-        var line = this.ctx.paper.path( "M260,60 L260,800" );
         bars.forEach(function (bar, index, array) {
             if (index != 0) {
                 drawStaffBrackets = false;
@@ -55,7 +80,6 @@
             var staves = makeGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
 
             if (!cache || Painter.unprocessedCache[index].toString() != bar.toString()) {
-                console.log("Recalculating bar" + index);
                 var bar_objects = bar.bar_objects.filter(function (bar_object) {
                     return bar_object.endBeat > bar_object.startBeat;
                 });
@@ -81,27 +105,15 @@
             drawBarObjects(Painter.cachedResults[index].bass, staves.bass);
 
             x += width;
-        }.bind(this));
-    };
-
-
-    var drawBarObjects = function(barObjects, stave) {
-        var Voices = barObjects.voices;
-        var tiesArray = barObjects.ties;
-        var beamsArray = barObjects.beams;
-        Voices.forEach(function (voice) {
-            voice.draw(Painter.ctx, stave);
-        });
-
-        tiesArray.forEach(function (tie) {
-            //tie.setContext(stave.getContext()).draw();
-        });
-
-        beamsArray.forEach(function (beam) {
-            beam.setContext(Painter.ctx).draw();
         });
     };
-
+    Painter.show = function (label, bars, beatOffset) {
+        Painter.clearActiveNotes(beatOffset);
+        Painter.clearCanvas();
+        Painter.drawNowMarker();
+        Painter.drawBars(beatOffset, bars, label);
+    };
+    
     /**
      * Removes all objects on the canvas
      */

@@ -1,4 +1,9 @@
 (function (anticipatoryMusicProducer, $, undefined) {
+    anticipatoryMusicProducer.Interface = anticipatoryMusicProducer.Interface || {};
+    anticipatoryMusicProducer.Scheduler = anticipatoryMusicProducer.Scheduler || {};
+    anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
+
+    // Self-correcting timer
     anticipatoryMusicProducer.setInterval = function(fn, duration){
         this.baseline = undefined;
 
@@ -25,14 +30,6 @@
             clearTimeout(this.timer)
         }
     };
-
-    anticipatoryMusicProducer.Interface = anticipatoryMusicProducer.Interface || {};
-    anticipatoryMusicProducer.Scheduler = anticipatoryMusicProducer.Scheduler || {};
-    anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
-
-
-
-
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);
 
 (function (Palette, $, undefined) {

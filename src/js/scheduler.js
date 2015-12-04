@@ -48,9 +48,9 @@
     Scheduler.refreshMultiplier = 1;
     Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
     Scheduler.currentBar = 1;
-    var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
-        new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, []),
-        new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(0, time_signature, [])];
+    var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(1, time_signature, []),
+        new Scheduler.Bar(2, time_signature, []), new Scheduler.Bar(3, time_signature, []),
+        new Scheduler.Bar(4, time_signature, []), new Scheduler.Bar(5, time_signature, [])];
 
 
     var bar = bars[Scheduler.currentBar];
@@ -66,7 +66,7 @@
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
-            
+
             return new Palette.BarObject(false,
                 endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
                     endBeatLocation : endBeatLocation + 1 / Scheduler.quantization_interval_denominator),
@@ -75,10 +75,6 @@
         });
 
         return quantized_bar;
-    };
-
-    var getCurrentBar = function () {
-        return Math.floor(beat_offset / time_signature.count);
     };
 
     Scheduler.eventLoop = function () {
