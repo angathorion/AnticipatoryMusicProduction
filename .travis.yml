@@ -2,6 +2,7 @@
 # in this file, please see the Travis CI documentation:
 # http://docs.travis-ci.com
 
+sudo: required
 after_success:
 
   # Temporary workaround for:
@@ -70,7 +71,6 @@ env:
 git:
   depth: 10
 
-sudo: required
 
 language: node_js
 
