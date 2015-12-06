@@ -70,7 +70,7 @@ env:
 git:
   depth: 10
 
-sudo: true
+sudo: required
 
 language: node_js
 
@@ -79,7 +79,6 @@ node_js:
 before_install:
   - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
   - tar -xjf phantomjs-2.0.0-ubuntu-12.04.tar.bz2
-  - sudo su
   - sudo rm -rf /usr/local/phantomjs/bin/phantomjs
   - sudo mv phantomjs /usr/local/phantomjs/bin/phantomjs
 
