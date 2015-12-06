@@ -88,5 +88,3 @@ before_script:
   - npm install grunt-contrib-qunit
 
 script: grunt test --verbose --force
-
-sudo: no
