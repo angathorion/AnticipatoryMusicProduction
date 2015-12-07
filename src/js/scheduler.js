@@ -44,9 +44,9 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
     var last_beat = 0;
-    Scheduler.quantization_interval_denominator = 16; // quantizes to this fraction of a beat
-    Scheduler.refreshMultiplier = 1;
-    Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000);
+    Scheduler.quantization_interval_denominator = 4; // quantizes to this fraction of a beat
+    Scheduler.refreshMultiplier = 2;
+    Scheduler.interval = ((1.0 / bps) / Scheduler.quantization_interval_denominator * 1000) / Scheduler.refreshMultiplier;
     Scheduler.currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(1, time_signature, []),
         new Scheduler.Bar(2, time_signature, []), new Scheduler.Bar(3, time_signature, []),

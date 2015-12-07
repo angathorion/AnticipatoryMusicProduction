@@ -36,13 +36,8 @@ QUnit.test( "Full Note", function( assert ) {
 
     Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
     var s = new XMLSerializer();
-    console.log(Painter.ctx);
 
     var content = s.serializeToString(Painter.ctx.paper.canvas);
 
-    if (content == readTextFile(base_url + "full_note.svg")) {
-        console.log("YAY");
-    }
-
-    assert.ok( 1 == "1", "Passed!" );
+    assert.ok( content == readTextFile(base_url + "full_note.svg"), "Passed!" );
 });
