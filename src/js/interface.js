@@ -4,7 +4,6 @@
         midi;
     var AudioContext = window.AudioContext || webkitAudioContext; // for ios/safari
     var context = new AudioContext();
-    var data, cmd, channel, type, note, velocity;
     var noteOnListeners = [];
     var noteOffListeners = [];
     // private method
@@ -49,6 +48,7 @@
 
 
     function onMIDIMessage(event) {
+        var data, cmd, channel, type, note, velocity;
         data = event.data,
             cmd = data[0] >> 4,
             channel = data[0] & 0xf,

@@ -34,6 +34,9 @@
 
 (function (Palette, $, undefined) {
     Palette.BarObject = function (isRest, endBeat, startBeat, note) {
+        if (endBeat > 4.0) {
+            throw "OMGWTF";
+        }
         this.rest = isRest ? 1 : 0;
         this.endBeat = endBeat;
         this.startBeat = startBeat;

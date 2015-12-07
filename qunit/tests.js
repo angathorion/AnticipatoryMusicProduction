@@ -38,6 +38,6 @@ QUnit.test( "Full Note", function( assert ) {
     var s = new XMLSerializer();
 
     var content = s.serializeToString(Painter.ctx.paper.canvas);
-
+    console.log(content);
     assert.ok( content == readTextFile(base_url + "full_note.svg"), "Passed!" );
 });

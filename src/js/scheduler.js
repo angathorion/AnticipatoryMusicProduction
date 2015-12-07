@@ -63,17 +63,24 @@
         // values returned are relative to the beginning of the bar
         var quantized_bar = new Scheduler.Bar(0, time_signature, []);
         var bar_start = bar.bar_start;
+        quantized_bar.bar_start = bar.bar_start;
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
-
+            // Sanitize
+            if ((!startBeatLocation && startBeatLocation != 0) ||
+                (!endBeatLocation && endBeatLocation != 0) ||
+                startBeatLocation == endBeatLocation) {
+                return null;
+            }
             return new Palette.BarObject(false,
                 endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
                     endBeatLocation : endBeatLocation + 1 / Scheduler.quantization_interval_denominator),
                 startBeatLocation % time_signature.count,
                 note.note);
         });
-
+        quantized_bar.bar_objects = quantized_bar.bar_objects.filter(
+            function(bar_object) { return bar_object;});
         return quantized_bar;
     };
 
@@ -81,8 +88,7 @@
         // run every tick
         // update beat offset
         beat_offset = (beat_offset + (1 / Scheduler.quantization_interval_denominator) / Scheduler.refreshMultiplier) % time_signature.count;
-        var now = performance.now();
-        Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, now, last_beat);
+        Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
         Scheduler.debugger.write();
 
         if (beat_offset == 0) {
@@ -97,7 +103,7 @@
             return (noteObj.done == false);
         });
         activeNotes.forEach(function(noteObj) {
-            noteObj.timeOff = now;
+            noteObj.timeOff = performance.now();
         });
 
         // pass bars to painter to draw
@@ -113,7 +119,7 @@
                 note   : new Palette.Note(note),
                 done   : false,
                 timeOn : time,
-                timeOff: -1,
+                timeOff: time,
                 tempo  : Scheduler.currentTempo
             });
     };
@@ -142,7 +148,8 @@
      * @returns {number}
      */
     var quantize = function (beat_count) {
-        return Math.round((beat_count * Scheduler.quantization_interval_denominator)) / Scheduler.quantization_interval_denominator;
+        var quantized = Math.round((beat_count * Scheduler.quantization_interval_denominator)) / Scheduler.quantization_interval_denominator;
+        return quantized;
     };
 
     // Calculate elapsed beats since play start timestamp
