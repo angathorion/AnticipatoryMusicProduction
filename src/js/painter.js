@@ -41,7 +41,7 @@
     };
 
     Painter.drawNowMarker = function () {
-        Painter.ctx.paper.path("M260,60 L260,800");
+        Painter.ctx.paper.path("M310,60 L310,800");
     };
 
     var drawBarObjects = function (barObjects, stave) {
@@ -61,11 +61,11 @@
         });
     };
 
-    Painter.drawBars = function (beatOffset, bars, label) {
+    Painter.drawBars = function (barDrawOffset, bars, label) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
-        x = -80 - beatOffset * width;
+        x = -80 - barDrawOffset * width;
         y_separation = 90;
         drawStaffBrackets = true;
         drawFrontConnector = true;
@@ -83,7 +83,6 @@
                 var bar_objects = bar.bar_objects.filter(function (bar_object) {
                     return bar_object.endBeat > bar_object.startBeat;
                 });
-                this.canvas = document.getElementById('canvas');
                 var treble = bar_objects.filter(function (bar_object) {
                     return (bar_object.note.octave >= 4);
                 });
