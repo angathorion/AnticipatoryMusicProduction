@@ -45,7 +45,7 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
     var last_beat = 0;
-    Scheduler.quantization_interval_denominator = 32; // quantizes to this fraction of a beat
+    Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 32 / Scheduler.quantization_interval_denominator;
     Scheduler.interval = time_per_beat / Scheduler.quantization_interval_denominator / Scheduler.refreshMultiplier * 1000;
     console.log("Interval: " + Scheduler.interval);

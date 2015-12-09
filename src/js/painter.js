@@ -106,6 +106,7 @@
             x += width;
         });
     };
+
     Painter.show = function (label, bars, beatOffset) {
         Painter.clearActiveNotes(beatOffset);
         Painter.clearCanvas();
@@ -289,10 +290,10 @@
         var tiesArray = [];
         var beamsArray = [];
         //console.log(voices.length);
+        var colors = ["black", "red", "orange", "green", "blue", "purple"];
+        var colorIndex = 0;
         voices = voices.map(function (currentVoice) {
             var staveNoteArray = [];
-            var colors = ["red", "black", "orange", "green", "blue", "purple"];
-            var colorIndex = 0;
             currentVoice.forEach(function (staveNote) {
                 var full_value = (staveNote[0].endBeat - staveNote[0].startBeat) * anticipatoryMusicProducer.Scheduler.quantization_interval_denominator;
                 var note_type = (staveNote[0].rest == 1 ? "r" : "");
@@ -300,13 +301,13 @@
 
                 staveNoteArray = notes.staveNoteArray;
                 tiesArray = notes.tieArray;
-                colorIndex += 1;
             });
             beamsArray.push(Vex.Flow.Beam.generateBeams(staveNoteArray, {
                 beam_rests      : false,
                 beam_middle_only: false
             }));
 
+            colorIndex += 1;
             return staveNoteArray;
         });
         /*
