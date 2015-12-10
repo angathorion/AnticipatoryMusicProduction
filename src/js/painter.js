@@ -223,7 +223,7 @@
         var staveNoteSplitData = calculateStaveNoteSplit(value);
         var opts = {
             clef     : stave.clef,
-            duration : (anticipatoryMusicProducer.Scheduler.quantization_interval_denominator / (staveNoteSplitData.base_value / time_signature.value)).toString() +
+            duration : (anticipatoryMusicProducer.Scheduler.quantizationIntervalDenominator / (staveNoteSplitData.base_value / time_signature.value)).toString() +
             stringFill("d", staveNoteSplitData.num_dots) + note_type,
             keys     : staveNote.map(function (note) {
                 return note.note.toString();
@@ -295,7 +295,7 @@
         voices = voices.map(function (currentVoice) {
             var staveNoteArray = [];
             currentVoice.forEach(function (staveNote) {
-                var full_value = (staveNote[0].endBeat - staveNote[0].startBeat) * anticipatoryMusicProducer.Scheduler.quantization_interval_denominator;
+                var full_value = (staveNote[0].endBeat - staveNote[0].startBeat) * anticipatoryMusicProducer.Scheduler.quantizationIntervalDenominator;
                 var note_type = (staveNote[0].rest == 1 ? "r" : "");
                 var notes = buildSeparateNotes(staveNote, full_value, note_type, stave, time_signature, false, staveNoteArray, tiesArray, colors[colorIndex]);
 

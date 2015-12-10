@@ -45,9 +45,9 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
     var last_beat = 0;
-    Scheduler.quantization_interval_denominator = 2; // quantizes to this fraction of a beat
-    Scheduler.refreshMultiplier = 32 / Scheduler.quantization_interval_denominator;
-    Scheduler.interval = time_per_beat / Scheduler.quantization_interval_denominator / Scheduler.refreshMultiplier * 1000;
+    Scheduler.quantizationIntervalDenominator = 2; // quantizes to this fraction of a beat
+    Scheduler.refreshMultiplier = 32 / Scheduler.quantizationIntervalDenominator;
+    Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
     console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(1, time_signature, []),
@@ -60,7 +60,7 @@
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        beat_offset = (beat_offset + ((bps /Scheduler.quantization_interval_denominator) / Scheduler.refreshMultiplier)) % time_signature.count;
+        beat_offset = (beat_offset + ((bps /Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
         Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
         Scheduler.debugger.write();
 
@@ -99,12 +99,12 @@
             // Sanitize
             if ((!startBeatLocation && startBeatLocation != 0) ||
                 (!endBeatLocation && endBeatLocation != 0) ||
-                startBeatLocation == endBeatLocation) {
+                startBeatLocation == endBeatLocation || startBeatLocation == time_signature.count) {
                 return null;
             }
             return new Palette.BarObject(false,
                 endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
-                    endBeatLocation : endBeatLocation + 1 / Scheduler.quantization_interval_denominator),
+                    endBeatLocation : endBeatLocation + 1 / Scheduler.quantizationIntervalDenominator),
                 startBeatLocation % time_signature.count,
                 note.note);
         });
@@ -152,7 +152,7 @@
      * @returns {number}
      */
     var quantize = function (beat_count) {
-        var quantized = Math.round((beat_count * Scheduler.quantization_interval_denominator)) / Scheduler.quantization_interval_denominator;
+        var quantized = Math.round((beat_count * Scheduler.quantizationIntervalDenominator)) / Scheduler.quantizationIntervalDenominator;
         return quantized;
     };
 
