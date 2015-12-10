@@ -45,7 +45,7 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
     var last_beat = 0;
-    Scheduler.quantizationIntervalDenominator = 2; // quantizes to this fraction of a beat
+    Scheduler.quantizationIntervalDenominator = 4; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 32 / Scheduler.quantizationIntervalDenominator;
     Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
     console.log("Interval: " + Scheduler.interval);
@@ -97,11 +97,22 @@
             var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
             // Sanitize
-            if ((!startBeatLocation && startBeatLocation != 0) ||
-                (!endBeatLocation && endBeatLocation != 0) ||
-                startBeatLocation == endBeatLocation || startBeatLocation == time_signature.count) {
+            // Error with first beat; to fix
+            if (endBeatLocation > time_signature.count || startBeatLocation > time_signature.count) {
                 return null;
             }
+            // If both start and end beat are at the very end, bring the start beat forward a little
+            if (startBeatLocation == endBeatLocation && endBeatLocation == time_signature.count) {
+                startBeatLocation = endBeatLocation - 1 / Scheduler.quantizationIntervalDenominator;
+            } else if (startBeatLocation == endBeatLocation) { // Otherwise push the end beat ahead a little
+                endBeatLocation = startBeatLocation + 1 / Scheduler.quantizationIntervalDenominator;
+            }
+
+            if ((!startBeatLocation && startBeatLocation != 0) ||
+                (!endBeatLocation && endBeatLocation != 0)) {
+                return null;
+            }
+
             return new Palette.BarObject(false,
                 endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
                     endBeatLocation : endBeatLocation + 1 / Scheduler.quantizationIntervalDenominator),
