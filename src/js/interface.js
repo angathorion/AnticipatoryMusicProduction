@@ -56,6 +56,22 @@
     }
 
 
+
+    Interface.reloadMIDIInstruments = function() {
+        var instrument_name_selector = document.getElementById("instrument_name");
+        MIDI.loadPlugin({
+            soundfontUrl: "./soundfont/",
+            instrument: instrument_name_selector.options[instrument_name_selector.selectedIndex].value,
+            onprogress: function(state, progress) {
+                //console.log(state, progress);
+            },
+            onsuccess: function(note, velocity) {
+                // play the note
+                MIDI.programChange(0, MIDI.GM.byName[instrument_name_selector.options[instrument_name_selector.selectedIndex].value].number);
+            }
+        });
+    }
+    Interface.reloadMIDIInstruments();
     function onMIDIMessage(event) {
         var data, cmd, channel, type, note, velocity;
         data = event.data,
@@ -76,20 +92,9 @@
                     item.call(item.scope, note, performance.now());
                 });
                 // TODO Create new object for Player
-
-                MIDI.loadPlugin({
-                    soundfontUrl: "./soundfont/",
-                    instrument: "acoustic_grand_piano",
-                    onprogress: function(state, progress) {
-                        //console.log(state, progress);
-                    },
-                    onsuccess: function(note, velocity) {
-                        // play the note
-                        MIDI.setVolume(0, 127);
-                        MIDI.noteOn(0, note, velocity, 0);
-                        MIDI.noteOff(0, note, 0.75);
-                    }.bind(this, note, velocity)
-                });
+                MIDI.setVolume(0, 127);
+                MIDI.noteOn(0, note, velocity, 0);
+                MIDI.noteOff(0, note, 0.4);
                 break;
             case 128: // noteOff message
                 noteOffListeners.forEach(function(item) {
