@@ -8,11 +8,12 @@
         this.baseline = undefined;
 
         this.run = function(){
-            if(this.baseline === undefined){
-                this.baseline = new Date().getTime()
-            }
+                this.baseline = performance.now();
+
+            var start = performance.now();
             fn();
-            var end = new Date().getTime();
+            var end = performance.now();
+            //console.log(end - start);
             this.baseline += duration;
 
             var nextTick = duration - (end - this.baseline);
@@ -30,6 +31,8 @@
             clearTimeout(this.timer)
         }
     };
+
+
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);
 
 (function (Palette, $, undefined) {

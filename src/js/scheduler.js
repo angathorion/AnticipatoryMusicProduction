@@ -45,8 +45,8 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
     var last_beat = 0;
-    Scheduler.quantizationIntervalDenominator = 4; // quantizes to this fraction of a beat
-    Scheduler.refreshMultiplier = 32 / Scheduler.quantizationIntervalDenominator;
+    Scheduler.quantizationIntervalDenominator = 2; // quantizes to this fraction of a beat
+    Scheduler.refreshMultiplier = 16;
     Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
     console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
@@ -81,7 +81,8 @@
         });
 
         // pass bars to painter to draw
-        anticipatoryMusicProducer.Painter.show("", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count);
+        var animate = anticipatoryMusicProducer.Painter.show.bind(anticipatoryMusicProducer.Painter, "", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count);
+        requestAnimationFrame(animate);
     };
 
     Scheduler.quantizeBar = function (bar) {
@@ -98,7 +99,7 @@
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
             // Sanitize
             // Error with first beat; to fix
-            if (endBeatLocation > time_signature.count || startBeatLocation > time_signature.count) {
+            if (endBeatLocation > time_signature.count && startBeatLocation > time_signature.count) {
                 return null;
             }
             // If both start and end beat are at the very end, bring the start beat forward a little

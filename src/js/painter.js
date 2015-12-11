@@ -36,12 +36,12 @@
 
     // Clear canvas for new frame
     Painter.clearCanvas = function () {
-        this.canvas = document.getElementById('canvas');
+        this.canvas = document.getElementById('scoresheet');
         this.clear();
     };
 
     Painter.drawNowMarker = function () {
-        Painter.ctx.paper.path("M310,60 L310,800");
+        //Painter.ctx.paper.path("M310,60 L310,800");
     };
 
     var drawBarObjects = function (barObjects, stave) {
@@ -121,8 +121,10 @@
         while (this.canvas.lastChild) {
             this.canvas.removeChild(this.canvas.lastChild);
         }
-        this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.RAPHAEL);
+        this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.CANVAS);
         this.ctx = this.renderer.getContext();
+        this.ctx.clearRect(0, 0, 1366, 500);
+        //console.log(this.ctx);
     };
 
     var processNotes = function (bar_objects) {
