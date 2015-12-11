@@ -123,7 +123,7 @@
         }
         this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.CANVAS);
         this.ctx = this.renderer.getContext();
-        this.ctx.clearRect(0, 0, 1366, 500);
+        this.ctx.clearRect(0, 0, 2000, 500);
         //console.log(this.ctx);
     };
 

@@ -12,7 +12,18 @@
     };
 
     Scheduler.Bar.prototype.initializeStartTime = function() {
-        this.bar_start = performance.now();
+        if (this.bar_start) {
+            var now = performance.now();
+            var diff = now - this.bar_start;
+            this.bar_objects.forEach(function(note) {
+                note.timeOn += diff;
+                note.timeOff += diff;
+                note.done = true;
+            });
+            this.bar_start = now;
+        } else {
+            this.bar_start = performance.now();
+        }
     };
 
     Scheduler.Debugger = function () {
@@ -51,6 +62,7 @@
     console.log("Time per beat: " + time_per_beat);
     console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
+
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(1, time_signature, []),
         new Scheduler.Bar(2, time_signature, []), new Scheduler.Bar(3, time_signature, []),
         new Scheduler.Bar(4, time_signature, []), new Scheduler.Bar(5, time_signature, [])];
@@ -58,19 +70,22 @@
 
     var bar = bars[Scheduler.currentBar];
 
+    var bar_offset_selector = document.getElementById("bar_offset");
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
         beat_offset = (beat_offset + ((2/Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
         Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
         Scheduler.debugger.write();
+        Scheduler.currentBar = parseInt(bar_offset_selector.options[bar_offset_selector.selectedIndex].value);
+        bar = bars[Scheduler.currentBar];
         if (beat_offset == 0) {
             bars.splice(0, 1);
             bars.push(new Scheduler.Bar(0, time_signature, []));
-            bars[Scheduler.currentBar] = new Scheduler.Bar(0, time_signature, []);
+            //bars[Scheduler.currentBar] = new Scheduler.Bar(0, time_signature, []);
+            bars[Scheduler.currentBar].initializeStartTime();
             bar = bars[Scheduler.currentBar];
         }
-
         // Dynamically updates the note depending on how long you hold it
         var activeNotes = bar.bar_objects.filter(function (noteObj) {
             return (noteObj.done == false);
