@@ -48,6 +48,7 @@
     Scheduler.quantizationIntervalDenominator = 2; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 16;
     Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
+    console.log("Time per beat: " + time_per_beat);
     console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
     var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(1, time_signature, []),
@@ -60,10 +61,9 @@
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        beat_offset = (beat_offset + ((bps /Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
+        beat_offset = (beat_offset + ((2/Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
         Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
         Scheduler.debugger.write();
-
         if (beat_offset == 0) {
             bars.splice(0, 1);
             bars.push(new Scheduler.Bar(0, time_signature, []));

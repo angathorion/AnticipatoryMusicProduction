@@ -8,12 +8,9 @@
         this.baseline = undefined;
 
         this.run = function(){
-                this.baseline = performance.now();
-
-            var start = performance.now();
+            this.baseline = performance.now();
             fn();
             var end = performance.now();
-            //console.log(end - start);
             this.baseline += duration;
 
             var nextTick = duration - (end - this.baseline);
