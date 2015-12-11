@@ -11,6 +11,7 @@
         return "".concat(this.bar_objects);
     };
 
+    /*
     Scheduler.Bar.prototype.initializeStartTime = function() {
         if (this.bar_start) {
             var now = performance.now();
@@ -25,7 +26,7 @@
             this.bar_start = performance.now();
         }
     };
-
+    */
     Scheduler.Debugger = function () {
         this.data_div = $('#debug_data')[0];
         this.last_beat = 0;
@@ -56,6 +57,7 @@
     var time_signature = {value: 4, count: 4};
     var beat_offset = 0; // This is the number of beats away from start of current bar
     var last_beat = 0;
+    var time_per_bar = time_per_beat * time_signature.count; // in seconds
     Scheduler.quantizationIntervalDenominator = 2; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 16;
     Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
@@ -63,9 +65,10 @@
     console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
 
-    var bars = [new Scheduler.Bar(0, time_signature, []), new Scheduler.Bar(1, time_signature, []),
-        new Scheduler.Bar(2, time_signature, []), new Scheduler.Bar(3, time_signature, []),
-        new Scheduler.Bar(4, time_signature, []), new Scheduler.Bar(5, time_signature, [])];
+    var bars = [new Scheduler.Bar(-1, time_signature, []), new Scheduler.Bar(0, time_signature, []),
+        new Scheduler.Bar(1, time_signature, []), new Scheduler.Bar(2, time_signature, []),
+        new Scheduler.Bar(3, time_signature, []), new Scheduler.Bar(4, time_signature, []),
+        new Scheduler.Bar(5, time_signature, []), new Scheduler.Bar(6, time_signature, [])];
 
 
     var bar = bars[Scheduler.currentBar];
@@ -77,13 +80,24 @@
         beat_offset = (beat_offset + ((2/Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
         Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
         Scheduler.debugger.write();
-        Scheduler.currentBar = parseInt(bar_offset_selector.options[bar_offset_selector.selectedIndex].value);
+        var selected_bar = parseInt(bar_offset_selector.options[bar_offset_selector.selectedIndex].value);
+        if (selected_bar != Scheduler.currentBar) {
+            Scheduler.currentBar = selected_bar;
+            bars[selected_bar].bar_objects.forEach(function(note) {
+                note.done = true;
+            });
+        }
+
         bar = bars[Scheduler.currentBar];
         if (beat_offset == 0) {
             bars.splice(0, 1);
-            bars.push(new Scheduler.Bar(0, time_signature, []));
+            bars.forEach(function(bar) {
+                bar.bar_number -= 1;
+                bar.bar_start = performance.now() + bar.bar_number * time_per_bar * 1000;
+            });
+            bars.push(new Scheduler.Bar(7, time_signature, []));
             //bars[Scheduler.currentBar] = new Scheduler.Bar(0, time_signature, []);
-            bars[Scheduler.currentBar].initializeStartTime();
+            //bars[Scheduler.currentBar].initializeStartTime();
             bar = bars[Scheduler.currentBar];
         }
         // Dynamically updates the note depending on how long you hold it
@@ -92,9 +106,10 @@
         });
 
         activeNotes.forEach(function(noteObj) {
-            noteObj.timeOff = performance.now();
+            noteObj.timeOff = performance.now() + bar.bar_number * time_per_bar * 1000;
         });
 
+        console.log(bars);
         // pass bars to painter to draw
         var animate = anticipatoryMusicProducer.Painter.show.bind(anticipatoryMusicProducer.Painter, "", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count);
         requestAnimationFrame(animate);
@@ -149,8 +164,8 @@
         bar.bar_objects.push({
                 note   : new Palette.Note(note),
                 done   : false,
-                timeOn : time,
-                timeOff: time,
+                timeOn : time + bar.bar_number * time_per_bar * 1000,
+                timeOff: time + bar.bar_number * time_per_bar * 1000,
                 tempo  : Scheduler.currentTempo
             });
     };
@@ -167,7 +182,7 @@
 
         if (releasedNote) {
             releasedNote.forEach(function(note) {
-                note.timeOff = time;
+                note.timeOff = time + bar.bar_number * time_per_bar * 1000;
                 note.done = true;
             })
         }
