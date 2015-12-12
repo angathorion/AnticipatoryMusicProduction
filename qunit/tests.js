@@ -1,6 +1,8 @@
 QUnit.module("module", {
     beforeEach: function(assert) {
-        var divs = '<div id="test" style="visibility: hidden"><canvas id="scoresheet" width="2000" height="500"></canvas>' +
+        var divs = '<div id="test" style="visibility: hidden">' +
+            '<canvas id="scoresheet" width="2000" height="500"></canvas>' +
+            '<canvas id="collaborator_scoresheet" width="2000" height="500"></canvas>' +
             '<form><label for="bar_offset">Bar Offset</label><select name="bar_offset" id="bar_offset">' +
             '<option value="1" selected>1</option><option value="2">2</option><option value="3">3</option>' +
             '<option value="4">4</option></select></form><div id="debug_data"></div></div>';
