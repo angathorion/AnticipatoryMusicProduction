@@ -2,7 +2,22 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         qunit: {
-            files: ['qunit/index.html']
+            //files: ['qunit/index.html']
+            all: {
+                options: {
+                    urls: [
+                        'http://localhost:3000/qunit/index.html',
+                    ]
+                }
+            }
+        },
+        connect: {
+            server: {
+                options: {
+                    port: 3000,
+                    base: '.'
+                }
+            }
         }
     });
 
