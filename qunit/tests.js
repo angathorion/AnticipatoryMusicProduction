@@ -32,10 +32,8 @@ function readTextFile(file) {
     rawFile.send(null);
 }
 
-var base_url = "https://raw.githubusercontent.com/angathorion/AnticipatoryMusicProduction/master/qunit/ground_truth/";
-
 // Tests are failing, possibly because the SVG isn't always captured at exactly the same point in time
-QUnit.test( "Full Note", function( assert ) {
+QUnit.test("Full Note", function(assert) {
     var Scheduler = anticipatoryMusicProducer.Scheduler;
     var Painter = anticipatoryMusicProducer.Painter;
     var time_signature = {value: 4, count: 4};
@@ -51,13 +49,12 @@ QUnit.test( "Full Note", function( assert ) {
 
     bar.bar_objects.push(bar_obj);
 
-    anticipatoryMusicProducer.Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
-    var s = new XMLSerializer();
+    Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
     //var content = s.serializeToString(Painter.ctx.paper.canvas);
     //console.log(content);
     //assert.ok( content == readTextFile(base_url + "full_note.svg"), "Passed!" );
 
-    assert.ok(true, "Passed!");
+    assert.equal(Painter.ctx.hash(), 'acc8e5ced90e67630892cd936e5d952d');
 });
 

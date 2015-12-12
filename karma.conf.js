@@ -21,6 +21,7 @@ module.exports = function (config) {
             'src/js/interface.js',
             'src/js/scheduler.js',
             'src/js/bridge.js',
+            'qunit/canteen.min.js',
             'qunit/tests.js'
         ],
 
