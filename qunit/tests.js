@@ -1,5 +1,6 @@
-var Scheduler = anticipatoryMusicProducer.Scheduler;
-var Painter = anticipatoryMusicProducer.Painter;
+Scheduler = anticipatoryMusicProducer.Scheduler;
+Painter = anticipatoryMusicProducer.Painter;
+
 function readTextFile(file) {
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", file, false);
@@ -23,7 +24,6 @@ var base_url = "https://raw.githubusercontent.com/angathorion/AnticipatoryMusicP
 QUnit.test( "Full Note", function( assert ) {
     var time_signature = {value: 4, count: 4};
     var bar = new Scheduler.Bar(0, time_signature, []);
-    bar.initializeStartTime();
 
     var bar_obj = {
         note   : new Palette.Note(60),
@@ -38,10 +38,9 @@ QUnit.test( "Full Note", function( assert ) {
     Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
     var s = new XMLSerializer();
 
-    var content = s.serializeToString(Painter.ctx.paper.canvas);
-    console.log(content);
+    //var content = s.serializeToString(Painter.ctx.paper.canvas);
+    //console.log(content);
     //assert.ok( content == readTextFile(base_url + "full_note.svg"), "Passed!" );
     assert.ok(true, "Passed!");
 });
 
-QUnit.start();
