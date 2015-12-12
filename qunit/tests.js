@@ -1,4 +1,3 @@
-
 QUnit.module("module", {
     beforeEach: function(assert) {
         var divs = '<div id="test" style="visibility: hidden"><canvas id="scoresheet" width="2000" height="500"></canvas>' +
@@ -15,24 +14,6 @@ QUnit.module("module", {
 
 });
 
-function readTextFile(file) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4)
-        {
-            if(rawFile.status === 200 || rawFile.status == 0)
-            {
-                var allText = rawFile.responseText;
-                return allText;
-            }
-        }
-    };
-    rawFile.send(null);
-}
-
-// Tests are failing, possibly because the SVG isn't always captured at exactly the same point in time
 QUnit.test("Full Note", function(assert) {
     var Scheduler = anticipatoryMusicProducer.Scheduler;
     var Painter = anticipatoryMusicProducer.Painter;
@@ -51,10 +32,5 @@ QUnit.test("Full Note", function(assert) {
 
     Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
-    //var content = s.serializeToString(Painter.ctx.paper.canvas);
-    //console.log(content);
-    //assert.ok( content == readTextFile(base_url + "full_note.svg"), "Passed!" );
-
     assert.equal(Painter.ctx.hash(), 'acc8e5ced90e67630892cd936e5d952d');
 });
-
