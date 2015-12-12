@@ -82,4 +82,10 @@ before_install:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
 
+before_script:
+  - npm install -g grunt-cli
+  - npm install grunt --save
+  - npm install grunt-contrib-qunit
+  - npm install grunt-contrib-connect --save-dev
+
 script: karma start karma.conf.js
