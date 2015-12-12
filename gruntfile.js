@@ -19,13 +19,18 @@ module.exports = function(grunt) {
                     base: '.'
                 }
             }
+        },
+        karma: {
+            unit: {
+                configFile: 'karma.conf.js'
+            }
         }
     });
 
     // Load plugin
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-qunit');
-
+    //grunt.loadNpmTasks('grunt-contrib-connect');
+    //grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-karma');
     // Task to run tests
-    grunt.registerTask('test', ['connect', 'qunit']);
+    grunt.registerTask('test', ['karma']);
 };
