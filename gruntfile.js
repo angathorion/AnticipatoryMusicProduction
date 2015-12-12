@@ -22,8 +22,9 @@ module.exports = function(grunt) {
     });
 
     // Load plugin
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-qunit');
 
     // Task to run tests
-    grunt.registerTask('test', 'qunit');
+    grunt.registerTask('test', ['connect', 'qunit']);
 };
