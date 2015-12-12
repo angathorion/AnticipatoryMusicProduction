@@ -81,9 +81,10 @@ before_script:
   - npm install -g grunt-cli
   - npm install grunt --save
   - npm install grunt-contrib-qunit
+  - npm install grunt-contrib-connect --save-dev
   - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
   - tar -xjf phantomjs-2.0.0-ubuntu-12.04.tar.bz2
   - sudo rm -rf /usr/local/phantomjs/bin/phantomjs
   - sudo mv phantomjs /usr/local/phantomjs/bin/phantomjs
 
-script: grunt test --verbose --force
+script: grunt test --verbose
