@@ -36,7 +36,7 @@
 
     // Clear canvas for new frame
     Painter.clearCanvas = function () {
-        this.canvas = document.getElementById('scoresheet');
+        this.player_canvas = document.getElementById('scoresheet');
         this.collaborator_canvas = document.getElementById('collaborator_scoresheet');
         this.clear();
     };
@@ -50,7 +50,7 @@
         var tiesArray = barObjects.ties;
         var beamsArray = barObjects.beams;
         Voices.forEach(function (voice) {
-            voice.draw(Painter.ctx, stave);
+            voice.draw(Painter.player_context, stave);
         });
 
         tiesArray.forEach(function (tie) {
@@ -58,7 +58,7 @@
         });
 
         beamsArray.forEach(function (beam) {
-            beam.setContext(Painter.ctx).draw();
+            beam.setContext(Painter.player_context).draw();
         });
     };
 
@@ -119,14 +119,14 @@
      * Removes all objects on the canvas
      */
     Painter.clear = function () {
-        while (this.canvas.lastChild) {
-            this.canvas.removeChild(this.canvas.lastChild);
+        while (this.player_canvas.lastChild) {
+            this.player_canvas.removeChild(this.player_canvas.lastChild);
         }
-        this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.CANVAS);
-        this.ctx = this.renderer.getContext();
-        this.ctx.clearRect(0, 0, 2000, 500);
-        this.collaborator_canvas.getContext('2d').clearRect(0,0,2000,500);
-        //console.log(this.ctx);
+        this.renderer = new Vex.Flow.Renderer(this.player_canvas, Vex.Flow.Renderer.Backends.CANVAS);
+        this.player_context = this.renderer.getContext();
+        this.collaborator_context = this.collaborator_canvas.getContext('2d');
+        this.player_context.clearRect(0, 0, 2000, 500);
+        this.collaborator_context.clearRect(0,0,2000,500);
     };
 
     var processNotes = function (bar_objects) {
@@ -177,7 +177,7 @@
         var stave = new Vex.Flow.Stave(x, y, width);
         // Setting clef type and drawing it is separate because of decoupled engraving logic
         stave.clef = type;
-        return stave.setContext(Painter.ctx);
+        return stave.setContext(Painter.player_context);
     };
 
     var makeGrandStaff = function (x, y, width, y_separation, drawStaffBrackets, drawFrontConnector,
@@ -186,11 +186,11 @@
         var bassStave = makeStaff(x, y + y_separation, width, 'bass');
 
         if (drawStaffBrackets)
-            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.ctx).draw();
+            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(3).setContext(Painter.player_context).draw();
         if (drawFrontConnector)
-            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(Painter.ctx).draw();
+            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(1).setContext(Painter.player_context).draw();
         if (drawEndConnector)
-            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(Painter.ctx).draw();
+            new Vex.Flow.StaveConnector(trebleStave, bassStave).setType(6).setContext(Painter.player_context).draw();
 
         return {treble: trebleStave, bass: bassStave};
     };
@@ -340,7 +340,7 @@
 
         var formatter = new Vex.Flow.Formatter();
         formatter.joinVoices(Voices).format(Voices, 300,
-            {autobeam: true, align_rests: false, context: Painter.ctx, stave: stave});
+            {autobeam: true, align_rests: false, context: Painter.player_context, stave: stave});
 
         beamsArray = _.flatten(beamsArray);
 

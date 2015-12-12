@@ -9,8 +9,6 @@ module.exports = function(grunt) {
     });
 
     // Load plugin
-    //grunt.loadNpmTasks('grunt-contrib-connect');
-    //grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-karma');
     // Task to run tests
     grunt.registerTask('test', ['karma']);

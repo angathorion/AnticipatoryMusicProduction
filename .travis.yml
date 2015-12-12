@@ -87,7 +87,7 @@ before_script:
   - npm install grunt --save-dev
   - npm install grunt-karma --save-dev
   - npm install karma --save-dev
-  - npm install karma-chrome-launcher
+  - npm install karma-chrome-launcher --save-dev
   - npm install karma-qunit --save-dev
 
 script: karma start karma.conf.js

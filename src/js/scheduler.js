@@ -97,7 +97,7 @@
         // pass bars to painter to draw
         var animate = function() {
             anticipatoryMusicProducer.Painter.show.bind(anticipatoryMusicProducer.Painter, "", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count)();
-            anticipatoryMusicProducer.Painter.collaborator_canvas.getContext('2d').drawImage(anticipatoryMusicProducer.Painter.canvas, 0, 0);
+            anticipatoryMusicProducer.Painter.collaborator_context.drawImage(anticipatoryMusicProducer.Painter.player_canvas, 0, 0);
         };
         requestAnimationFrame(animate);
     };

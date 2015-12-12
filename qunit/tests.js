@@ -34,5 +34,5 @@ QUnit.test("Full Note", function(assert) {
 
     Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
-    assert.equal(Painter.ctx.hash(), 'acc8e5ced90e67630892cd936e5d952d');
+    assert.equal(Painter.player_context.hash(), 'acc8e5ced90e67630892cd936e5d952d');
 });
