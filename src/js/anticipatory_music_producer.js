@@ -2,7 +2,13 @@
     anticipatoryMusicProducer.Interface = anticipatoryMusicProducer.Interface || {};
     anticipatoryMusicProducer.Scheduler = anticipatoryMusicProducer.Scheduler || {};
     anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
+    anticipatoryMusicProducer.init = function() {
+        this.interval.run();
+    };
 
+    anticipatoryMusicProducer.stop = function() {
+        this.interval.stop();
+    };
     // Self-correcting timer
     anticipatoryMusicProducer.setInterval = function(fn, duration){
         this.baseline = undefined;

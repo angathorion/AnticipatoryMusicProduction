@@ -15,18 +15,18 @@
     } else {
         alert("No MIDI support in your browser.");
     }
-    Interface.listInputs = function(inputs) {
+    Interface.listInputs = function (inputs) {
         var input = inputs.value;
         log("Input port : [ type:'" + input.type + "' id: '" + input.id +
             "' manufacturer: '" + input.manufacturer + "' name: '" + input.name +
             "' version: '" + input.version + "']");
     };
 
-    Interface.addNoteOnListener = function(listener) {
+    Interface.addNoteOnListener = function (listener) {
         noteOnListeners.push(listener);
     };
 
-    Interface.addNoteOffListener = function(listener) {
+    Interface.addNoteOffListener = function (listener) {
         noteOffListeners.push(listener);
     };
 
@@ -55,22 +55,25 @@
         midi.onstatechange = onStateChange;
     }
 
-
-
-    Interface.reloadMIDIInstruments = function() {
+    Interface.reloadMIDIInstruments = function () {
         var instrument_name_selector = document.getElementById("instrument_name");
+        var instrument_name = "acoustic_grand_piano";
+        if (instrument_name_selector) {
+            instrument_name = instrument_name_selector.options[instrument_name_selector.selectedIndex].value;
+        }
         MIDI.loadPlugin({
             soundfontUrl: "./soundfont/",
-            instrument: instrument_name_selector.options[instrument_name_selector.selectedIndex].value,
-            onprogress: function(state, progress) {
+            instrument  : instrument_name,
+            onprogress  : function (state, progress) {
                 //console.log(state, progress);
             },
-            onsuccess: function(note, velocity) {
+            onsuccess   : function (note, velocity) {
                 // play the note
-                MIDI.programChange(0, MIDI.GM.byName[instrument_name_selector.options[instrument_name_selector.selectedIndex].value].number);
+                MIDI.programChange(0, MIDI.GM.byName[instrument_name].number);
             }
         });
-    }
+    };
+
     Interface.reloadMIDIInstruments();
     function onMIDIMessage(event) {
         var data, cmd, channel, type, note, velocity;
@@ -88,28 +91,28 @@
         // bend: 224, cmd: 14
         switch (type) {
             case 144: // noteOn message
-                noteOnListeners.forEach(function(item) {
+                noteOnListeners.forEach(function (item) {
                     item.call(item.scope, note, performance.now());
                 });
                 // TODO Create new object for Player
                 MIDI.setVolume(0, 127);
                 MIDI.noteOn(0, note, velocity, 0);
-                MIDI.noteOff(0, note, 0.4);
                 break;
             case 128: // noteOff message
-                noteOffListeners.forEach(function(item) {
+                noteOffListeners.forEach(function (item) {
                     item.call(item.scope, note, performance.now());
                 });
+                MIDI.noteOff(0, note, 0.4);
                 break;
         }
         logger('key data', data);
     }
 
     function onStateChange(event) {
-        var port = event.port,
+        var port  = event.port,
             state = port.state,
-            name = port.name,
-            type = port.type;
+            name  = port.name,
+            type  = port.type;
         if (type == "input") console.log("name", name, "port", port, "state", state);
     }
 

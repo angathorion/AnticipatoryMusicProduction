@@ -7,5 +7,4 @@
     anticipatoryMusicProducer.Interface.addNoteOffListener(anticipatoryMusicProducer.Scheduler.onNoteOff);
     anticipatoryMusicProducer.interval = new anticipatoryMusicProducer.setInterval(
         anticipatoryMusicProducer.Scheduler.eventLoop, anticipatoryMusicProducer.Scheduler.interval);
-    anticipatoryMusicProducer.interval.run();
 })(window.anticipatoryMusicProducer = window.anticipatoryMusicProducer || {}, jQuery);

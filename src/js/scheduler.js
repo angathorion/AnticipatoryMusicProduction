@@ -11,22 +11,6 @@
         return "".concat(this.bar_objects);
     };
 
-    /*
-    Scheduler.Bar.prototype.initializeStartTime = function() {
-        if (this.bar_start) {
-            var now = performance.now();
-            var diff = now - this.bar_start;
-            this.bar_objects.forEach(function(note) {
-                note.timeOn += diff;
-                note.timeOff += diff;
-                note.done = true;
-            });
-            this.bar_start = now;
-        } else {
-            this.bar_start = performance.now();
-        }
-    };
-    */
     Scheduler.Debugger = function () {
         this.data_div = $('#debug_data')[0];
         this.last_beat = 0;
@@ -45,8 +29,10 @@
     };
 
     Scheduler.Debugger.prototype.write = function () {
-        this.data_div.innerText = "Current Beat Offset: " + this.beat_offset.toString() + "\n" +
-            "Tempo: " + this.currentTempo + "\nSeconds per beat: " + 1/bps + "\nTime taken last beat: " + this.time_taken;
+        if (this.data_div) {
+            this.data_div.innerText = "Current Beat Offset: " + this.beat_offset.toString() + "\n" +
+                "Tempo: " + this.currentTempo + "\nSeconds per beat: " + 1 / bps + "\nTime taken last beat: " + this.time_taken;
+        }
     };
 
     Scheduler.debugger = new Scheduler.Debugger();
@@ -77,13 +63,13 @@
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        beat_offset = (beat_offset + ((2/Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
+        beat_offset = (beat_offset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
         Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
         Scheduler.debugger.write();
-        var selected_bar = parseInt(bar_offset_selector.options[bar_offset_selector.selectedIndex].value);
+        var selected_bar = parseInt(bar_offset_selector ? bar_offset_selector.options[bar_offset_selector.selectedIndex].value : 1);
         if (selected_bar != Scheduler.currentBar) {
             Scheduler.currentBar = selected_bar;
-            bars[selected_bar].bar_objects.forEach(function(note) {
+            bars[selected_bar].bar_objects.forEach(function (note) {
                 note.done = true;
             });
         }
@@ -91,7 +77,7 @@
         bar = bars[Scheduler.currentBar];
         if (beat_offset == 0) {
             bars.splice(0, 1);
-            bars.forEach(function(bar) {
+            bars.forEach(function (bar) {
                 bar.bar_number -= 1;
                 bar.bar_start = performance.now() + bar.bar_number * time_per_bar * 1000;
             });
@@ -105,7 +91,7 @@
             return (noteObj.done == false);
         });
 
-        activeNotes.forEach(function(noteObj) {
+        activeNotes.forEach(function (noteObj) {
             noteObj.timeOff = performance.now() + bar.bar_number * time_per_bar * 1000;
         });
         // pass bars to painter to draw
@@ -149,7 +135,9 @@
                 note.note);
         });
         quantized_bar.bar_objects = quantized_bar.bar_objects.filter(
-            function(bar_object) { return bar_object;});
+            function (bar_object) {
+                return bar_object;
+            });
         return quantized_bar;
     };
 
@@ -160,12 +148,12 @@
      */
     Scheduler.onNoteOn = function (note, time) {
         bar.bar_objects.push({
-                note   : new Palette.Note(note),
-                done   : false,
-                timeOn : time + bar.bar_number * time_per_bar * 1000,
-                timeOff: time + bar.bar_number * time_per_bar * 1000,
-                tempo  : Scheduler.currentTempo
-            });
+            note   : new Palette.Note(note),
+            done   : false,
+            timeOn : time + bar.bar_number * time_per_bar * 1000,
+            timeOff: time + bar.bar_number * time_per_bar * 1000,
+            tempo  : Scheduler.currentTempo
+        });
     };
 
     /**
@@ -179,7 +167,7 @@
         });
 
         if (releasedNote) {
-            releasedNote.forEach(function(note) {
+            releasedNote.forEach(function (note) {
                 note.timeOff = time + bar.bar_number * time_per_bar * 1000;
                 note.done = true;
             })
