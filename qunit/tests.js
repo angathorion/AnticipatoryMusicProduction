@@ -43,3 +43,5 @@ QUnit.test( "Full Note", function( assert ) {
     //assert.ok( content == readTextFile(base_url + "full_note.svg"), "Passed!" );
     assert.ok(true, "Passed!");
 });
+
+QUnit.start();
