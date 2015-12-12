@@ -95,7 +95,10 @@
             noteObj.timeOff = performance.now() + bar.bar_number * time_per_bar * 1000;
         });
         // pass bars to painter to draw
-        var animate = anticipatoryMusicProducer.Painter.show.bind(anticipatoryMusicProducer.Painter, "", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count);
+        var animate = function() {
+            anticipatoryMusicProducer.Painter.show.bind(anticipatoryMusicProducer.Painter, "", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count)();
+            anticipatoryMusicProducer.Painter.collaborator_canvas.getContext('2d').drawImage(anticipatoryMusicProducer.Painter.canvas, 0, 0);
+        };
         requestAnimationFrame(animate);
     };
 

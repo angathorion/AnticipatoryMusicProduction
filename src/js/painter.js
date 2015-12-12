@@ -37,6 +37,7 @@
     // Clear canvas for new frame
     Painter.clearCanvas = function () {
         this.canvas = document.getElementById('scoresheet');
+        this.collaborator_canvas = document.getElementById('collaborator_scoresheet');
         this.clear();
     };
 
@@ -124,6 +125,7 @@
         this.renderer = new Vex.Flow.Renderer(this.canvas, Vex.Flow.Renderer.Backends.CANVAS);
         this.ctx = this.renderer.getContext();
         this.ctx.clearRect(0, 0, 2000, 500);
+        this.collaborator_canvas.getContext('2d').clearRect(0,0,2000,500);
         //console.log(this.ctx);
     };
 
