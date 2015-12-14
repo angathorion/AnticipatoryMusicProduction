@@ -10,6 +10,10 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/src/index.html');
 });
 
-http.listen(3000, function(){
+app.set('port', (process.env.PORT || 5000));
+
+
+/*http.listen(3000, function(){
     console.log('listening on *:3000');
 });
+*/
