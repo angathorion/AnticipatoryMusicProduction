@@ -18,7 +18,7 @@ QUnit.module("module", {
 
 QUnit.test("Full Note", function(assert) {
     var Scheduler = anticipatoryMusicProducer.Scheduler;
-    var Painter = anticipatoryMusicProducer.Painter;
+    var Painter = anticipatoryMusicProducer.playerPainter;
     var time_signature = {value: 4, count: 4};
     var bar = new Scheduler.Bar(0, time_signature, []);
 

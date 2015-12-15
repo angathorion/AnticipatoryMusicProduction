@@ -50,7 +50,7 @@
     console.log("Time per beat: " + time_per_beat);
     console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
-
+    Scheduler.drawOffset = 0;
     var bars = [new Scheduler.Bar(-1, time_signature, []), new Scheduler.Bar(0, time_signature, []),
         new Scheduler.Bar(1, time_signature, []), new Scheduler.Bar(2, time_signature, []),
         new Scheduler.Bar(3, time_signature, []), new Scheduler.Bar(4, time_signature, []),
@@ -97,13 +97,13 @@
         });
         // pass bars to painter to draw
         var quantized_bars = bars.map(Scheduler.quantizeBar);
-        var offset = beat_offset / time_signature.count;
+        Scheduler.drawOffset = beat_offset / time_signature.count;
 
         var animate = function() {
-            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, offset)();
+            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
             //anticipatoryMusicProducer.Painter.collaborator_context.drawImage(anticipatoryMusicProducer.Painter.player_canvas, 0, 0);
 
-            socket.emit('broadcast_canvas', {quantized_bars: quantized_bars, offset: offset});
+            socket.emit('broadcast_canvas', {quantized_bars: quantized_bars, offset: Scheduler.drawOffset});
         };
         requestAnimationFrame(animate);
     };

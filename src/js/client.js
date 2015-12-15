@@ -68,7 +68,7 @@ $(function() {
         //anticipatoryMusicProducer.Painter.collaborator_canvas.getContext('2d').drawImage(data.datastring, 0, 0);
         requestAnimationFrame(function() {
             anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "",
-                data.quantized_bars, data.offset)();
+                data.quantized_bars, anticipatoryMusicProducer.Scheduler.drawOffset)();
         });
     });
 

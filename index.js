@@ -38,11 +38,6 @@ io.sockets.on('connection', function (socket) {
         console.log(data.username + " has joined " + data.sessionName);
         socket.join(data.sessionName);
         users[socket.id] = data;
-        /*
-        if (Object.keys(io['sockets']['adapter']['rooms'][data.sessionName]).length == 1) {
-            console.log("LOL");
-            io.to(socket.id).emit('init', {alone: true});
-        }*/
         io.to(data.sessionName).emit('user joined', data);
     });
 
