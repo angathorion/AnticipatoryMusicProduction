@@ -83,8 +83,6 @@
                 bar.bar_start = performance.now() + bar.bar_number * time_per_bar * 1000;
             });
             bars.push(new Scheduler.Bar(7, time_signature, []));
-            //bars[Scheduler.currentBar] = new Scheduler.Bar(0, time_signature, []);
-            //bars[Scheduler.currentBar].initializeStartTime();
             bar = bars[Scheduler.currentBar];
         }
         // Dynamically updates the note depending on how long you hold it
@@ -103,7 +101,7 @@
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
             //anticipatoryMusicProducer.Painter.collaborator_context.drawImage(anticipatoryMusicProducer.Painter.player_canvas, 0, 0);
 
-            socket.emit('broadcast_canvas', {quantized_bars: quantized_bars, offset: Scheduler.drawOffset});
+            socket.emit('broadcast_canvas', {quantized_bars: JSON.stringify(quantized_bars, functionReplacer), offset: Scheduler.drawOffset});
         };
         requestAnimationFrame(animate);
     };

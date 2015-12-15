@@ -66,9 +66,18 @@ $(function() {
         //var canvas = anticipatoryMusicProducer.Painter.collaborator_canvas;
         //canvas.loadFromJSON(data, canvas.renderAll.bind(canvas));
         //anticipatoryMusicProducer.Painter.collaborator_canvas.getContext('2d').drawImage(data.datastring, 0, 0);
+
+        var quantized_bars = JSON.parse(data.quantized_bars);
+        quantized_bars.forEach(function(bar) {
+            bar.bar_objects.forEach(function(bar_object) {
+                bar_object.note.toString = Palette.Note.prototype.toString;
+                bar_object.note.letter = Palette.Note.prototype.letter;
+                bar_object.note.accidental = Palette.Note.prototype.accidental;
+            });
+        });
         requestAnimationFrame(function() {
             anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "",
-                data.quantized_bars, anticipatoryMusicProducer.Scheduler.drawOffset)();
+                quantized_bars, anticipatoryMusicProducer.Scheduler.drawOffset)();
         });
     });
 
@@ -95,5 +104,5 @@ $(function() {
             $playerScoresheet.fadeIn();
             $collaboratorScoresheet.fadeIn();
         }
-    })
+    });
 });
