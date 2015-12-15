@@ -1,4 +1,4 @@
-(function (Painter, $, undefined) {
+var Painter = function (Painter, canvas, $, undefined) {
     /**
      * Array of Notes that are currently active (i.e. note-on messages received, but not note-off)
      * Will be updated by onNoteOn/onNoteOff callbacks
@@ -8,7 +8,7 @@
     var cache = false;
     Painter.unprocessedCache = [{}, {}, {}, {}, {}, {}];
     Painter.cachedResults = [null, null, null, null, null, null];
-
+    Painter.canvas = canvas;
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
@@ -36,8 +36,7 @@
 
     // Clear canvas for new frame
     Painter.clearCanvas = function () {
-        this.player_canvas = document.getElementById('scoresheet');
-        this.collaborator_canvas = document.getElementById('collaborator_scoresheet');
+        Painter.canvas = Painter.canvas;
         this.clear();
     };
 
@@ -119,14 +118,12 @@
      * Removes all objects on the canvas
      */
     Painter.clear = function () {
-        while (this.player_canvas.lastChild) {
-            this.player_canvas.removeChild(this.player_canvas.lastChild);
+        while (Painter.canvas.lastChild) {
+            Painter.canvas.removeChild(Painter.canvas.lastChild);
         }
-        this.renderer = new Vex.Flow.Renderer(this.player_canvas, Vex.Flow.Renderer.Backends.CANVAS);
-        this.player_context = this.renderer.getContext();
-        this.collaborator_context = this.collaborator_canvas.getContext('2d');
-        this.player_context.clearRect(0, 0, 2000, 500);
-        this.collaborator_context.clearRect(0,0,2000,500);
+        Painter.renderer = new Vex.Flow.Renderer(Painter.canvas, Vex.Flow.Renderer.Backends.CANVAS);
+        Painter.player_context = Painter.renderer.getContext();
+        Painter.player_context.clearRect(0, 0, 2000, 500);
     };
 
     var processNotes = function (bar_objects) {
@@ -347,5 +344,10 @@
         return {voices: Voices, ties: tiesArray, beams: beamsArray, minWidth: formatter.getMinTotalWidth()};
     };
 
-})(window.anticipatoryMusicProducer.Painter =
-    window.anticipatoryMusicProducer.Painter || {}, jQuery);
+};
+
+Painter(window.anticipatoryMusicProducer.playerPainter =
+    window.anticipatoryMusicProducer.playerPainter || {}, document.getElementById('scoresheet'), jQuery);
+
+Painter(window.anticipatoryMusicProducer.collaboratorPainter =
+    window.anticipatoryMusicProducer.collaboratorPainter || {}, document.getElementById('collaborator_scoresheet'), jQuery);

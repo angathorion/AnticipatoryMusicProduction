@@ -17,9 +17,17 @@
         <!--[if lt IE 8]>
         <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <canvas id="scoresheet" width="2000" height="500"></canvas>
+        <li class="login page">
+            <div class="form">
+                <h3 class="title">Nickname</h3>
+                <input class="loginInput" type="text" maxlength="14" id="nickname"/>
+                <h3 class="title">Session Name</h3>
+                <input class="loginInput" type="text" maxlength="14" id="session"/>
+            </div>
+        </li>
+        <canvas id="scoresheet" width="2000" height="500" style="display: none"></canvas>
         <canvas id="collaborator_scoresheet" width="2000" height="500"></canvas>
-        <form>
+        <form style="visibility: hidden">
             <label for="bar_offset">Bar Offset</label>
             <select name="bar_offset" id="bar_offset">
                 <option value="1" selected>1</option>
@@ -160,10 +168,14 @@
             </select>
 
         </form>
-        <div id="debug_data"></div>
+        <div id="debug_data" style="visibility: hidden;"></div>
         <script src="js/vendor/base64-binary.js"></script>
         <script src="js/vendor/jquery/dist/jquery.min.js"></script>
         <script src="js/vendor/underscore/underscore-min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+        </script>
         <script src="js/plugins.js"></script>
         <script src="js/vendor/midi.min.js"></script>
         <script src="js/vendor/web-midi-api/WebMIDIAPI.min.js"></script>
@@ -174,5 +186,6 @@
         <script src="js/scheduler.js"></script>
         <script src="js/bridge.js"></script>
         <script src="js/event_loop.js"></script>
+        <script src="js/client.js"></script>
     </body>
 </html>

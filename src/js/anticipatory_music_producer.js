@@ -1,8 +1,10 @@
 (function (anticipatoryMusicProducer, $, undefined) {
     anticipatoryMusicProducer.Interface = anticipatoryMusicProducer.Interface || {};
     anticipatoryMusicProducer.Scheduler = anticipatoryMusicProducer.Scheduler || {};
-    anticipatoryMusicProducer.Painter = anticipatoryMusicProducer.Painter || {};
+    anticipatoryMusicProducer.playerPainter = anticipatoryMusicProducer.playerPainter || {};
+    anticipatoryMusicProducer.collaboratorPainter = anticipatoryMusicProducer.collaboratorPainter || {};
     anticipatoryMusicProducer.init = function() {
+        console.log("I've been started!");
         this.interval.run();
     };
 

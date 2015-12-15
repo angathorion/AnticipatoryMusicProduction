@@ -61,6 +61,7 @@
 
     var bar_offset_selector = document.getElementById("bar_offset");
     Scheduler.eventLoop = function () {
+        socket.emit('heartbeat');
         // run every tick
         // update beat offset
         beat_offset = (beat_offset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
@@ -95,9 +96,14 @@
             noteObj.timeOff = performance.now() + bar.bar_number * time_per_bar * 1000;
         });
         // pass bars to painter to draw
+        var quantized_bars = bars.map(Scheduler.quantizeBar);
+        var offset = beat_offset / time_signature.count;
+
         var animate = function() {
-            anticipatoryMusicProducer.Painter.show.bind(anticipatoryMusicProducer.Painter, "", bars.map(Scheduler.quantizeBar), beat_offset / time_signature.count)();
-            anticipatoryMusicProducer.Painter.collaborator_context.drawImage(anticipatoryMusicProducer.Painter.player_canvas, 0, 0);
+            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, offset)();
+            //anticipatoryMusicProducer.Painter.collaborator_context.drawImage(anticipatoryMusicProducer.Painter.player_canvas, 0, 0);
+
+            socket.emit('broadcast_canvas', {quantized_bars: quantized_bars, offset: offset});
         };
         requestAnimationFrame(animate);
     };
