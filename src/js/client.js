@@ -1,4 +1,5 @@
-$(function() {
+var Client = function(Client, $, undefined) {
+    Client.state = null;
     // Initialize variables
     var $window = $(window);
     var $nicknameInput = $('#nickname'); // Input for username
@@ -74,7 +75,6 @@ $(function() {
             });
         });
 
-        console.log("My offset: " + anticipatoryMusicProducer.Scheduler.drawOffset + ", their offset: " + data.offset);
         var myDrawOffset = anticipatoryMusicProducer.Scheduler.drawOffset;
         var theirDrawOffset = data.offset;
 
@@ -82,16 +82,11 @@ $(function() {
             slower = theirDrawOffset > myDrawOffset;
 
         if (slower && theirDrawOffset < myDrawOffset) {
-            console.log("lol");
             quantized_bars.unshift(new anticipatoryMusicProducer.Scheduler.Bar());
         } else if (!slower && theirDrawOffset > myDrawOffset) {
             quantized_bars.shift();
         }
-
-        requestAnimationFrame(function() {
-            anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "",
-                quantized_bars, myDrawOffset)();
-        });
+        Client.state = quantized_bars;
     });
 
     socket.on('wait_for_heartbeat', function() {
@@ -119,4 +114,7 @@ $(function() {
             $playParameters.fadeIn();
         }
     });
-});
+};
+
+Client(window.anticipatoryMusicProducer.Client =
+    window.anticipatoryMusicProducer.Client || {}, jQuery);

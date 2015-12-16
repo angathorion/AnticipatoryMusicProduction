@@ -99,11 +99,13 @@
         // pass bars to painter to draw
         var quantized_bars = bars.map(Scheduler.quantizeBar);
         Scheduler.drawOffset = beat_offset / time_signature.count;
+        socket.emit('broadcast_canvas', {quantized_bars: JSON.stringify(quantized_bars, functionReplacer), offset: Scheduler.drawOffset});
 
         var animate = function() {
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
-
-            socket.emit('broadcast_canvas', {quantized_bars: JSON.stringify(quantized_bars, functionReplacer), offset: Scheduler.drawOffset});
+            if (anticipatoryMusicProducer.Client.state) {
+                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", anticipatoryMusicProducer.Client.state, Scheduler.drawOffset)();
+            }
         };
         requestAnimationFrame(animate);
     };

@@ -36,7 +36,6 @@ var Painter = function (Painter, canvas, $, undefined) {
 
     // Clear canvas for new frame
     Painter.clearCanvas = function () {
-        Painter.canvas = Painter.canvas;
         this.clear();
     };
 
