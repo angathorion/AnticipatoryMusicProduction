@@ -61,11 +61,11 @@ var Painter = function (Painter, canvas, $, undefined) {
         });
     };
 
-    Painter.drawBars = function (barDrawOffset, bars, label) {
+    Painter.drawBars = function (barDrawOffset, bars, label, latencyOffset) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
-        x = -80 - barDrawOffset * width;
+        x = -80 - barDrawOffset * width - latencyOffset;
         y_separation = 90;
         drawStaffBrackets = true;
         drawFrontConnector = true;
@@ -107,11 +107,11 @@ var Painter = function (Painter, canvas, $, undefined) {
         });
     };
 
-    Painter.show = function (label, bars, beatOffset) {
-        Painter.clearActiveNotes(beatOffset);
+    Painter.show = function (label, bars, drawOffset) {
+        Painter.clearActiveNotes(drawOffset);
         Painter.clearCanvas();
         Painter.drawNowMarker();
-        Painter.drawBars(beatOffset, bars, label);
+        Painter.drawBars(drawOffset, bars, label);
     };
 
     /**

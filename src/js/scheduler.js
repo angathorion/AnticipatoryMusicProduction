@@ -102,7 +102,6 @@
 
         var animate = function() {
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
-            //anticipatoryMusicProducer.Painter.collaborator_context.drawImage(anticipatoryMusicProducer.Painter.player_canvas, 0, 0);
 
             socket.emit('broadcast_canvas', {quantized_bars: JSON.stringify(quantized_bars, functionReplacer), offset: Scheduler.drawOffset});
         };

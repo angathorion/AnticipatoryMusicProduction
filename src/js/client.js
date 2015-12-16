@@ -61,8 +61,9 @@ $(function() {
         $collaboratorScoresheet.fadeIn();
         $playParameters.fadeIn();
     });
-    
+
     // Whenever the server emits 'new message', update the chat body
+    var slower = null;
     socket.on('receive_canvas', function (data) {
         var quantized_bars = JSON.parse(data.quantized_bars);
         quantized_bars.forEach(function(bar) {
@@ -72,9 +73,24 @@ $(function() {
                 bar_object.note.accidental = Palette.Note.prototype.accidental;
             });
         });
+
+        console.log("My offset: " + anticipatoryMusicProducer.Scheduler.drawOffset + ", their offset: " + data.offset);
+        var myDrawOffset = anticipatoryMusicProducer.Scheduler.drawOffset;
+        var theirDrawOffset = data.offset;
+
+        if (slower == null)
+            slower = theirDrawOffset > myDrawOffset;
+
+        if (slower && theirDrawOffset < myDrawOffset) {
+            console.log("lol");
+            quantized_bars.unshift(new anticipatoryMusicProducer.Scheduler.Bar());
+        } else if (!slower && theirDrawOffset > myDrawOffset) {
+            quantized_bars.shift();
+        }
+
         requestAnimationFrame(function() {
             anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "",
-                quantized_bars, data.offset)();
+                quantized_bars, myDrawOffset)();
         });
     });
 
