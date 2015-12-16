@@ -27,13 +27,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/angathorion/AnticipatoryMusicProduction.git"
+    "url": "git+https://github.com/angathorion/amp-online.git"
   },
   "author": "Tang Huan Song",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/angathorion/AnticipatoryMusicProduction/issues"
+    "url": "https://github.com/angathorion/amp-online/issues"
   },
-  "homepage": "https://github.com/angathorion/AnticipatoryMusicProduction#readme",
+  "homepage": "https://github.com/angathorion/amp-online#readme",
   "private": true
 }
