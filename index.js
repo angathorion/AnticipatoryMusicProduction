@@ -50,7 +50,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('broadcast_canvas', function(data) {
-        socket.broadcast.emit('receive_canvas', data);
+        socket.broadcast.to(users[socket.id].sessionName).emit('receive_canvas', data);
     });
 
     socket.on('request_connected_count', function(data) {

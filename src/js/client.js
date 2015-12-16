@@ -80,7 +80,7 @@ $(function() {
         });
         requestAnimationFrame(function() {
             anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "",
-                quantized_bars, anticipatoryMusicProducer.Scheduler.drawOffset)();
+                quantized_bars, data.offset)();
         });
     });
 

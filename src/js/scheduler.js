@@ -47,8 +47,6 @@
     Scheduler.quantizationIntervalDenominator = 8; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 4;
     Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
-    console.log("Time per beat: " + time_per_beat);
-    console.log("Interval: " + Scheduler.interval);
     Scheduler.currentBar = 1;
     Scheduler.drawOffset = 0;
     var bars = [new Scheduler.Bar(-1, time_signature, []), new Scheduler.Bar(0, time_signature, []),
