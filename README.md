@@ -20,9 +20,9 @@ rewriting for any such use.
 
 ## Installation/Requirements
 
-npm install git+https://git@github.com/angathorion/amp-online.git
+npm install git+https://angathorion@github.com/angathorion/amp-online.git
 
-npm install git+ssh://git@github.com/angathorion/amp-online.git
+npm install git+ssh://angathorion@github.com/angathorion/amp-online.git
 
 ## License
 
