@@ -59,7 +59,6 @@
 
     var bar_offset_selector = document.getElementById("bar_offset");
     Scheduler.eventLoop = function () {
-        socket.emit('heartbeat');
         // run every tick
         // update beat offset
         beat_offset = (beat_offset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
@@ -75,6 +74,7 @@
         var now = performance.now();
         bar = bars[Scheduler.currentBar];
         if (beat_offset == 0) {
+            socket.emit('heartbeat');
             bars.splice(0, 1);
             bars.forEach(function (bar) {
                 bar.bar_number -= 1;

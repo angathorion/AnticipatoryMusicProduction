@@ -61,15 +61,9 @@ $(function() {
         $collaboratorScoresheet.fadeIn();
         $playParameters.fadeIn();
     });
-
+    
     // Whenever the server emits 'new message', update the chat body
     socket.on('receive_canvas', function (data) {
-        //anticipatoryMusicProducer.Painter.collaborator_context.drawImage(
-        //    data, 0, 0);
-        //var canvas = anticipatoryMusicProducer.Painter.collaborator_canvas;
-        //canvas.loadFromJSON(data, canvas.renderAll.bind(canvas));
-        //anticipatoryMusicProducer.Painter.collaborator_canvas.getContext('2d').drawImage(data.datastring, 0, 0);
-
         var quantized_bars = JSON.parse(data.quantized_bars);
         quantized_bars.forEach(function(bar) {
             bar.bar_objects.forEach(function(bar_object) {
