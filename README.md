@@ -18,6 +18,10 @@ This application is standalone, and was not written with the intent of it servin
 If you wish to do so, please note that the code is poorly optimized for such a purpose, and will require extensive
 rewriting for any such use.
 
+## Installation/Requirements
+
+
+
 ## License
 
 The code is available under the [MIT license](LICENSE.txt).
