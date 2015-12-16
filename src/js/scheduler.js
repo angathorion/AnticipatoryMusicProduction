@@ -104,6 +104,9 @@
         var animate = function() {
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
             if (anticipatoryMusicProducer.Client.state) {
+                if (beat_offset == 0) {
+                    anticipatoryMusicProducer.Client.state.shift();
+                }
                 anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", anticipatoryMusicProducer.Client.state, Scheduler.drawOffset)();
             }
         };
