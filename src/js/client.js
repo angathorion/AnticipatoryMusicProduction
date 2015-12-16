@@ -85,7 +85,7 @@ $(function() {
             console.log("lol");
             quantized_bars.unshift(new anticipatoryMusicProducer.Scheduler.Bar());
         } else if (!slower && theirDrawOffset > myDrawOffset) {
-            quantized_bars.shift();
+            //quantized_bars.shift();
         }
 
         requestAnimationFrame(function() {

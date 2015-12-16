@@ -42,6 +42,10 @@ var Painter = function (Painter, canvas, $, undefined) {
 
     Painter.drawNowMarker = function () {
         //Painter.ctx.paper.path("M310,60 L310,800");
+        Painter.player_context.beginPath();
+        Painter.player_context.moveTo(310,60);
+        Painter.player_context.lineTo(310,800);
+        Painter.player_context.stroke();
     };
 
     var drawBarObjects = function (barObjects, stave) {
@@ -61,11 +65,11 @@ var Painter = function (Painter, canvas, $, undefined) {
         });
     };
 
-    Painter.drawBars = function (barDrawOffset, bars, label, latencyOffset) {
+    Painter.drawBars = function (barDrawOffset, bars, label) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
-        x = -80 - barDrawOffset * width - latencyOffset;
+        x = -80 - barDrawOffset * width;
         y_separation = 90;
         drawStaffBrackets = true;
         drawFrontConnector = true;
