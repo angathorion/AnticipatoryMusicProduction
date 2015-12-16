@@ -82,9 +82,9 @@ var Client = function(Client, $, undefined) {
             slower = theirDrawOffset > myDrawOffset;
 
         if (slower && theirDrawOffset < myDrawOffset) {
-            //quantized_bars.unshift(new anticipatoryMusicProducer.Scheduler.Bar());
+            quantized_bars.unshift(new anticipatoryMusicProducer.Scheduler.Bar());
         } else if (!slower && theirDrawOffset > myDrawOffset) {
-            //quantized_bars.shift();
+            quantized_bars.shift();
         }
         Client.state = quantized_bars;
     });
