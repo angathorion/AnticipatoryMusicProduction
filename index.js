@@ -3,6 +3,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+
 app.use(express.static('src'));
 app.use('/js/vendor', express.static('node_modules'));
 
@@ -20,7 +21,6 @@ http.listen(app.get('port'), function(){
 var users = new Object();
 
 io.sockets.on('connection', function (socket) {
-
     socket.on('heartbeat', function() {
         socket.broadcast.emit('heartbeat');
     });
@@ -46,7 +46,6 @@ io.sockets.on('connection', function (socket) {
             console.log(users[socket.id].username + " has left " + users[socket.id].sessionName);
             io.to(users[socket.id].sessionName).emit('user left', users[socket.id]);
             users[socket.id] = "";
-            //console.log(io['sockets']['adapter']['rooms']);
         }
     });
 

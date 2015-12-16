@@ -7,6 +7,7 @@ $(function() {
     var $loginPage = $('.login.page'); // The login page
     var $playerScoresheet = $('#scoresheet');
     var $collaboratorScoresheet = $('#collaborator_scoresheet');
+    var $playParameters = $('#play_parameters');
 
     // Prompt for setting a username
     var username;
@@ -57,6 +58,8 @@ $(function() {
         console.log("Received init");
         anticipatoryMusicProducer.init();
         $playerScoresheet.fadeIn();
+        $collaboratorScoresheet.fadeIn();
+        $playParameters.fadeIn();
     });
 
     // Whenever the server emits 'new message', update the chat body
@@ -103,6 +106,7 @@ $(function() {
             anticipatoryMusicProducer.init();
             $playerScoresheet.fadeIn();
             $collaboratorScoresheet.fadeIn();
+            $playParameters.fadeIn();
         }
     });
 });

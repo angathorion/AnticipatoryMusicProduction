@@ -75,6 +75,7 @@
     };
 
     Interface.reloadMIDIInstruments();
+
     function onMIDIMessage(event) {
         var data, cmd, channel, type, note, velocity;
         data = event.data,
@@ -89,23 +90,28 @@
         // pressure / tilt on
         // pressure: 176, cmd 11:
         // bend: 224, cmd: 14
-        switch (type) {
-            case 144: // noteOn message
-                noteOnListeners.forEach(function (item) {
-                    item.call(item.scope, note, performance.now());
-                });
-                // TODO Create new object for Player
-                MIDI.setVolume(0, 127);
-                MIDI.noteOn(0, note, velocity, 0);
-                break;
-            case 128: // noteOff message
-                noteOffListeners.forEach(function (item) {
-                    item.call(item.scope, note, performance.now());
-                });
-                MIDI.noteOff(0, note, 0.4);
-                break;
+
+        var midi_channel_selector = document.getElementById("midi_channel");
+        var midi_channel = midi_channel_selector.options[midi_channel_selector.selectedIndex].value;
+        if (midi_channel == channel) {
+            switch (type) {
+                case 144: // noteOn message
+                    noteOnListeners.forEach(function (item) {
+                        item.call(item.scope, note, performance.now());
+                    });
+                    // TODO Create new object for Player
+                    MIDI.setVolume(0, 127);
+                    MIDI.noteOn(0, note, velocity, 0);
+                    break;
+                case 128: // noteOff message
+                    noteOffListeners.forEach(function (item) {
+                        item.call(item.scope, note, performance.now());
+                    });
+                    MIDI.noteOff(0, note, 0.4);
+                    break;
+            }
+            logger('key data', data);
         }
-        logger('key data', data);
     }
 
     function onStateChange(event) {

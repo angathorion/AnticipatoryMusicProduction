@@ -74,13 +74,18 @@
                 note.done = true;
             });
         }
-
+        var now = performance.now();
         bar = bars[Scheduler.currentBar];
         if (beat_offset == 0) {
             bars.splice(0, 1);
             bars.forEach(function (bar) {
                 bar.bar_number -= 1;
-                bar.bar_start = performance.now() + bar.bar_number * time_per_bar * 1000;
+                var updatedStart = now + bar.bar_number * time_per_bar * 1000;
+                bar.bar_objects.forEach(function (bar_object){
+                    bar_object.timeOn = bar_object.timeOn - bar.bar_start + updatedStart;
+                    bar_object.timeOff = bar_object.timeOff - bar.bar_start + updatedStart;
+                });
+                bar.bar_start = now + bar.bar_number * time_per_bar * 1000;
             });
             bars.push(new Scheduler.Bar(7, time_signature, []));
             bar = bars[Scheduler.currentBar];
@@ -91,7 +96,7 @@
         });
 
         activeNotes.forEach(function (noteObj) {
-            noteObj.timeOff = performance.now() + bar.bar_number * time_per_bar * 1000;
+            noteObj.timeOff = now + bar.bar_number * time_per_bar * 1000;
         });
         // pass bars to painter to draw
         var quantized_bars = bars.map(Scheduler.quantizeBar);

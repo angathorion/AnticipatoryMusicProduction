@@ -26,8 +26,8 @@
             </div>
         </li>
         <canvas id="scoresheet" width="2000" height="500" style="display: none"></canvas>
-        <canvas id="collaborator_scoresheet" width="2000" height="500"></canvas>
-        <form style="visibility: hidden">
+        <canvas id="collaborator_scoresheet" width="2000" height="500" style="display: none"></canvas>
+        <form id="play_parameters" style="display: none">
             <label for="bar_offset">Bar Offset</label>
             <select name="bar_offset" id="bar_offset">
                 <option value="1" selected>1</option>
@@ -35,11 +35,18 @@
                 <option value="3">3</option>
                 <option value="4">4</option>
             </select>
+            <label for="midi_channel">MIDI Channel</label>
+            <select name="midi_channel" id="midi_channel">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
             <label for="instrument_name">Instrument Name</label>
             <select name="instrument_name" id="instrument_name" onchange="anticipatoryMusicProducer.Interface.reloadMIDIInstruments()">
-                <option value="accordion" selected>accordion</option>
+                <option value="accordion">accordion</option>
                 <option value="acoustic_bass">acoustic_bass</option>
-                <option value="acoustic_grand_piano">acoustic_grand_piano</option>
+                <option value="acoustic_grand_piano" selected>acoustic_grand_piano</option>
                 <option value="acoustic_guitar_nylon">acoustic_guitar_nylon</option>
                 <option value="acoustic_guitar_steel">acoustic_guitar_steel</option>
                 <option value="agogo">agogo</option>
