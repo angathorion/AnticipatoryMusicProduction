@@ -44,7 +44,9 @@ Alternatively, you can visit the Heroku-hosted version at: https://amp-online.he
 
 ## Usage as an Application
 
-This is a multi-user platform, based on `socket.io`. Rooms can be created at will, denoted by a session name.
+This is a multi-user platform, based on `socket.io`. Rooms can be created at will, denoted by a session name. A user
+joins or creates a session by entering a session name. If the name is not in use, a session is created and the user is
+automatically added to it. Use of an already active session name adds the user to the session.
 
 Users can join sessions without authentication. However, one cannot have more than 2 users in a session at the same time.
 The behavior for doing so is undefined at the moment, so don't try it.
