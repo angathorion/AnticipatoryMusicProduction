@@ -16,11 +16,13 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'src/js/vendor/*.js',
+            'qunit/socket.io.js',
             'src/js/anticipatory_music_producer.js',
             'src/js/painter.js',
             'src/js/interface.js',
             'src/js/scheduler.js',
             'src/js/bridge.js',
+            'src/js/client.js',
             'qunit/canteen.min.js',
             'qunit/tests.js'
         ],

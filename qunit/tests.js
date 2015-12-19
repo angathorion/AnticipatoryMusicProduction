@@ -3,6 +3,7 @@ QUnit.module("module", {
         var divs = '<div id="test" style="visibility: hidden">' +
             '<canvas id="scoresheet" width="2000" height="500"></canvas>' +
             '<canvas id="collaborator_scoresheet" width="2000" height="500"></canvas>' +
+            '<script>var socket = io()</script>' +
             '<form><label for="bar_offset">Bar Offset</label><select name="bar_offset" id="bar_offset">' +
             '<option value="1" selected>1</option><option value="2">2</option><option value="3">3</option>' +
             '<option value="4">4</option></select></form><div id="debug_data"></div></div>';
@@ -18,7 +19,9 @@ QUnit.module("module", {
 
 QUnit.test("Full Note", function(assert) {
     var Scheduler = anticipatoryMusicProducer.Scheduler;
-    var Painter = anticipatoryMusicProducer.playerPainter;
+    Painter(window.anticipatoryMusicProducer.playerPainter =
+        window.anticipatoryMusicProducer.playerPainter || {}, document.getElementById('scoresheet'), jQuery);
+    var playerPainter = window.anticipatoryMusicProducer.playerPainter;
     var time_signature = {value: 4, count: 4};
     var bar = new Scheduler.Bar(0, time_signature, []);
 
@@ -32,7 +35,7 @@ QUnit.test("Full Note", function(assert) {
 
     bar.bar_objects.push(bar_obj);
 
-    Painter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
+    playerPainter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
-    assert.equal(Painter.player_context.hash(), 'acc8e5ced90e67630892cd936e5d952d');
+    assert.equal(playerPainter.player_context.hash(), '8b342642ca1722a720db7c2190b5ed8a');
 });
