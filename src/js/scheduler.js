@@ -39,54 +39,54 @@
 
     Scheduler.currentTempo = 120;
     var bps = Scheduler.currentTempo / 60.0;
-    var time_per_beat = 1.0 / bps; // in seconds
-    var time_signature = {value: 4, count: 4};
-    var beat_offset = 0; // This is the number of beats away from start of current bar
-    var last_beat = 0;
-    var time_per_bar = time_per_beat * time_signature.count; // in seconds
+    var timePerBeat = 1.0 / bps; // in seconds
+    var timeSignature = {value: 4, count: 4};
+    var beatOffset = 0; // This is the number of beats away from start of current bar
+    var lastBeat = 0;
+    var timePerBar = timePerBeat * timeSignature.count; // in seconds
     Scheduler.quantizationIntervalDenominator = 8; // quantizes to this fraction of a beat
     Scheduler.refreshMultiplier = 4;
-    Scheduler.interval = time_per_beat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
+    Scheduler.interval = timePerBeat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
     Scheduler.currentBar = 1;
     Scheduler.drawOffset = 0;
-    var bars = [new Scheduler.Bar(-1, time_signature, []), new Scheduler.Bar(0, time_signature, []),
-        new Scheduler.Bar(1, time_signature, []), new Scheduler.Bar(2, time_signature, []),
-        new Scheduler.Bar(3, time_signature, []), new Scheduler.Bar(4, time_signature, []),
-        new Scheduler.Bar(5, time_signature, []), new Scheduler.Bar(6, time_signature, [])];
+    var bars = [new Scheduler.Bar(-1, timeSignature, []), new Scheduler.Bar(0, timeSignature, []),
+        new Scheduler.Bar(1, timeSignature, []), new Scheduler.Bar(2, timeSignature, []),
+        new Scheduler.Bar(3, timeSignature, []), new Scheduler.Bar(4, timeSignature, []),
+        new Scheduler.Bar(5, timeSignature, []), new Scheduler.Bar(6, timeSignature, [])];
 
 
     var bar = bars[Scheduler.currentBar];
 
 
-    var bar_offset_selector = document.getElementById("bar_offset");
+    var barOffsetSelector = document.getElementById("bar_offset");
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        beat_offset = (beat_offset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % time_signature.count;
-        Scheduler.debugger.update(beat_offset, Scheduler.currentTempo, Scheduler.bps, performance.now(), last_beat);
+        beatOffset = (beatOffset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % timeSignature.count;
+        Scheduler.debugger.update(beatOffset, Scheduler.currentTempo, Scheduler.bps, performance.now(), lastBeat);
         Scheduler.debugger.write();
-        var selected_bar = parseInt(bar_offset_selector ? bar_offset_selector.options[bar_offset_selector.selectedIndex].value : 1);
-        if (selected_bar != Scheduler.currentBar) {
-            Scheduler.currentBar = selected_bar;
-            bars[selected_bar].bar_objects.forEach(function (note) {
+        var selectedBar = parseInt(barOffsetSelector ? barOffsetSelector.options[barOffsetSelector.selectedIndex].value : 1);
+        if (selectedBar != Scheduler.currentBar) {
+            Scheduler.currentBar = selectedBar;
+            bars[selectedBar].bar_objects.forEach(function (note) {
                 note.done = true;
             });
         }
         var now = performance.now();
         bar = bars[Scheduler.currentBar];
-        if (beat_offset == 0) {
+        if (beatOffset == 0) {
             socket.emit('heartbeat');
             bars.splice(0, 1);
             bars.forEach(function (bar) {
                 bar.bar_number -= 1;
-                var updatedStart = now + bar.bar_number * time_per_bar * 1000;
+                var updatedStart = now + bar.bar_number * timePerBar * 1000;
                 bar.bar_objects.forEach(function (bar_object){
                     bar_object.timeOn = bar_object.timeOn - bar.bar_start + updatedStart;
                     bar_object.timeOff = bar_object.timeOff - bar.bar_start + updatedStart;
                 });
-                bar.bar_start = now + bar.bar_number * time_per_bar * 1000;
+                bar.bar_start = now + bar.bar_number * timePerBar * 1000;
             });
-            bars.push(new Scheduler.Bar(7, time_signature, []));
+            bars.push(new Scheduler.Bar(7, timeSignature, []));
             bar = bars[Scheduler.currentBar];
         }
         // Dynamically updates the note depending on how long you hold it
@@ -95,17 +95,17 @@
         });
 
         activeNotes.forEach(function (noteObj) {
-            noteObj.timeOff = now + bar.bar_number * time_per_bar * 1000;
+            noteObj.timeOff = now + bar.bar_number * timePerBar * 1000;
         });
         // pass bars to painter to draw
         var quantized_bars = bars.map(Scheduler.quantizeBar);
-        Scheduler.drawOffset = beat_offset / time_signature.count;
+        Scheduler.drawOffset = beatOffset / timeSignature.count;
         socket.emit('broadcast_canvas', {quantized_bars: JSON.stringify(quantized_bars), offset: Scheduler.drawOffset});
 
         var animate = function() {
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
             if (anticipatoryMusicProducer.Client.state) {
-                if (beat_offset == 0) {
+                if (beatOffset == 0) {
                     anticipatoryMusicProducer.Client.state.shift();
                 }
                 anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", anticipatoryMusicProducer.Client.state, Scheduler.drawOffset)();
@@ -120,7 +120,7 @@
         // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
         // should be grouped together
         // values returned are relative to the beginning of the bar
-        var quantized_bar = new Scheduler.Bar(0, time_signature, []);
+        var quantized_bar = new Scheduler.Bar(0, timeSignature, []);
         var bar_start = bar.bar_start;
         quantized_bar.bar_start = bar.bar_start;
         quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
@@ -128,11 +128,11 @@
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
             // Sanitize
             // Error with first beat; to fix
-            if (endBeatLocation > time_signature.count && startBeatLocation > time_signature.count) {
+            if (endBeatLocation > timeSignature.count && startBeatLocation > timeSignature.count) {
                 return null;
             }
             // If both start and end beat are at the very end, bring the start beat forward a little
-            if (startBeatLocation == endBeatLocation && endBeatLocation == time_signature.count) {
+            if (startBeatLocation == endBeatLocation && endBeatLocation == timeSignature.count) {
                 startBeatLocation = endBeatLocation - 1 / Scheduler.quantizationIntervalDenominator;
             } else if (startBeatLocation == endBeatLocation) { // Otherwise push the end beat ahead a little
                 endBeatLocation = startBeatLocation + 1 / Scheduler.quantizationIntervalDenominator;
@@ -144,9 +144,9 @@
             }
 
             return new Palette.BarObject(false,
-                endBeatLocation > time_signature.count ? time_signature.count : (endBeatLocation > startBeatLocation ?
+                endBeatLocation > timeSignature.count ? timeSignature.count : (endBeatLocation > startBeatLocation ?
                     endBeatLocation : endBeatLocation + 1 / Scheduler.quantizationIntervalDenominator),
-                startBeatLocation % time_signature.count,
+                startBeatLocation % timeSignature.count,
                 note.note);
         });
         quantized_bar.bar_objects = quantized_bar.bar_objects.filter(
@@ -165,8 +165,8 @@
         bar.bar_objects.push({
             note   : new Palette.Note(note),
             done   : false,
-            timeOn : time + bar.bar_number * time_per_bar * 1000,
-            timeOff: time + bar.bar_number * time_per_bar * 1000,
+            timeOn : time + bar.bar_number * timePerBar * 1000,
+            timeOff: time + bar.bar_number * timePerBar * 1000,
             tempo  : Scheduler.currentTempo
         });
     };
@@ -183,7 +183,7 @@
 
         if (releasedNote) {
             releasedNote.forEach(function (note) {
-                note.timeOff = time + bar.bar_number * time_per_bar * 1000;
+                note.timeOff = time + bar.bar_number * timePerBar * 1000;
                 note.done = true;
             })
         }

@@ -61,13 +61,16 @@ Currently, in addition to inputting notes from your MIDI device, you can modify 
 
 Playback upon note input is supported; playback of notes at the 'now' line is not (yet).
 
+Musicians have their hands occupied when performing, so utilizing the application can be difficult. Bearing that in 
+mind, the application utilizes motion detection to determine the direction the user's instrument is moved. Using the
+instrument to convey gesture, the system can then allow the musician to skip ahead 1, 2 or 3 bars in his/her
+performance. Motion detection has been implemented using gesture recognition via gest.js.
+
 ## Future Features
 
 ### Motion detection
 
-Musicians have their hands occupied when performing, so a planned feature is to use motion detection to determine the
-direction the user's instrument is pointing at. By breaking the camera's view into multiple detection regions, the
-system can then allow the musician to skip ahead 1, 2 or 3 bars in his/her performance.
+
 
 ### Bar looping
 
