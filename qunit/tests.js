@@ -34,7 +34,7 @@ QUnit.test("Full Note", function(assert) {
         tempo  : Scheduler.currentTempo
     };
 
-    bar.bar_objects.push(bar_obj);
+    bar.barObjects.push(bar_obj);
 
     playerPainter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
@@ -58,7 +58,7 @@ QUnit.test("Half Note", function(assert) {
         tempo  : Scheduler.currentTempo
     };
 
-    bar.bar_objects.push(bar_obj);
+    bar.barObjects.push(bar_obj);
 
     playerPainter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
@@ -82,7 +82,7 @@ QUnit.test("Quarter Note", function(assert) {
         tempo  : Scheduler.currentTempo
     };
 
-    bar.bar_objects.push(bar_obj);
+    bar.barObjects.push(bar_obj);
 
     playerPainter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 

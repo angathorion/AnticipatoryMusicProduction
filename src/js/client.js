@@ -66,9 +66,9 @@ var Client = function(Client, $, undefined) {
     // Whenever the server emits 'new message', update the chat body
     var slower = null;
     socket.on('receive_canvas', function (data) {
-        var quantized_bars = JSON.parse(data.quantized_bars);
+        var quantized_bars = JSON.parse(data.quantizedBars);
         quantized_bars.forEach(function(bar) {
-            bar.bar_objects.forEach(function(bar_object) {
+            bar.barObjects.forEach(function(bar_object) {
                 bar_object.note.toString = Palette.Note.prototype.toString;
                 bar_object.note.letter = Palette.Note.prototype.letter;
                 bar_object.note.accidental = Palette.Note.prototype.accidental;

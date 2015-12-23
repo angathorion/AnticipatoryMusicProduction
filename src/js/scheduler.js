@@ -1,14 +1,14 @@
 (function (Scheduler, $, undefined) {
-    Scheduler.Bar = function (bar_number, time_signature, bar_objects, bar_start) {
-        this.bar_number = bar_number || 0;
-        this.bar_objects = bar_objects || [];
-        this.time_signature = time_signature || {value: 4, count: 4};
-        this.bar_start = bar_start || performance.now();
+    Scheduler.Bar = function (barNumber, timeSignature, barObjects, barStart) {
+        this.barNumber = barNumber || 0;
+        this.barObjects = barObjects || [];
+        this.timeSignature = timeSignature || {value: 4, count: 4};
+        this.barStart = barStart || performance.now();
         return this;
     };
 
     Scheduler.Bar.prototype.toString = function () {
-        return "".concat(this.bar_objects);
+        return "".concat(this.barObjects);
     };
 
     Scheduler.Debugger = function () {
@@ -68,7 +68,7 @@
         var selectedBar = parseInt(barOffsetSelector ? barOffsetSelector.options[barOffsetSelector.selectedIndex].value : 1);
         if (selectedBar != Scheduler.currentBar) {
             Scheduler.currentBar = selectedBar;
-            bars[selectedBar].bar_objects.forEach(function (note) {
+            bars[selectedBar].barObjects.forEach(function (note) {
                 note.done = true;
             });
         }
@@ -78,32 +78,32 @@
             socket.emit('heartbeat');
             bars.splice(0, 1);
             bars.forEach(function (bar) {
-                bar.bar_number -= 1;
-                var updatedStart = now + bar.bar_number * timePerBar * 1000;
-                bar.bar_objects.forEach(function (bar_object){
-                    bar_object.timeOn = bar_object.timeOn - bar.bar_start + updatedStart;
-                    bar_object.timeOff = bar_object.timeOff - bar.bar_start + updatedStart;
+                bar.barNumber -= 1;
+                var updatedStart = now + bar.barNumber * timePerBar * 1000;
+                bar.barObjects.forEach(function (bar_object){
+                    bar_object.timeOn = bar_object.timeOn - bar.barStart + updatedStart;
+                    bar_object.timeOff = bar_object.timeOff - bar.barStart + updatedStart;
                 });
-                bar.bar_start = now + bar.bar_number * timePerBar * 1000;
+                bar.barStart = now + bar.barNumber * timePerBar * 1000;
             });
             bars.push(new Scheduler.Bar(7, timeSignature, []));
             bar = bars[Scheduler.currentBar];
         }
         // Dynamically updates the note depending on how long you hold it
-        var activeNotes = bar.bar_objects.filter(function (noteObj) {
+        var activeNotes = bar.barObjects.filter(function (noteObj) {
             return (noteObj.done == false);
         });
 
         activeNotes.forEach(function (noteObj) {
-            noteObj.timeOff = now + bar.bar_number * timePerBar * 1000;
+            noteObj.timeOff = now + bar.barNumber * timePerBar * 1000;
         });
         // pass bars to painter to draw
-        var quantized_bars = bars.map(Scheduler.quantizeBar);
+        var quantizedBars = bars.map(Scheduler.quantizeBar);
         Scheduler.drawOffset = beatOffset / timeSignature.count;
-        socket.emit('broadcast_canvas', {quantized_bars: JSON.stringify(quantized_bars), offset: Scheduler.drawOffset});
+        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset});
 
         var animate = function() {
-            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantized_bars, Scheduler.drawOffset)();
+            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset)();
             if (anticipatoryMusicProducer.Client.state) {
                 if (beatOffset == 0) {
                     anticipatoryMusicProducer.Client.state.shift();
@@ -121,9 +121,9 @@
         // should be grouped together
         // values returned are relative to the beginning of the bar
         var quantized_bar = new Scheduler.Bar(0, timeSignature, []);
-        var bar_start = bar.bar_start;
-        quantized_bar.bar_start = bar.bar_start;
-        quantized_bar.bar_objects = bar.bar_objects.map(function (note) {
+        var bar_start = bar.barStart;
+        quantized_bar.barStart = bar.barStart;
+        quantized_bar.barObjects = bar.barObjects.map(function (note) {
             var startBeatLocation = quantize(getBeatLocation(note.timeOn, bar_start));
             var endBeatLocation = quantize(getBeatLocation(note.timeOff, bar_start));
             // Sanitize
@@ -149,7 +149,7 @@
                 startBeatLocation % timeSignature.count,
                 note.note);
         });
-        quantized_bar.bar_objects = quantized_bar.bar_objects.filter(
+        quantized_bar.barObjects = quantized_bar.barObjects.filter(
             function (bar_object) {
                 return bar_object;
             });
@@ -162,11 +162,11 @@
      * @param {number} time DOMHighResTimeStamp representing time on
      */
     Scheduler.onNoteOn = function (note, time) {
-        bar.bar_objects.push({
+        bar.barObjects.push({
             note   : new Palette.Note(note),
             done   : false,
-            timeOn : time + bar.bar_number * timePerBar * 1000,
-            timeOff: time + bar.bar_number * timePerBar * 1000,
+            timeOn : time + bar.barNumber * timePerBar * 1000,
+            timeOff: time + bar.barNumber * timePerBar * 1000,
             tempo  : Scheduler.currentTempo
         });
     };
@@ -177,13 +177,13 @@
      * @param {number} time DOMHighResTimeStamp representing time off
      */
     Scheduler.onNoteOff = function (note, time) {
-        var releasedNote = bar.bar_objects.filter(function (noteObj) {
+        var releasedNote = bar.barObjects.filter(function (noteObj) {
             return (noteObj.note.number == note);
         });
 
         if (releasedNote) {
             releasedNote.forEach(function (note) {
-                note.timeOff = time + bar.bar_number * timePerBar * 1000;
+                note.timeOff = time + bar.barNumber * timePerBar * 1000;
                 note.done = true;
             })
         }

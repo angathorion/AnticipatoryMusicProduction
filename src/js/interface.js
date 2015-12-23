@@ -49,27 +49,25 @@
             outputs.push(i.value);
         }
         console.log(outputs);
-
-
         // listen for connect/disconnect message
         midi.onstatechange = onStateChange;
     }
 
     Interface.reloadMIDIInstruments = function () {
-        var instrument_name_selector = document.getElementById("instrument_name");
-        var instrument_name = "acoustic_grand_piano";
-        if (instrument_name_selector) {
-            instrument_name = instrument_name_selector.options[instrument_name_selector.selectedIndex].value;
+        var instrumentNameSelector = document.getElementById("instrument_name");
+        var instrumentName = "acoustic_grand_piano";
+        if (instrumentNameSelector) {
+            instrumentName = instrumentNameSelector.options[instrumentNameSelector.selectedIndex].value;
         }
         MIDI.loadPlugin({
             soundfontUrl: "./soundfont/",
-            instrument  : instrument_name,
+            instrument  : instrumentName,
             onprogress  : function (state, progress) {
                 //console.log(state, progress);
             },
             onsuccess   : function (note, velocity) {
                 // play the note
-                MIDI.programChange(0, MIDI.GM.byName[instrument_name].number);
+                MIDI.programChange(0, MIDI.GM.byName[instrumentName].number);
             }
         });
     };
@@ -91,9 +89,9 @@
         // pressure: 176, cmd 11:
         // bend: 224, cmd: 14
 
-        var midi_channel_selector = document.getElementById("midi_channel");
-        var midi_channel = midi_channel_selector.options[midi_channel_selector.selectedIndex].value;
-        if (midi_channel == channel) {
+        var midiChannelSelector = document.getElementById("midi_channel");
+        var midiChannel = midiChannelSelector.options[midiChannelSelector.selectedIndex].value;
+        if (midiChannel == channel) {
             switch (type) {
                 case 144: // noteOn message
                     noteOnListeners.forEach(function (item) {

@@ -83,7 +83,7 @@ var Painter = function (Painter, canvas, $, undefined) {
             var staves = makeGrandStaff(x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector);
 
             if (!cache || Painter.unprocessedCache[index].toString() != bar.toString()) {
-                var bar_objects = bar.bar_objects.filter(function (bar_object) {
+                var bar_objects = bar.barObjects.filter(function (bar_object) {
                     return bar_object.endBeat > bar_object.startBeat;
                 });
                 var treble = bar_objects.filter(function (bar_object) {
@@ -93,7 +93,7 @@ var Painter = function (Painter, canvas, $, undefined) {
                     return (bar_object.note.octave < 4);
                 });
 
-                var time_signature = bar.time_signature;
+                var time_signature = bar.timeSignature;
 
                 var trebleBarObjects = makeBarObjects(staves.treble, processNotes(treble), time_signature, label);
                 var bassBarObjects = makeBarObjects(staves.bass, processNotes(bass), time_signature, label);
