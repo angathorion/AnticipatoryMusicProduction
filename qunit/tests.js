@@ -78,7 +78,7 @@ QUnit.test("Quarter Note", function(assert) {
         note   : new Palette.Note(60),
         done   : true,
         timeOn : performance.now(),
-        timeOff: performance.now() + 1000,
+        timeOff: performance.now() + 500,
         tempo  : Scheduler.currentTempo
     };
 
@@ -86,5 +86,5 @@ QUnit.test("Quarter Note", function(assert) {
 
     playerPainter.show(0, [Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar), Scheduler.quantizeBar(bar)], 0);
 
-    assert.equal(playerPainter.player_context.hash(), '87e5227d003a546bcb1149d0a1ff8022');
+    assert.equal(playerPainter.player_context.hash(), '1e7546a4f9f9c11a36e9d3a2e598a0aa');
 });
