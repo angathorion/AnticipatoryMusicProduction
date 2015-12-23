@@ -57,6 +57,7 @@
 
     var bar = bars[Scheduler.currentBar];
 
+
     var bar_offset_selector = document.getElementById("bar_offset");
     Scheduler.eventLoop = function () {
         // run every tick

@@ -3,14 +3,18 @@
     anticipatoryMusicProducer.Scheduler = anticipatoryMusicProducer.Scheduler || {};
     anticipatoryMusicProducer.playerPainter = anticipatoryMusicProducer.playerPainter || {};
     anticipatoryMusicProducer.collaboratorPainter = anticipatoryMusicProducer.collaboratorPainter || {};
+    anticipatoryMusicProducer.motionDetector = anticipatoryMusicProducer.motionDetector || {};
     anticipatoryMusicProducer.init = function() {
-        console.log("I've been started!");
+        this.motionDetector.initialize();
+        this.motionDetector.start();
         this.interval.run();
     };
 
     anticipatoryMusicProducer.stop = function() {
+        this.motionDetector.stop();
         this.interval.stop();
     };
+
     // Self-correcting timer
     anticipatoryMusicProducer.setInterval = function(fn, duration){
         this.baseline = undefined;
