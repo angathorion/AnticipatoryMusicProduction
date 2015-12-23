@@ -22,6 +22,7 @@ module.exports = function (config) {
             'src/js/interface.js',
             'src/js/scheduler.js',
             'src/js/bridge.js',
+            'src/js/motion_detector.js',
             'src/js/client.js',
             'qunit/canteen.min.js',
             'qunit/tests.js'

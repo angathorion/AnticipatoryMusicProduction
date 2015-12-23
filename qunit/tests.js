@@ -9,6 +9,7 @@ QUnit.module("module", {
             '<option value="4">4</option></select></form><div id="debug_data"></div></div>';
         var fixture = $("#qunit-fixture");
         fixture.append(divs);
+        anticipatoryMusicProducer.detectMotion = false;
         anticipatoryMusicProducer.init();
     },
     afterEach: function(assert) {

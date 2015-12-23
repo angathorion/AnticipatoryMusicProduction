@@ -4,9 +4,13 @@
     anticipatoryMusicProducer.playerPainter = anticipatoryMusicProducer.playerPainter || {};
     anticipatoryMusicProducer.collaboratorPainter = anticipatoryMusicProducer.collaboratorPainter || {};
     anticipatoryMusicProducer.motionDetector = anticipatoryMusicProducer.motionDetector || {};
+    anticipatoryMusicProducer.detectMotion = true;
     anticipatoryMusicProducer.init = function() {
-        this.motionDetector.initialize();
-        this.motionDetector.start();
+        if (this.detectMotion) {
+            this.motionDetector.initialize();
+            this.motionDetector.start();
+        }
+
         this.interval.run();
     };
 
