@@ -11,6 +11,35 @@
         return "".concat(this.barObjects);
     };
 
+    Scheduler.Looper = function () {
+        this.loops = [];
+        this.tempLoop = null;
+    };
+
+    Scheduler.Looper.prototype.makeNewLoop = function () {
+        this.tempLoop = { 'bars': [], 'playCounter': 0 };
+    };
+
+    Scheduler.Looper.prototype.addBarToLatestLoop = function (bar) {
+        if (!this.tempLoop) {
+            this.makeNewLoop();
+        }
+        this.tempLoop.bars.push(bar);
+    };
+
+    Scheduler.Looper.prototype.completeLoop = function () {
+        this.loops.push(this.tempLoop);
+        this.tempLoop = null;
+    };
+
+    Scheduler.Looper.prototype.getCurrentBarsAndAdvance = function () {
+        return this.loops.map(function (loop) {
+            var current = loop.playCounter;
+            loop.playCounter += 1;
+            return loop.bar;
+        })
+    };
+
     Scheduler.Debugger = function () {
         this.data_div = $('#debug_data')[0];
         this.last_beat = 0;
