@@ -43,7 +43,6 @@ var Client = function(Client, $, undefined) {
     }
 
     // Keyboard events
-
     $window.keydown(function (event) {
         // When the client hits ENTER on their keyboard
         if (event.which === 13) {
@@ -56,7 +55,6 @@ var Client = function(Client, $, undefined) {
     // Socket events
     socket.on('start', function () {
         inRoom = true;
-        console.log("Received init");
         anticipatoryMusicProducer.init();
         $playerScoresheet.fadeIn();
         $collaboratorScoresheet.fadeIn();
@@ -74,19 +72,9 @@ var Client = function(Client, $, undefined) {
                 bar_object.note.accidental = Palette.Note.prototype.accidental;
             });
         });
-
-        var myDrawOffset = anticipatoryMusicProducer.Scheduler.drawOffset;
         var theirDrawOffset = data.offset;
-
-        if (slower == null)
-            slower = theirDrawOffset > myDrawOffset;
-
-        if (slower && theirDrawOffset < myDrawOffset) {
-            quantized_bars.unshift(new anticipatoryMusicProducer.Scheduler.Bar());
-        } else if (!slower && theirDrawOffset > myDrawOffset) {
-            quantized_bars.shift();
-        }
-        Client.state = quantized_bars;
+        var timeDiff = performance.now() - data.now;
+        Client.state = { bars: quantized_bars, drawOffset: theirDrawOffset, timeDiff: timeDiff };
     });
 
     socket.on('wait_for_heartbeat', function() {
@@ -104,7 +92,7 @@ var Client = function(Client, $, undefined) {
         console.log(data.username + ' left ' + data.sessionName);
     });
 
-    socket.on('heartbeat', function () {
+    socket.on('heartbeat', function (data) {
         if (!inRoom && waitForHeartbeat) {
             inRoom = true;
             waitForHeartbeat = false;

@@ -42,6 +42,11 @@
                 <option value="2">2</option>
                 <option value="3">3</option>
             </select>
+            <label for="looping">Looping</label>
+            <select name="looping" id="looping">
+                <option value="0" selected>Off</option>
+                <option value="1">On</option>
+            </select>
             <label for="instrument_name">Instrument Name</label>
             <select name="instrument_name" id="instrument_name" onchange="anticipatoryMusicProducer.Interface.reloadMIDIInstruments()">
                 <option value="accordion">accordion</option>

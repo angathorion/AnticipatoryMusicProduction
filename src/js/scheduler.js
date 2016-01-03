@@ -1,14 +1,33 @@
 (function (Scheduler, $, undefined) {
-    Scheduler.Bar = function (barNumber, timeSignature, barObjects, barStart) {
+    Scheduler.Bar = function (barNumber, timeSignature, barObjects, barStart, distanceFromGenesis) {
         this.barNumber = barNumber || 0;
         this.barObjects = barObjects || [];
         this.timeSignature = timeSignature || {value: 4, count: 4};
         this.barStart = barStart || performance.now();
+        this.distanceFromGenesis = Scheduler.distanceFromGenesis++;
         return this;
     };
 
     Scheduler.Bar.prototype.toString = function () {
         return "".concat(this.barObjects);
+    };
+
+    Scheduler.Bar.prototype.mergeLoopsIntoBar = function(loops) {
+        return loops.reduce(function(previousBar, currentBar) {
+            return previousBar.mergeLoopIntoBar(currentBar);
+        }, this);
+    };
+
+    Scheduler.Bar.prototype.mergeLoopIntoBar = function (loopBar) {
+        var original = this;
+        var now = original.barStart;
+        loopBar.barObjects.forEach(function(barObject) {
+            barObject.timeOn = barObject.timeOn - loopBar.barStart + now;
+            barObject.timeOff = barObject.timeOff - loopBar.barStart + now;
+            original.barObjects.push($.extend({}, barObject));
+        });
+        loopBar.barStart = now;
+        return this;
     };
 
     Scheduler.Looper = function () {
@@ -17,7 +36,7 @@
     };
 
     Scheduler.Looper.prototype.makeNewLoop = function () {
-        this.tempLoop = { 'bars': [], 'playCounter': 0 };
+        this.tempLoop = { 'bars': [], 'playCounter': 0, 'loopFrom': 0 };
     };
 
     Scheduler.Looper.prototype.addBarToLatestLoop = function (bar) {
@@ -28,15 +47,22 @@
     };
 
     Scheduler.Looper.prototype.completeLoop = function () {
-        this.loops.push(this.tempLoop);
+        if (this.tempLoop && this.tempLoop.bars.length > 0) {
+            this.tempLoop.bars.forEach(function(bar) {
+                bar.barObjects.forEach(function(barObject) {
+                    barObject.loop = true;
+                })
+            });
+            this.loops.push($.extend({}, this.tempLoop));
+        }
         this.tempLoop = null;
     };
 
     Scheduler.Looper.prototype.getCurrentBarsAndAdvance = function () {
         return this.loops.map(function (loop) {
             var current = loop.playCounter;
-            loop.playCounter += 1;
-            return loop.bar;
+            loop.playCounter = (loop.playCounter + 1) % loop.bars.length;
+            return loop.bars[current];
         })
     };
 
@@ -65,6 +91,8 @@
     };
 
     Scheduler.debugger = new Scheduler.Debugger();
+    Scheduler.looper = new Scheduler.Looper();
+
 
     Scheduler.currentTempo = 120;
     var bps = Scheduler.currentTempo / 60.0;
@@ -78,22 +106,33 @@
     Scheduler.interval = timePerBeat / Scheduler.quantizationIntervalDenominator / Scheduler.refreshMultiplier * 1000;
     Scheduler.currentBar = 1;
     Scheduler.drawOffset = 0;
-    var bars = [new Scheduler.Bar(-1, timeSignature, []), new Scheduler.Bar(0, timeSignature, []),
-        new Scheduler.Bar(1, timeSignature, []), new Scheduler.Bar(2, timeSignature, []),
-        new Scheduler.Bar(3, timeSignature, []), new Scheduler.Bar(4, timeSignature, []),
-        new Scheduler.Bar(5, timeSignature, []), new Scheduler.Bar(6, timeSignature, [])];
+    Scheduler.distanceFromGenesis = 0;
+    var bars = [new Scheduler.Bar(-1, timeSignature, [], 0), new Scheduler.Bar(0, timeSignature, [], 1),
+        new Scheduler.Bar(1, timeSignature, [], 2), new Scheduler.Bar(2, timeSignature, [], 3),
+        new Scheduler.Bar(3, timeSignature, [], 4), new Scheduler.Bar(4, timeSignature, [], 5),
+        new Scheduler.Bar(5, timeSignature, [], 6), new Scheduler.Bar(6, timeSignature, [], 7)];
 
 
     var bar = bars[Scheduler.currentBar];
 
 
     var barOffsetSelector = document.getElementById("bar_offset");
+    var loopingSelector = document.getElementById("looping");
+    var previouslyLooping = false;
+    var distanceFromPartner = null;
+
+    var previousPlayerOffset = 0;
+    var previousPartnerOffset = 0;
+
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
         beatOffset = (beatOffset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % timeSignature.count;
         Scheduler.debugger.update(beatOffset, Scheduler.currentTempo, Scheduler.bps, performance.now(), lastBeat);
         Scheduler.debugger.write();
+
+        var looping = parseInt(loopingSelector.options[loopingSelector.selectedIndex].value);
+
         var selectedBar = parseInt(barOffsetSelector ? barOffsetSelector.options[barOffsetSelector.selectedIndex].value : 1);
         if (selectedBar != Scheduler.currentBar) {
             Scheduler.currentBar = selectedBar;
@@ -115,12 +154,33 @@
                 });
                 bar.barStart = now + bar.barNumber * timePerBar * 1000;
             });
+
+
+            if (looping) {
+                Scheduler.looper.addBarToLatestLoop(bar);
+                previouslyLooping = true;
+            } else {
+                Scheduler.looper.completeLoop();
+                if (previouslyLooping) {
+                    for (var i = Scheduler.currentBar; i < bars.length; i++) {
+                        var loopBars = Scheduler.looper.getCurrentBarsAndAdvance();
+                        bars[i].mergeLoopsIntoBar(loopBars);
+                    }
+                }
+                previouslyLooping = false;
+            }
+
             bars.push(new Scheduler.Bar(7, timeSignature, []));
+            bars[bars.length - 1].mergeLoopsIntoBar(Scheduler.looper.getCurrentBarsAndAdvance());
             bar = bars[Scheduler.currentBar];
         }
+
+
         // Dynamically updates the note depending on how long you hold it
+
+
         var activeNotes = bar.barObjects.filter(function (noteObj) {
-            return (noteObj.done == false);
+            return (noteObj.done == false && noteObj.loop == false);
         });
 
         activeNotes.forEach(function (noteObj) {
@@ -129,16 +189,56 @@
         // pass bars to painter to draw
         var quantizedBars = bars.map(Scheduler.quantizeBar);
         Scheduler.drawOffset = beatOffset / timeSignature.count;
-        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset});
+        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset, now: now});
 
         var animate = function() {
-            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset)();
             if (anticipatoryMusicProducer.Client.state) {
-                if (beatOffset == 0) {
-                    anticipatoryMusicProducer.Client.state.shift();
+                var clientBars = anticipatoryMusicProducer.Client.state.bars;
+                var clientOffset = anticipatoryMusicProducer.Client.state.drawOffset;
+                if (distanceFromPartner === null && typeof distanceFromPartner === "object") {
+                    distanceFromPartner = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis;
                 }
-                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", anticipatoryMusicProducer.Client.state, Scheduler.drawOffset)();
+                //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
+                var barLag = Math.abs(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
+
+                //var offsetFactor = (Scheduler.drawOffset - previousPlayerOffset) / (clientOffset - previousPartnerOffset);
+                //console.log("---");
+                //console.log(Scheduler.drawOffset - previousPlayerOffset);
+                //console.log(clientOffset - previousPartnerOffset);
+
+                /*
+                if (clientOffset > 0.9 && Scheduler.drawOffset < 0.1) {
+                    clientOffset = Scheduler.drawOffset - clientOffset + 1;
+                } else if (clientOffset > 0.9 && Scheduler.drawOffset < 0.1) {
+                    clientOffset = Scheduler.drawOffset + clientOffset - 1;
+                } else {
+                    clientOffset = Scheduler.drawOffset;
+                }*/
+                //console.log(Scheduler.drawOffset);
+                //console.log(diff);
+                //console.log(Scheduler.drawOffset - clientOffset);
+
+
+                if (Scheduler.drawOffset > 0.3 && Math.abs(Scheduler.drawOffset - clientOffset) >= 0.2) {
+                    anticipatoryMusicProducer.interval.slowFrame = true;
+                } else {
+                    anticipatoryMusicProducer.interval.slowFrame = false;
+                }
+
+                if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
+                    clientOffset += (Scheduler.drawOffset - clientOffset);
+                } else if (Scheduler.drawOffset - clientOffset < 0){
+                    clientOffset = Scheduler.drawOffset + 1;
+                } else {
+                    clientOffset = Scheduler.drawOffset - 1;
+                }
+
+                previousPlayerOffset = Scheduler.drawOffset;
+                previousPartnerOffset = clientOffset;
+                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
             }
+            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset)();
+
         };
         requestAnimationFrame(animate);
     };
@@ -149,7 +249,8 @@
         // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
         // should be grouped together
         // values returned are relative to the beginning of the bar
-        var quantized_bar = new Scheduler.Bar(0, timeSignature, []);
+        //var quantized_bar = new Scheduler.Bar(0, timeSignature, []);
+        var quantized_bar = $.extend({}, bar);
         var bar_start = bar.barStart;
         quantized_bar.barStart = bar.barStart;
         quantized_bar.barObjects = bar.barObjects.map(function (note) {
@@ -196,7 +297,8 @@
             done   : false,
             timeOn : time + bar.barNumber * timePerBar * 1000,
             timeOff: time + bar.barNumber * timePerBar * 1000,
-            tempo  : Scheduler.currentTempo
+            tempo  : Scheduler.currentTempo,
+            loop   : false
         });
     };
 

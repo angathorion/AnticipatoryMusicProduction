@@ -4,7 +4,7 @@
     anticipatoryMusicProducer.playerPainter = anticipatoryMusicProducer.playerPainter || {};
     anticipatoryMusicProducer.collaboratorPainter = anticipatoryMusicProducer.collaboratorPainter || {};
     anticipatoryMusicProducer.motionDetector = anticipatoryMusicProducer.motionDetector || {};
-    anticipatoryMusicProducer.detectMotion = true;
+    anticipatoryMusicProducer.detectMotion = false;
     anticipatoryMusicProducer.init = function() {
         if (this.detectMotion) {
             this.motionDetector.initialize();
@@ -22,10 +22,12 @@
     // Self-correcting timer
     anticipatoryMusicProducer.setInterval = function(fn, duration){
         this.baseline = undefined;
-
+        this.slowFrame = false;
         this.run = function(){
             this.baseline = performance.now();
+
             fn();
+
             var end = performance.now();
             this.baseline += duration;
 
@@ -33,6 +35,11 @@
             if(nextTick<0){
                 nextTick = 0
             }
+
+            if (this.slowFrame) {
+                nextTick *= 0.7;
+            }
+
             (function(i){
                 i.timer = setTimeout(function(){
                     i.run(end)
