@@ -71,7 +71,7 @@ Musicians can choose to 'record' their played bars and have it be looped over an
 the bar looping parameter to 'on' will begin recording from the next bar onwards. Setting it to off will cease recording
 at the end of the bar, and from that point on the recorded bars will be looped.
 
-## Future Features
+## Future Features 
 
 ### Motion detection
 
