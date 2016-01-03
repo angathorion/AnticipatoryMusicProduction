@@ -200,8 +200,8 @@
                 }
                 //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
                 var barLag = Math.abs(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
-
-                if (Scheduler.drawOffset > 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
+                
+                if (barLag > 0 && Scheduler.drawOffset > 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
                     anticipatoryMusicProducer.interval.slowFrame = true;
                 } else if (Scheduler.drawOffset > 0.3 && Scheduler.drawOffset - clientOffset <= 0.4){
                     anticipatoryMusicProducer.interval.slowFrame = false;
