@@ -200,10 +200,10 @@
                 }
                 //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
                 var barLag = Math.abs(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
-                
+                console.log(Scheduler.drawOffset - clientOffset);
                 if (barLag > 0 && Scheduler.drawOffset > 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
                     anticipatoryMusicProducer.interval.slowFrame = true;
-                } else if (Scheduler.drawOffset > 0.3 && Scheduler.drawOffset - clientOffset <= 0.4){
+                } else if (Scheduler.drawOffset > 0.3 && Scheduler.drawOffset - clientOffset <= 0.3){
                     anticipatoryMusicProducer.interval.slowFrame = false;
                 }
                 //console.log(anticipatoryMusicProducer.interval.slowFrame);
