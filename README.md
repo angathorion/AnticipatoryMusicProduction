@@ -58,6 +58,7 @@ Currently, in addition to inputting notes from your MIDI device, you can modify 
 1. The MIDI instrument
 2. The MIDI input channel
 3. The number of bars ahead to play in
+4. Bar looping
 
 Playback upon note input is supported; playback of notes at the 'now' line is not (yet).
 
@@ -66,17 +67,16 @@ mind, the application utilizes motion detection to determine the direction the u
 instrument to convey gesture, the system can then allow the musician to skip ahead 1, 2 or 3 bars in his/her
 performance. Motion detection has been implemented using gesture recognition via gest.js.
 
+Musicians can choose to 'record' their played bars and have it be looped over and over again in subsequent bars. Setting
+the bar looping parameter to 'on' will begin recording from the next bar onwards. Setting it to off will cease recording
+at the end of the bar, and from that point on the recorded bars will be looped.
+
 ## Future Features
 
 ### Motion detection
 
-
-
-### Bar looping
-
-The bar looping feature is intended to allow musicians the ability to indicate a section of music that he/she wishes
-to loop over and over indefinitely. By enabling stacked usage of this feature, it is expected that the musician will be
-able to produce significantly complex music, with or without a partner.
+Gesture recognition is supported, but other types of recognition are being considered for implementation such as head
+movements.
 
 ## License
 
