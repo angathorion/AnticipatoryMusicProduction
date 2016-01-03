@@ -37,7 +37,7 @@
             }
 
             if (this.slowFrame) {
-                nextTick *= 0.7;
+                nextTick /= 0.95;
             }
 
             (function(i){

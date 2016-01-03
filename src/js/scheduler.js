@@ -201,30 +201,12 @@
                 //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
                 var barLag = Math.abs(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
 
-                //var offsetFactor = (Scheduler.drawOffset - previousPlayerOffset) / (clientOffset - previousPartnerOffset);
-                //console.log("---");
-                //console.log(Scheduler.drawOffset - previousPlayerOffset);
-                //console.log(clientOffset - previousPartnerOffset);
-
-                /*
-                if (clientOffset > 0.9 && Scheduler.drawOffset < 0.1) {
-                    clientOffset = Scheduler.drawOffset - clientOffset + 1;
-                } else if (clientOffset > 0.9 && Scheduler.drawOffset < 0.1) {
-                    clientOffset = Scheduler.drawOffset + clientOffset - 1;
-                } else {
-                    clientOffset = Scheduler.drawOffset;
-                }*/
-                //console.log(Scheduler.drawOffset);
-                //console.log(diff);
-                //console.log(Scheduler.drawOffset - clientOffset);
-
-
-                if (Scheduler.drawOffset > 0.3 && Math.abs(Scheduler.drawOffset - clientOffset) >= 0.2) {
+                if (Scheduler.drawOffset > 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
                     anticipatoryMusicProducer.interval.slowFrame = true;
-                } else {
+                } else if (Scheduler.drawOffset > 0.3 && Scheduler.drawOffset - clientOffset <= 0.4){
                     anticipatoryMusicProducer.interval.slowFrame = false;
                 }
-
+                //console.log(anticipatoryMusicProducer.interval.slowFrame);
                 if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
                     clientOffset += (Scheduler.drawOffset - clientOffset);
                 } else if (Scheduler.drawOffset - clientOffset < 0){
