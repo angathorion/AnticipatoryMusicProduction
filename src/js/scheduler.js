@@ -93,7 +93,9 @@
     Scheduler.debugger = new Scheduler.Debugger();
     Scheduler.looper = new Scheduler.Looper();
 
-
+    Scheduler.incrementBeat = function () {
+        beatOffset = (beatOffset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % timeSignature.count;
+    }
     Scheduler.currentTempo = 120;
     var bps = Scheduler.currentTempo / 60.0;
     var timePerBeat = 1.0 / bps; // in seconds
@@ -123,11 +125,10 @@
 
     var previousPlayerOffset = 0;
     var previousPartnerOffset = 0;
-
+    var previousDisplacement = 0;
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        beatOffset = (beatOffset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % timeSignature.count;
         Scheduler.debugger.update(beatOffset, Scheduler.currentTempo, Scheduler.bps, performance.now(), lastBeat);
         Scheduler.debugger.write();
 
@@ -199,27 +200,33 @@
                     distanceFromPartner = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis;
                 }
                 //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
-                var barLag = Math.abs(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
-                console.log(Scheduler.drawOffset - clientOffset);
-                if (barLag > 0 && Scheduler.drawOffset > 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
+                var barLag = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner;
+                /*
+                if (barLag > 1 && Scheduler.drawOffset > 0.5 && clientOffset < 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
                     anticipatoryMusicProducer.interval.slowFrame = true;
                 } else if (Scheduler.drawOffset > 0.3 && Scheduler.drawOffset - clientOffset <= 0.3){
                     anticipatoryMusicProducer.interval.slowFrame = false;
-                }
+                }*/
                 //console.log(anticipatoryMusicProducer.interval.slowFrame);
+                var orig = clientOffset;
+                /*
+                if (barLag > 0) {
+                    anticipatoryMusicProducer.interval.slowFrame = true;
+                } else {
+                    anticipatoryMusicProducer.interval.slowFrame = false;
+                }*/
+
                 if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
                     clientOffset += (Scheduler.drawOffset - clientOffset);
                 } else if (Scheduler.drawOffset - clientOffset < 0){
                     clientOffset = Scheduler.drawOffset + 1;
                 } else {
+                    //console.log("c");
                     clientOffset = Scheduler.drawOffset - 1;
                 }
-
-                previousPlayerOffset = Scheduler.drawOffset;
-                previousPartnerOffset = clientOffset;
                 anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
             }
-            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset)();
+            anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset, Scheduler.currentBar)();
 
         };
         requestAnimationFrame(animate);

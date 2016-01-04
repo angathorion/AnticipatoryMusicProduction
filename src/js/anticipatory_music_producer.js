@@ -4,7 +4,7 @@
     anticipatoryMusicProducer.playerPainter = anticipatoryMusicProducer.playerPainter || {};
     anticipatoryMusicProducer.collaboratorPainter = anticipatoryMusicProducer.collaboratorPainter || {};
     anticipatoryMusicProducer.motionDetector = anticipatoryMusicProducer.motionDetector || {};
-    anticipatoryMusicProducer.detectMotion = false;
+    anticipatoryMusicProducer.detectMotion = true;
     anticipatoryMusicProducer.init = function() {
         if (this.detectMotion) {
             this.motionDetector.initialize();
@@ -25,7 +25,7 @@
         this.slowFrame = false;
         this.run = function(){
             this.baseline = performance.now();
-
+            anticipatoryMusicProducer.Scheduler.incrementBeat();
             fn();
 
             var end = performance.now();
@@ -37,7 +37,7 @@
             }
 
             if (this.slowFrame) {
-                nextTick /= 0.95;
+                //nextTick /= 0.95;
             }
 
             (function(i){

@@ -42,10 +42,20 @@ var Painter = function (Painter, canvas, $, undefined) {
     Painter.drawNowMarker = function () {
         //Painter.ctx.paper.path("M310,60 L310,800");
         Painter.player_context.beginPath();
-        Painter.player_context.moveTo(310,60);
-        Painter.player_context.lineTo(310,800);
+        Painter.player_context.moveTo(230,60);
+        Painter.player_context.lineTo(230,800);
         Painter.player_context.stroke();
     };
+
+    Painter.markCurrentBar = function (totalOffset, width, currentBar) {
+        //Painter.ctx.paper.path("M310,60 L310,800");
+        console.log(totalOffset + currentBar * width);
+        Painter.player_context.beginPath();
+        Painter.player_context.moveTo(totalOffset + currentBar * width, 100);
+        Painter.player_context.lineTo(totalOffset + (currentBar + 1) * width, 100);
+        Painter.player_context.stroke();
+    };
+
 
     var drawBarObjects = function (barObjects, stave) {
         var Voices = barObjects.voices;
@@ -64,11 +74,12 @@ var Painter = function (Painter, canvas, $, undefined) {
         });
     };
 
-    Painter.drawBars = function (barDrawOffset, bars, label) {
+    Painter.drawBars = function (barDrawOffset, bars, label, currentBar) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
         y = 110;
-        x = -80 - barDrawOffset * width;
+        x = -160 - barDrawOffset * width;
+        Painter.markCurrentBar(x, width, currentBar);
         y_separation = 90;
         drawStaffBrackets = true;
         drawFrontConnector = true;
@@ -110,11 +121,11 @@ var Painter = function (Painter, canvas, $, undefined) {
         });
     };
 
-    Painter.show = function (label, bars, drawOffset) {
+    Painter.show = function (label, bars, drawOffset, currentBar) {
         Painter.clearActiveNotes(drawOffset);
         Painter.clearCanvas();
         Painter.drawNowMarker();
-        Painter.drawBars(drawOffset, bars, label);
+        Painter.drawBars(drawOffset, bars, label, currentBar);
     };
 
     /**
