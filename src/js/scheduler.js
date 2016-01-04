@@ -201,28 +201,15 @@
                 }
                 //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
                 var barLag = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner;
-                /*
-                if (barLag > 1 && Scheduler.drawOffset > 0.5 && clientOffset < 0.5 && Scheduler.drawOffset - clientOffset >= 0.5) {
-                    anticipatoryMusicProducer.interval.slowFrame = true;
-                } else if (Scheduler.drawOffset > 0.3 && Scheduler.drawOffset - clientOffset <= 0.3){
-                    anticipatoryMusicProducer.interval.slowFrame = false;
-                }*/
-                //console.log(anticipatoryMusicProducer.interval.slowFrame);
-                var orig = clientOffset;
-                /*
-                if (barLag > 0) {
-                    anticipatoryMusicProducer.interval.slowFrame = true;
-                } else {
-                    anticipatoryMusicProducer.interval.slowFrame = false;
-                }*/
 
                 if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
                     clientOffset += (Scheduler.drawOffset - clientOffset);
-                } else if (Scheduler.drawOffset - clientOffset < 0){
+                } else if (Scheduler.drawOffset - clientOffset < 0) {
                     clientOffset = Scheduler.drawOffset + 1;
-                } else {
-                    //console.log("c");
+                } else if (Scheduler.drawOffset - clientOffset > 0) {
                     clientOffset = Scheduler.drawOffset - 1;
+                } else {
+                    console.log("unhandled");
                 }
                 anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
             }

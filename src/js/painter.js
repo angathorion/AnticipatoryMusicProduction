@@ -40,7 +40,6 @@ var Painter = function (Painter, canvas, $, undefined) {
     };
 
     Painter.drawNowMarker = function () {
-        //Painter.ctx.paper.path("M310,60 L310,800");
         Painter.player_context.beginPath();
         Painter.player_context.moveTo(230,60);
         Painter.player_context.lineTo(230,800);
@@ -48,8 +47,6 @@ var Painter = function (Painter, canvas, $, undefined) {
     };
 
     Painter.markCurrentBar = function (totalOffset, width, currentBar) {
-        //Painter.ctx.paper.path("M310,60 L310,800");
-        console.log(totalOffset + currentBar * width);
         Painter.player_context.beginPath();
         Painter.player_context.moveTo(totalOffset + currentBar * width, 100);
         Painter.player_context.lineTo(totalOffset + (currentBar + 1) * width, 100);
@@ -106,8 +103,8 @@ var Painter = function (Painter, canvas, $, undefined) {
 
                 var time_signature = bar.timeSignature;
 
-                var trebleBarObjects = makeBarObjects(staves.treble, processNotes(treble), time_signature, label);
-                var bassBarObjects = makeBarObjects(staves.bass, processNotes(bass), time_signature, label);
+                var trebleBarObjects = makeBarObjects(staves.treble, processNotes(treble), time_signature);
+                var bassBarObjects = makeBarObjects(staves.bass, processNotes(bass), time_signature);
 
                 Painter.unprocessedCache[index] = bar;
                 Painter.cachedResults[index] = {treble: trebleBarObjects, bass: bassBarObjects};
