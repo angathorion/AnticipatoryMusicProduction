@@ -190,7 +190,7 @@
         // pass bars to painter to draw
         var quantizedBars = bars.map(Scheduler.quantizeBar);
         Scheduler.drawOffset = beatOffset / timeSignature.count;
-        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset, now: now, barLag: barLag});
+
 
         if (anticipatoryMusicProducer.Client.state) {
             var clientBars = anticipatoryMusicProducer.Client.state.bars;
@@ -200,23 +200,28 @@
             }
             var barLag = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner;
             var orig = clientOffset;
-            //console.log(barLag - anticipatoryMusicProducer.Client.state.barLag);
             if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
                 clientOffset += (Scheduler.drawOffset - clientOffset);
             } else if (Scheduler.drawOffset - clientOffset < 0) {
                 clientOffset = Scheduler.drawOffset + 1;
-                anticipatoryMusicProducer.interval.slowFrame = "down";
             } else if (Scheduler.drawOffset - clientOffset > 0) {
                 clientOffset = Scheduler.drawOffset - 1;
-                anticipatoryMusicProducer.interval.slowFrame = "up";
+            }
+            console.log(Scheduler.drawOffset - clientOffset);
+            if (Scheduler.drawOffset >= 0.1 && Scheduler.drawOffset - clientOffset >= 0.1) {
+                anticipatoryMusicProducer.interval.rate = "up";
+            } else if (clientOffset >= 0.1 && clientOffset - Scheduler.drawOffset  >= 0.1) {
+                anticipatoryMusicProducer.interval.rate = "down";
             } else {
-                throw "Unhandled Case"
+                anticipatoryMusicProducer.interval.rate = "unchanged";
             }
         }
+        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset, now: now, barLag: barLag});
+
 
         var animate = function() {
             if (anticipatoryMusicProducer.Client.state) {
-                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
+                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, orig)();
             }
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset, Scheduler.currentBar)();
         };

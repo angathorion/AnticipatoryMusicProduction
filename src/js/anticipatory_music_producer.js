@@ -42,7 +42,6 @@
                 nextTick *= 2;
             }
 
-
             (function(i){
                 i.timer = setTimeout(function(){
                     i.run(end)
