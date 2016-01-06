@@ -22,7 +22,7 @@
     // Self-correcting timer
     anticipatoryMusicProducer.setInterval = function(fn, duration){
         this.baseline = undefined;
-        this.slowFrame = false;
+        this.rate = "unchanged";
         this.run = function(){
             this.baseline = performance.now();
             anticipatoryMusicProducer.Scheduler.incrementBeat();
@@ -36,9 +36,12 @@
                 nextTick = 0
             }
 
-            if (this.slowFrame) {
-                //nextTick /= 0.95;
+            if (this.rate == "up") {
+                nextTick = 0;
+            } else if (this.rate == "down") {
+                nextTick /= 0.8;
             }
+
 
             (function(i){
                 i.timer = setTimeout(function(){

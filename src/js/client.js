@@ -74,7 +74,7 @@ var Client = function(Client, $, undefined) {
         });
         var theirDrawOffset = data.offset;
         var timeDiff = performance.now() - data.now;
-        Client.state = { bars: quantized_bars, drawOffset: theirDrawOffset, timeDiff: timeDiff };
+        Client.state = { bars: quantized_bars, drawOffset: theirDrawOffset, barLag: data.barLag };
     });
 
     socket.on('wait_for_heartbeat', function() {

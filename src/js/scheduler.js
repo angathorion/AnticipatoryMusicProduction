@@ -190,31 +190,35 @@
         // pass bars to painter to draw
         var quantizedBars = bars.map(Scheduler.quantizeBar);
         Scheduler.drawOffset = beatOffset / timeSignature.count;
-        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset, now: now});
+        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset, now: now, barLag: barLag});
+
+        if (anticipatoryMusicProducer.Client.state) {
+            var clientBars = anticipatoryMusicProducer.Client.state.bars;
+            var clientOffset = anticipatoryMusicProducer.Client.state.drawOffset;
+            if (distanceFromPartner === null && typeof distanceFromPartner === "object") {
+                distanceFromPartner = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis;
+            }
+            var barLag = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner;
+            var orig = clientOffset;
+            //console.log(barLag - anticipatoryMusicProducer.Client.state.barLag);
+            if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
+                clientOffset += (Scheduler.drawOffset - clientOffset);
+            } else if (Scheduler.drawOffset - clientOffset < 0) {
+                clientOffset = Scheduler.drawOffset + 1;
+                anticipatoryMusicProducer.interval.slowFrame = "down";
+            } else if (Scheduler.drawOffset - clientOffset > 0) {
+                clientOffset = Scheduler.drawOffset - 1;
+                anticipatoryMusicProducer.interval.slowFrame = "up";
+            } else {
+                throw "Unhandled Case"
+            }
+        }
 
         var animate = function() {
             if (anticipatoryMusicProducer.Client.state) {
-                var clientBars = anticipatoryMusicProducer.Client.state.bars;
-                var clientOffset = anticipatoryMusicProducer.Client.state.drawOffset;
-                if (distanceFromPartner === null && typeof distanceFromPartner === "object") {
-                    distanceFromPartner = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis;
-                }
-                //console.log(bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner);
-                var barLag = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner;
-
-                if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
-                    clientOffset += (Scheduler.drawOffset - clientOffset);
-                } else if (Scheduler.drawOffset - clientOffset < 0) {
-                    clientOffset = Scheduler.drawOffset + 1;
-                } else if (Scheduler.drawOffset - clientOffset > 0) {
-                    clientOffset = Scheduler.drawOffset - 1;
-                } else {
-                    console.log("unhandled");
-                }
                 anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
             }
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset, Scheduler.currentBar)();
-
         };
         requestAnimationFrame(animate);
     };
