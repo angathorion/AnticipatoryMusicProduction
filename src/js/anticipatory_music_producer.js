@@ -37,9 +37,9 @@
             }
 
             if (this.rate == "up") {
-                nextTick *= 0.8;
+                nextTick = 0;
             } else if (this.rate == "down") {
-                nextTick *= 1.2;
+                nextTick *= 1.5;
             }
 
             (function(i){
