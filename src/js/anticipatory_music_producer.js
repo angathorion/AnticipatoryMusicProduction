@@ -39,7 +39,7 @@
             if (this.rate == "up") {
                 nextTick = 0;
             } else if (this.rate == "down") {
-                nextTick /= 0.8;
+                nextTick *= 2;
             }
 
 
