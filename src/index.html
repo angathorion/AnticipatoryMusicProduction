@@ -27,6 +27,8 @@
         </li>
         <canvas id="scoresheet" width="2000" height="500" style="display: none"></canvas>
         <canvas id="collaborator_scoresheet" width="2000" height="500" style="display: none"></canvas>
+        <canvas id="c"></canvas>
+        <video id="v"></video>
         <form id="play_parameters" style="display: none">
             <label for="bar_offset">Bar Offset</label>
             <select name="bar_offset" id="bar_offset">
@@ -50,13 +52,13 @@
             <label for="instrument_name">Instrument Name</label>
             <select name="instrument_name" id="instrument_name" onchange="anticipatoryMusicProducer.Interface.reloadMIDIInstruments()">
                 <option value="accordion">accordion</option>
-                <option value="acoustic_bass">acoustic_bass</option>
+                <option value="acoustic_bass" >acoustic_bass</option>
                 <option value="acoustic_grand_piano" selected>acoustic_grand_piano</option>
                 <option value="acoustic_guitar_nylon">acoustic_guitar_nylon</option>
                 <option value="acoustic_guitar_steel">acoustic_guitar_steel</option>
                 <option value="agogo">agogo</option>
                 <option value="alto_sax">alto_sax</option>
-                <option value="applause">applause</option>
+                <option value="applause" >applause</option>
                 <option value="bagpipe">bagpipe</option>
                 <option value="banjo">banjo</option>
                 <option value="baritone_sax">baritone_sax</option>
@@ -186,17 +188,17 @@
         <script src="js/vendor/jquery/dist/jquery.min.js"></script>
         <script src="js/vendor/underscore/underscore-min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-        <script>
-            var socket = io();
-        </script>
+        <script>var socket = io();</script>
         <script src="js/plugins.js"></script>
         <script src="js/vendor/gest.js"></script>
+        <script src="js/vendor/headtrackr.min.js"></script>
         <script src="js/vendor/midi.min.js"></script>
         <script src="js/vendor/web-midi-api/WebMIDIAPI.min.js"></script>
         <script src="js/vendor/vexflow/releases/vexflow-debug.js"></script>
         <script src="js/anticipatory_music_producer.js"></script>
         <script src="js/painter.js"></script>
         <script src="js/interface.js"></script>
+        <script src="js/player.js"></script>
         <script src="js/scheduler.js"></script>
         <script src="js/bridge.js"></script>
         <script src="js/motion_detector.js"></script>

@@ -12,8 +12,8 @@
         return "".concat(this.barObjects);
     };
 
-    Scheduler.Bar.prototype.mergeLoopsIntoBar = function(loops) {
-        return loops.reduce(function(previousBar, currentBar) {
+    Scheduler.Bar.prototype.mergeLoopsIntoBar = function (loops) {
+        return loops.reduce(function (previousBar, currentBar) {
             return previousBar.mergeLoopIntoBar(currentBar);
         }, this);
     };
@@ -21,7 +21,7 @@
     Scheduler.Bar.prototype.mergeLoopIntoBar = function (loopBar) {
         var original = this;
         var now = original.barStart;
-        loopBar.barObjects.forEach(function(barObject) {
+        loopBar.barObjects.forEach(function (barObject) {
             barObject.timeOn = barObject.timeOn - loopBar.barStart + now;
             barObject.timeOff = barObject.timeOff - loopBar.barStart + now;
             original.barObjects.push($.extend({}, barObject));
@@ -36,7 +36,7 @@
     };
 
     Scheduler.Looper.prototype.makeNewLoop = function () {
-        this.tempLoop = { 'bars': [], 'playCounter': 0, 'loopFrom': 0 };
+        this.tempLoop = {'bars': [], 'playCounter': 0, 'loopFrom': 0};
     };
 
     Scheduler.Looper.prototype.addBarToLatestLoop = function (bar) {
@@ -48,8 +48,8 @@
 
     Scheduler.Looper.prototype.completeLoop = function () {
         if (this.tempLoop && this.tempLoop.bars.length > 0) {
-            this.tempLoop.bars.forEach(function(bar) {
-                bar.barObjects.forEach(function(barObject) {
+            this.tempLoop.bars.forEach(function (bar) {
+                bar.barObjects.forEach(function (barObject) {
                     barObject.loop = true;
                 })
             });
@@ -123,14 +123,9 @@
     var previouslyLooping = false;
     var distanceFromPartner = null;
 
-    var previousPlayerOffset = 0;
-    var previousPartnerOffset = 0;
-    var previousDisplacement = 0;
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
-        Scheduler.debugger.update(beatOffset, Scheduler.currentTempo, Scheduler.bps, performance.now(), lastBeat);
-        Scheduler.debugger.write();
 
         var looping = parseInt(loopingSelector.options[loopingSelector.selectedIndex].value);
 
@@ -141,6 +136,7 @@
                 note.done = true;
             });
         }
+
         var now = performance.now();
         bar = bars[Scheduler.currentBar];
         if (beatOffset == 0) {
@@ -149,7 +145,7 @@
             bars.forEach(function (bar) {
                 bar.barNumber -= 1;
                 var updatedStart = now + bar.barNumber * timePerBar * 1000;
-                bar.barObjects.forEach(function (bar_object){
+                bar.barObjects.forEach(function (bar_object) {
                     bar_object.timeOn = bar_object.timeOn - bar.barStart + updatedStart;
                     bar_object.timeOff = bar_object.timeOff - bar.barStart + updatedStart;
                 });
@@ -173,13 +169,15 @@
 
             bars.push(new Scheduler.Bar(7, timeSignature, []));
             bars[bars.length - 1].mergeLoopsIntoBar(Scheduler.looper.getCurrentBarsAndAdvance());
+            Scheduler.playBar($.extend({}, bars[1]), 0);
+            if (anticipatoryMusicProducer.Client.state) {
+                Scheduler.playBar($.extend({}, anticipatoryMusicProducer.Client.state.bars[1]), 0);
+            }
             bar = bars[Scheduler.currentBar];
         }
 
 
         // Dynamically updates the note depending on how long you hold it
-
-
         var activeNotes = bar.barObjects.filter(function (noteObj) {
             return (noteObj.done == false && noteObj.loop == false);
         });
@@ -187,10 +185,10 @@
         activeNotes.forEach(function (noteObj) {
             noteObj.timeOff = now + bar.barNumber * timePerBar * 1000;
         });
+
         // pass bars to painter to draw
         var quantizedBars = bars.map(Scheduler.quantizeBar);
         Scheduler.drawOffset = beatOffset / timeSignature.count;
-
 
         if (anticipatoryMusicProducer.Client.state) {
             var clientBars = anticipatoryMusicProducer.Client.state.bars;
@@ -199,7 +197,6 @@
                 distanceFromPartner = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis;
             }
             var barLag = bars[0].distanceFromGenesis - clientBars[0].distanceFromGenesis - distanceFromPartner;
-            var orig = clientOffset;
             if (Math.abs(Scheduler.drawOffset - clientOffset) < 0.5) {
                 clientOffset += (Scheduler.drawOffset - clientOffset);
             } else if (Scheduler.drawOffset - clientOffset < 0) {
@@ -207,25 +204,34 @@
             } else if (Scheduler.drawOffset - clientOffset > 0) {
                 clientOffset = Scheduler.drawOffset - 1;
             }
-            console.log(Scheduler.drawOffset - clientOffset);
             if (Scheduler.drawOffset >= 0.1 && Scheduler.drawOffset - clientOffset >= 0.1) {
                 anticipatoryMusicProducer.interval.rate = "up";
-            } else if (clientOffset >= 0.1 && clientOffset - Scheduler.drawOffset  >= 0.1) {
+            } else if (clientOffset >= 0.1 && clientOffset - Scheduler.drawOffset >= 0.1) {
                 anticipatoryMusicProducer.interval.rate = "down";
             } else {
                 anticipatoryMusicProducer.interval.rate = "unchanged";
             }
+            //Scheduler.playBar($.extend({}, clientBars[1]), 0);
         }
-        socket.emit('broadcast_canvas', {quantizedBars: JSON.stringify(quantizedBars), offset: Scheduler.drawOffset, now: now, barLag: barLag});
+        socket.emit('broadcast_canvas', {
+            quantizedBars: JSON.stringify(quantizedBars),
+            offset       : Scheduler.drawOffset,
+            now          : now,
+            barLag       : barLag
+        });
 
 
-        var animate = function() {
+        var animate = function () {
             if (anticipatoryMusicProducer.Client.state) {
                 anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
             }
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset, Scheduler.currentBar)();
         };
         requestAnimationFrame(animate);
+    };
+
+    Scheduler.playBar = function (bar, channel) {
+        anticipatoryMusicProducer.Player.playBar(bar, channel);
     };
 
     Scheduler.quantizeBar = function (bar) {
@@ -274,16 +280,18 @@
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
+     * @param {number} velocity Velocity of the input note
      * @param {number} time DOMHighResTimeStamp representing time on
      */
-    Scheduler.onNoteOn = function (note, time) {
+    Scheduler.onNoteOn = function (note, velocity, time) {
         bar.barObjects.push({
-            note   : new Palette.Note(note),
-            done   : false,
-            timeOn : time + bar.barNumber * timePerBar * 1000,
+            note: new Palette.Note(note),
+            velocity: velocity,
+            done: false,
+            timeOn: time + bar.barNumber * timePerBar * 1000,
             timeOff: time + bar.barNumber * timePerBar * 1000,
-            tempo  : Scheduler.currentTempo,
-            loop   : false
+            tempo: Scheduler.currentTempo,
+            loop: false
         });
     };
 

@@ -4,7 +4,8 @@
     anticipatoryMusicProducer.playerPainter = anticipatoryMusicProducer.playerPainter || {};
     anticipatoryMusicProducer.collaboratorPainter = anticipatoryMusicProducer.collaboratorPainter || {};
     anticipatoryMusicProducer.motionDetector = anticipatoryMusicProducer.motionDetector || {};
-    anticipatoryMusicProducer.detectMotion = true;
+    anticipatoryMusicProducer.Player = anticipatoryMusicProducer.Player || {};
+    anticipatoryMusicProducer.detectMotion = false;
     anticipatoryMusicProducer.init = function() {
         if (this.detectMotion) {
             this.motionDetector.initialize();

@@ -62,11 +62,8 @@
         MIDI.loadPlugin({
             soundfontUrl: "./soundfont/",
             instrument  : instrumentName,
-            onprogress  : function (state, progress) {
-                //console.log(state, progress);
-            },
+            onprogress  : function (state, progress) {},
             onsuccess   : function (note, velocity) {
-                // play the note
                 MIDI.programChange(0, MIDI.GM.byName[instrumentName].number);
             }
         });
@@ -91,13 +88,13 @@
 
         var midiChannelSelector = document.getElementById("midi_channel");
         var midiChannel = midiChannelSelector.options[midiChannelSelector.selectedIndex].value;
+
         if (midiChannel == channel) {
             switch (type) {
                 case 144: // noteOn message
                     noteOnListeners.forEach(function (item) {
-                        item.call(item.scope, note, performance.now());
+                        item.call(item.scope, note, velocity, performance.now());
                     });
-                    // TODO Create new object for Player
                     MIDI.setVolume(0, 127);
                     MIDI.noteOn(0, note, velocity, 0);
                     break;
@@ -105,7 +102,7 @@
                     noteOffListeners.forEach(function (item) {
                         item.call(item.scope, note, performance.now());
                     });
-                    MIDI.noteOff(0, note, 0.4);
+                    MIDI.noteOff(0, note, 0);
                     break;
             }
             logger('key data', data);

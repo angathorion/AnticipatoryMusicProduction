@@ -63,7 +63,7 @@ var Painter = function (Painter, canvas, $, undefined) {
         });
 
         tiesArray.forEach(function (tie) {
-            //tie.setContext(stave.getContext()).draw();
+            tie.setContext(Painter.player_context).draw();
         });
 
         beamsArray.forEach(function (beam) {
@@ -262,16 +262,16 @@ var Painter = function (Painter, canvas, $, undefined) {
             var notes = buildSeparateNotes(staveNote, staveNoteSplitData.remainder, note_type, stave, time_signature, true, staveNoteArray, tieArray, color);
             staveNoteArray = notes.staveNoteArray;
             tieArray = notes.tieArray;
-            if (staveNoteArray.length > 1 && note_type == "" && startRendered == true) {
+            if (note_type != "r" && staveNoteArray.length > 1) {
                 var ties = new Vex.Flow.StaveTie({
-                    first_note   : staveNoteArray[staveNoteArray.length - 2],
-                    last_note    : staveNoteArray[staveNoteArray.length - 1],
-                    first_indices: [0, staveNoteArray[staveNoteArray.length - 2].length],
-                    last_indices : [0, staveNoteArray[staveNoteArray.length - 1].length]
+                    first_note : staveNoteArray[staveNoteArray.length - 2],
+                    last_note : staveNoteArray[staveNoteArray.length - 1],
+                    first_indices: [0],
+                    last_indices: [0]
                 });
-                ties.setContext(stave.getContext());
                 tieArray.push(ties);
             }
+
         }
         return {staveNoteArray: staveNoteArray, tieArray: tieArray};
     };
@@ -322,19 +322,6 @@ var Painter = function (Painter, canvas, $, undefined) {
             colorIndex += 1;
             return staveNoteArray;
         });
-        /*
-        var voices = voices.filter(function (voice) {
-            // get voices that have no notes that are not rests
-            return voice.filter(
-                    // get notes that are not rests
-                    function (staveNote) {
-                        if (staveNote[0]) {
-                            return (staveNote[0].noteType != 'r');
-                        } else {
-                            return (staveNote.noteType != 'r');
-                        }
-                    }) == 0;
-        });*/
         // Create a voice in 4/4
         var Voices = voices.map(function (voice) {
             var Voice = new Vex.Flow.Voice({

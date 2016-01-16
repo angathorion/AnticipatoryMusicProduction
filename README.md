@@ -60,7 +60,8 @@ Currently, in addition to inputting notes from your MIDI device, you can modify 
 3. The number of bars ahead to play in
 4. Bar looping
 
-Playback upon note input is supported; playback of notes at the 'now' line is not (yet).
+Playback upon note input is supported. A Player object for playback of notes at the 'now' line has been implemented,
+but is currently untested.
 
 Musicians have their hands occupied when performing, so utilizing the application can be difficult. Bearing that in 
 mind, the application utilizes motion detection to determine the direction the user's instrument is moved. Using the
