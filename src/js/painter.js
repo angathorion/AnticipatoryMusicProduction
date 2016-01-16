@@ -266,8 +266,8 @@ var Painter = function (Painter, canvas, $, undefined) {
                 var ties = new Vex.Flow.StaveTie({
                     first_note : staveNoteArray[staveNoteArray.length - 2],
                     last_note : staveNoteArray[staveNoteArray.length - 1],
-                    first_indices: [0],
-                    last_indices: [0]
+                    first_indices: [0, staveNoteArray[staveNoteArray.length - 2].keys.length - 1],
+                    last_indices: [0, staveNoteArray[staveNoteArray.length - 2].keys.length - 1]
                 });
                 tieArray.push(ties);
             }
