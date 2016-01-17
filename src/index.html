@@ -1,207 +1,250 @@
 <!doctype html>
 <html class="no-js" lang="">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
 
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 8]>
-        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <li class="login page">
-            <div class="form">
-                <h3 class="title">Nickname</h3>
-                <input class="loginInput" type="text" maxlength="14" id="nickname"/>
-                <h3 class="title">Session Name</h3>
-                <input class="loginInput" type="text" maxlength="14" id="session"/>
-            </div>
-        </li>
-        <canvas id="scoresheet" width="2000" height="500" style="display: none"></canvas>
-        <canvas id="collaborator_scoresheet" width="2000" height="500" style="display: none"></canvas>
-        <canvas id="c"></canvas>
-        <video id="v"></video>
-        <form id="play_parameters" style="display: none">
-            <label for="bar_offset">Bar Offset</label>
-            <select name="bar_offset" id="bar_offset">
-                <option value="1" selected>1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-            <label for="midi_channel">MIDI Channel</label>
-            <select name="midi_channel" id="midi_channel">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-            <label for="looping">Looping</label>
-            <select name="looping" id="looping">
-                <option value="0" selected>Off</option>
-                <option value="1">On</option>
-            </select>
-            <label for="instrument_name">Instrument Name</label>
-            <select name="instrument_name" id="instrument_name" onchange="anticipatoryMusicProducer.Interface.reloadMIDIInstruments()">
-                <option value="accordion">accordion</option>
-                <option value="acoustic_bass" >acoustic_bass</option>
-                <option value="acoustic_grand_piano" selected>acoustic_grand_piano</option>
-                <option value="acoustic_guitar_nylon">acoustic_guitar_nylon</option>
-                <option value="acoustic_guitar_steel">acoustic_guitar_steel</option>
-                <option value="agogo">agogo</option>
-                <option value="alto_sax">alto_sax</option>
-                <option value="applause" >applause</option>
-                <option value="bagpipe">bagpipe</option>
-                <option value="banjo">banjo</option>
-                <option value="baritone_sax">baritone_sax</option>
-                <option value="bassoon">bassoon</option>
-                <option value="bird_tweet">bird_tweet</option>
-                <option value="blown_bottle">blown_bottle</option>
-                <option value="brass_section">brass_section</option>
-                <option value="breath_noise">breath_noise</option>
-                <option value="bright_acoustic_piano">bright_acoustic_piano</option>
-                <option value="celesta">celesta</option>
-                <option value="cello">cello</option>
-                <option value="choir_aahs">choir_aahs</option>
-                <option value="church_organ">church_organ</option>
-                <option value="clarinet">clarinet</option>
-                <option value="clavinet">clavinet</option>
-                <option value="contrabass">contrabass</option>
-                <option value="distortion_guitar">distortion_guitar</option>
-                <option value="drawbar_organ">drawbar_organ</option>
-                <option value="dulcimer">dulcimer</option>
-                <option value="electric_bass_finger">electric_bass_finger</option>
-                <option value="electric_bass_pick">electric_bass_pick</option>
-                <option value="electric_grand_piano">electric_grand_piano</option>
-                <option value="electric_guitar_clean">electric_guitar_clean</option>
-                <option value="electric_guitar_jazz">electric_guitar_jazz</option>
-                <option value="electric_guitar_muted">electric_guitar_muted</option>
-                <option value="electric_piano_1">electric_piano_1</option>
-                <option value="electric_piano_2">electric_piano_2</option>
-                <option value="english_horn">english_horn</option>
-                <option value="fiddle">fiddle</option>
-                <option value="flute">flute</option>
-                <option value="french_horn">french_horn</option>
-                <option value="fretless_bass">fretless_bass</option>
-                <option value="fx_1_rain">fx_1_rain</option>
-                <option value="fx_2_soundtrack">fx_2_soundtrack</option>
-                <option value="fx_3_crystal">fx_3_crystal</option>
-                <option value="fx_4_atmosphere">fx_4_atmosphere</option>
-                <option value="fx_5_brightness">fx_5_brightness</option>
-                <option value="fx_6_goblins">fx_6_goblins</option>
-                <option value="fx_7_echoes">fx_7_echoes</option>
-                <option value="fx_8_scifi">fx_8_scifi</option>
-                <option value="glockenspiel">glockenspiel</option>
-                <option value="guitar_fret_noise">guitar_fret_noise</option>
-                <option value="guitar_harmonics">guitar_harmonics</option>
-                <option value="gunshot">gunshot</option>
-                <option value="harmonica">harmonica</option>
-                <option value="harpsichord">harpsichord</option>
-                <option value="helicopter">helicopter</option>
-                <option value="honkytonk_piano">honkytonk_piano</option>
-                <option value="kalimba">kalimba</option>
-                <option value="koto">koto</option>
-                <option value="lead_1_square">lead_1_square</option>
-                <option value="lead_2_sawtooth">lead_2_sawtooth</option>
-                <option value="lead_3_calliope">lead_3_calliope</option>
-                <option value="lead_4_chiff">lead_4_chiff</option>
-                <option value="lead_5_charang">lead_5_charang</option>
-                <option value="lead_6_voice">lead_6_voice</option>
-                <option value="lead_7_fifths">lead_7_fifths</option>
-                <option value="lead_8_bass__lead">lead_8_bass__lead</option>
-                <option value="marimba">marimba</option>
-                <option value="melodic_tom">melodic_tom</option>
-                <option value="music_box">music_box</option>
-                <option value="muted_trumpet">muted_trumpet</option>
-                <option value="oboe">oboe</option>
-                <option value="ocarina">ocarina</option>
-                <option value="orchestral_harp">orchestral_harp</option>
-                <option value="orchestra_hit">orchestra_hit</option>
-                <option value="overdriven_guitar">overdriven_guitar</option>
-                <option value="pad_1_new_age">pad_1_new_age</option>
-                <option value="pad_2_warm">pad_2_warm</option>
-                <option value="pad_3_polysynth">pad_3_polysynth</option>
-                <option value="pad_4_choir">pad_4_choir</option>
-                <option value="pad_5_bowed">pad_5_bowed</option>
-                <option value="pad_6_metallic">pad_6_metallic</option>
-                <option value="pad_7_halo">pad_7_halo</option>
-                <option value="pad_8_sweep">pad_8_sweep</option>
-                <option value="pan_flute">pan_flute</option>
-                <option value="percussive_organ">percussive_organ</option>
-                <option value="piccolo">piccolo</option>
-                <option value="pizzicato_strings">pizzicato_strings</option>
-                <option value="recorder">recorder</option>
-                <option value="reed_organ">reed_organ</option>
-                <option value="reverse_cymbal">reverse_cymbal</option>
-                <option value="rock_organ">rock_organ</option>
-                <option value="seashore">seashore</option>
-                <option value="shakuhachi">shakuhachi</option>
-                <option value="shamisen">shamisen</option>
-                <option value="shanai">shanai</option>
-                <option value="sitar">sitar</option>
-                <option value="slap_bass_1">slap_bass_1</option>
-                <option value="slap_bass_2">slap_bass_2</option>
-                <option value="soprano_sax">soprano_sax</option>
-                <option value="steel_drums">steel_drums</option>
-                <option value="string_ensemble_1">string_ensemble_1</option>
-                <option value="string_ensemble_2">string_ensemble_2</option>
-                <option value="synth_bass_1">synth_bass_1</option>
-                <option value="synth_bass_2">synth_bass_2</option>
-                <option value="synth_brass_1">synth_brass_1</option>
-                <option value="synth_brass_2">synth_brass_2</option>
-                <option value="synth_choir">synth_choir</option>
-                <option value="synth_drum">synth_drum</option>
-                <option value="synth_strings_1">synth_strings_1</option>
-                <option value="synth_strings_2">synth_strings_2</option>
-                <option value="taiko_drum">taiko_drum</option>
-                <option value="tango_accordion">tango_accordion</option>
-                <option value="telephone_ring">telephone_ring</option>
-                <option value="tenor_sax">tenor_sax</option>
-                <option value="timpani">timpani</option>
-                <option value="tinkle_bell">tinkle_bell</option>
-                <option value="tremolo_strings">tremolo_strings</option>
-                <option value="trombone">trombone</option>
-                <option value="trumpet">trumpet</option>
-                <option value="tuba">tuba</option>
-                <option value="tubular_bells">tubular_bells</option>
-                <option value="vibraphone">vibraphone</option>
-                <option value="viola">viola</option>
-                <option value="violin">violin</option>
-                <option value="voice_oohs">voice_oohs</option>
-                <option value="whistle">whistle</option>
-                <option value="woodblock">woodblock</option>
-                <option value="xylophone">xylophone</option>
-            </select>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="js/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="jquery-ui/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="jquery-ui/jquery-ui.min.css">
+    <script>$(function () {
+        $("#accordion").accordion();
+    });</script>
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+<li class="login page">
+    <div id="accordion" class="form intro">
+        <h1 style="text-align: left">Sign into AMP-Online (prototype alpha)</h1>
+        <div>
+            <h3>Nickname</h3>
+            <input class="loginInput" type="text" maxlength="14" id="nickname"/>
+            <h3>Session Name</h3>
+            <input class="loginInput" type="text" maxlength="14" id="session"/>
+        </div>
+        <h3 style="text-align: left">What is AMP-Online?</h3>
+        <div>
+            <ul style="text-align: left">
+                <li>A system for musicians to <b><i>remotely improvise</i></b> with a partner using <b><i>classical
+                    music notation</i></b></li>
+                <li>and allowing them to play in the <b><i>present</i></b> or several bars in the <b><i>future</i></b>
+                </li>
+            </ul>
+        </div>
 
-        </form>
-        <div id="debug_data" style="visibility: hidden;"></div>
-        <script src="js/helpers.js"></script>
-        <script src="js/vendor/base64-binary.js"></script>
-        <script src="js/vendor/jquery/dist/jquery.min.js"></script>
-        <script src="js/vendor/underscore/underscore-min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
-        <script>var socket = io();</script>
-        <script src="js/plugins.js"></script>
-        <script src="js/vendor/gest.js"></script>
-        <script src="js/vendor/headtrackr.min.js"></script>
-        <script src="js/vendor/midi.min.js"></script>
-        <script src="js/vendor/web-midi-api/WebMIDIAPI.min.js"></script>
-        <script src="js/vendor/vexflow/releases/vexflow-debug.js"></script>
-        <script src="js/anticipatory_music_producer.js"></script>
-        <script src="js/painter.js"></script>
-        <script src="js/interface.js"></script>
-        <script src="js/player.js"></script>
-        <script src="js/scheduler.js"></script>
-        <script src="js/bridge.js"></script>
-        <script src="js/motion_detector.js"></script>
-        <script src="js/client.js"></script>
-    </body>
+        <h3 style="text-align: left">Usage Instructions/Walkthrough</h3>
+        <div>
+            <ul style="text-align: left">
+                <li>0. Make sure you are using Google Chrome Version 47.0.2526.106 or above.</li>
+                <li>1. Connect a MIDI instrument to your computer, and then refresh this page.</li>
+                <li>2. Fill in a nickname and session name below. If you receive a session name, use that one. If not,
+                    choose any session name, and give your collaborator the session name.
+                <li>3. Press Enter to begin the session.</li>
+                <li>4. Play a few notes on your instrument and you should see the notes show up on the score.</li>
+            </ul>
+        </div>
+        <h3 style="text-align: left">Notes</h3>
+        <div>
+            <ul style="text-align: left">
+                <li>- The system is in alpha phase, and may be unstable</li>
+                <li>- The system only supports MIDI instruments</li>
+                <li>- The system does not support notes tied across bars</li>
+                <li>- The system assumes low network latency and variance in computer load across participating
+                    computers. While the system does take steps to correct state, complete desynchronization can happen
+                </li>
+                <li>- Avoid alt-tabbing and defocusing the browser; this can cause desynchronization</li>
+            </ul>
+        </div>
+    </div>
+</li>
+<canvas id="scoresheet" width="2000" height="500" style="display: none"></canvas>
+<canvas id="collaborator_scoresheet" width="2000" height="500" style="display: none"></canvas>
+<canvas id="c" style="display: none"></canvas>
+<video id="v" style="display: none"></video>
+<form id="play_parameters" style="display: none">
+    <label for="bar_offset">Bar Offset</label>
+    <select name="bar_offset" id="bar_offset">
+        <option value="1" selected>1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+    <label for="midi_channel">MIDI Channel</label>
+    <select name="midi_channel" id="midi_channel">
+        <option value="0" selected>0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+    </select>
+    <label for="looping">Looping</label>
+    <select name="looping" id="looping">
+        <option value="0" selected>Off</option>
+        <option value="1">On</option>
+    </select>
+    <label for="instrument_name">Instrument Name</label>
+    <select name="instrument_name" id="instrument_name"
+            onchange="anticipatoryMusicProducer.Interface.reloadMIDIInstruments()">
+        <option value="accordion">accordion</option>
+        <option value="acoustic_bass">acoustic_bass</option>
+        <option value="acoustic_grand_piano" selected>acoustic_grand_piano</option>
+        <option value="acoustic_guitar_nylon">acoustic_guitar_nylon</option>
+        <option value="acoustic_guitar_steel">acoustic_guitar_steel</option>
+        <option value="agogo">agogo</option>
+        <option value="alto_sax">alto_sax</option>
+        <option value="applause">applause</option>
+        <option value="bagpipe">bagpipe</option>
+        <option value="banjo">banjo</option>
+        <option value="baritone_sax">baritone_sax</option>
+        <option value="bassoon">bassoon</option>
+        <option value="bird_tweet">bird_tweet</option>
+        <option value="blown_bottle">blown_bottle</option>
+        <option value="brass_section">brass_section</option>
+        <option value="breath_noise">breath_noise</option>
+        <option value="bright_acoustic_piano">bright_acoustic_piano</option>
+        <option value="celesta">celesta</option>
+        <option value="cello">cello</option>
+        <option value="choir_aahs">choir_aahs</option>
+        <option value="church_organ">church_organ</option>
+        <option value="clarinet">clarinet</option>
+        <option value="clavinet">clavinet</option>
+        <option value="contrabass">contrabass</option>
+        <option value="distortion_guitar">distortion_guitar</option>
+        <option value="drawbar_organ">drawbar_organ</option>
+        <option value="dulcimer">dulcimer</option>
+        <option value="electric_bass_finger">electric_bass_finger</option>
+        <option value="electric_bass_pick">electric_bass_pick</option>
+        <option value="electric_grand_piano">electric_grand_piano</option>
+        <option value="electric_guitar_clean">electric_guitar_clean</option>
+        <option value="electric_guitar_jazz">electric_guitar_jazz</option>
+        <option value="electric_guitar_muted">electric_guitar_muted</option>
+        <option value="electric_piano_1">electric_piano_1</option>
+        <option value="electric_piano_2">electric_piano_2</option>
+        <option value="english_horn">english_horn</option>
+        <option value="fiddle">fiddle</option>
+        <option value="flute">flute</option>
+        <option value="french_horn">french_horn</option>
+        <option value="fretless_bass">fretless_bass</option>
+        <option value="fx_1_rain">fx_1_rain</option>
+        <option value="fx_2_soundtrack">fx_2_soundtrack</option>
+        <option value="fx_3_crystal">fx_3_crystal</option>
+        <option value="fx_4_atmosphere">fx_4_atmosphere</option>
+        <option value="fx_5_brightness">fx_5_brightness</option>
+        <option value="fx_6_goblins">fx_6_goblins</option>
+        <option value="fx_7_echoes">fx_7_echoes</option>
+        <option value="fx_8_scifi">fx_8_scifi</option>
+        <option value="glockenspiel">glockenspiel</option>
+        <option value="guitar_fret_noise">guitar_fret_noise</option>
+        <option value="guitar_harmonics">guitar_harmonics</option>
+        <option value="gunshot">gunshot</option>
+        <option value="harmonica">harmonica</option>
+        <option value="harpsichord">harpsichord</option>
+        <option value="helicopter">helicopter</option>
+        <option value="honkytonk_piano">honkytonk_piano</option>
+        <option value="kalimba">kalimba</option>
+        <option value="koto">koto</option>
+        <option value="lead_1_square">lead_1_square</option>
+        <option value="lead_2_sawtooth">lead_2_sawtooth</option>
+        <option value="lead_3_calliope">lead_3_calliope</option>
+        <option value="lead_4_chiff">lead_4_chiff</option>
+        <option value="lead_5_charang">lead_5_charang</option>
+        <option value="lead_6_voice">lead_6_voice</option>
+        <option value="lead_7_fifths">lead_7_fifths</option>
+        <option value="lead_8_bass__lead">lead_8_bass__lead</option>
+        <option value="marimba">marimba</option>
+        <option value="melodic_tom">melodic_tom</option>
+        <option value="music_box">music_box</option>
+        <option value="muted_trumpet">muted_trumpet</option>
+        <option value="oboe">oboe</option>
+        <option value="ocarina">ocarina</option>
+        <option value="orchestral_harp">orchestral_harp</option>
+        <option value="orchestra_hit">orchestra_hit</option>
+        <option value="overdriven_guitar">overdriven_guitar</option>
+        <option value="pad_1_new_age">pad_1_new_age</option>
+        <option value="pad_2_warm">pad_2_warm</option>
+        <option value="pad_3_polysynth">pad_3_polysynth</option>
+        <option value="pad_4_choir">pad_4_choir</option>
+        <option value="pad_5_bowed">pad_5_bowed</option>
+        <option value="pad_6_metallic">pad_6_metallic</option>
+        <option value="pad_7_halo">pad_7_halo</option>
+        <option value="pad_8_sweep">pad_8_sweep</option>
+        <option value="pan_flute">pan_flute</option>
+        <option value="percussive_organ">percussive_organ</option>
+        <option value="piccolo">piccolo</option>
+        <option value="pizzicato_strings">pizzicato_strings</option>
+        <option value="recorder">recorder</option>
+        <option value="reed_organ">reed_organ</option>
+        <option value="reverse_cymbal">reverse_cymbal</option>
+        <option value="rock_organ">rock_organ</option>
+        <option value="seashore">seashore</option>
+        <option value="shakuhachi">shakuhachi</option>
+        <option value="shamisen">shamisen</option>
+        <option value="shanai">shanai</option>
+        <option value="sitar">sitar</option>
+        <option value="slap_bass_1">slap_bass_1</option>
+        <option value="slap_bass_2">slap_bass_2</option>
+        <option value="soprano_sax">soprano_sax</option>
+        <option value="steel_drums">steel_drums</option>
+        <option value="string_ensemble_1">string_ensemble_1</option>
+        <option value="string_ensemble_2">string_ensemble_2</option>
+        <option value="synth_bass_1">synth_bass_1</option>
+        <option value="synth_bass_2">synth_bass_2</option>
+        <option value="synth_brass_1">synth_brass_1</option>
+        <option value="synth_brass_2">synth_brass_2</option>
+        <option value="synth_choir">synth_choir</option>
+        <option value="synth_drum">synth_drum</option>
+        <option value="synth_strings_1">synth_strings_1</option>
+        <option value="synth_strings_2">synth_strings_2</option>
+        <option value="taiko_drum">taiko_drum</option>
+        <option value="tango_accordion">tango_accordion</option>
+        <option value="telephone_ring">telephone_ring</option>
+        <option value="tenor_sax">tenor_sax</option>
+        <option value="timpani">timpani</option>
+        <option value="tinkle_bell">tinkle_bell</option>
+        <option value="tremolo_strings">tremolo_strings</option>
+        <option value="trombone">trombone</option>
+        <option value="trumpet">trumpet</option>
+        <option value="tuba">tuba</option>
+        <option value="tubular_bells">tubular_bells</option>
+        <option value="vibraphone">vibraphone</option>
+        <option value="viola">viola</option>
+        <option value="violin">violin</option>
+        <option value="voice_oohs">voice_oohs</option>
+        <option value="whistle">whistle</option>
+        <option value="woodblock">woodblock</option>
+        <option value="xylophone">xylophone</option>
+    </select>
+
+</form>
+<div id="debug_data" style="visibility: hidden;"></div>
+<script src="js/helpers.js"></script>
+<script src="js/vendor/base64-binary.js"></script>
+<script src="js/vendor/underscore/underscore-min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>var socket = io();</script>
+<script src="js/plugins.js"></script>
+<script src="js/vendor/gest.js"></script>
+<script src="js/vendor/headtrackr.min.js"></script>
+<script src="js/vendor/midi.min.js"></script>
+<script src="js/vendor/web-midi-api/WebMIDIAPI.min.js"></script>
+<script src="js/vendor/vexflow/releases/vexflow-debug.js"></script>
+<script src="js/anticipatory_music_producer.js"></script>
+<script src="js/painter.js"></script>
+<script src="js/interface.js"></script>
+<script src="js/player.js"></script>
+<script src="js/scheduler.js"></script>
+<script src="js/bridge.js"></script>
+<script src="js/motion_detector.js"></script>
+<script src="js/client.js"></script>
+</body>
 </html>
