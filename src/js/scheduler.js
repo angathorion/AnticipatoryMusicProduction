@@ -171,7 +171,7 @@
             bars[bars.length - 1].mergeLoopsIntoBar(Scheduler.looper.getCurrentBarsAndAdvance());
             Scheduler.playBar($.extend({}, bars[1]), 0);
             if (anticipatoryMusicProducer.Client.state) {
-                Scheduler.playBar($.extend({}, anticipatoryMusicProducer.Client.state.bars[1]), 0);
+                //Scheduler.playBar($.extend({}, anticipatoryMusicProducer.Client.state.bars[1]), 0);
             }
             bar = bars[Scheduler.currentBar];
         }
