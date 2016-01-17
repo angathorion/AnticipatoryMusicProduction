@@ -20,10 +20,6 @@ http.listen(app.get('port'), function(){
 
 var users = new Object();
 
-io.sockets.sockets.forEach(function(s) {
-    s.disconnect(true);
-});
-
 io.sockets.on('connection', function (socket) {
     socket.on('heartbeat', function() {
         socket.broadcast.emit('heartbeat');
