@@ -27,6 +27,7 @@ io.sockets.on('connection', function (socket) {
 
 
     socket.on('init', function(data) {
+        console.log("users in room: " + Object.keys(io['sockets']['adapter']['rooms'][data.sessionName]).length.toString());
         if (Object.keys(io['sockets']['adapter']['rooms'][data.sessionName]).length == 1) {
             console.log('start');
             io.to(socket.id).emit('start');
