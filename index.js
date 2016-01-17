@@ -27,10 +27,11 @@ io.sockets.on('connection', function (socket) {
 
 
     socket.on('init', function(data) {
-        console.log(data);
         if (Object.keys(io['sockets']['adapter']['rooms'][data.sessionName]).length == 1) {
+            console.log('start');
             io.to(socket.id).emit('start');
         } else {
+            console.log('wait for heartbeat');
             io.to(socket.id).emit('wait_for_heartbeat');
         }
     });
