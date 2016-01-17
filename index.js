@@ -27,6 +27,7 @@ io.sockets.on('connection', function (socket) {
 
 
     socket.on('init', function(data) {
+        console.log(data);
         if (Object.keys(io['sockets']['adapter']['rooms'][data.sessionName]).length == 1) {
             io.to(socket.id).emit('start');
         } else {
