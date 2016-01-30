@@ -54,7 +54,13 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('broadcast_canvas', function(data) {
         if (users[socket.id]) {
-            socket.broadcast.to(users[socket.id].sessionName).emit('receive_canvas', data);
+            socket.broadcast.to(users[socket.id].sessionName).volatile.emit('receive_canvas', data);
+        }
+    });
+
+    socket.on('send_midi_signals', function(data) {
+        if (users[socket.id]) {
+            socket.broadcast.to(users[socket.id].sessionName).volatile.emit('receive_midi_signals', data);
         }
     });
 

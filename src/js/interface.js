@@ -88,7 +88,6 @@
 
         var midiChannelSelector = document.getElementById("midi_channel");
         var midiChannel = midiChannelSelector.options[midiChannelSelector.selectedIndex].value;
-
         if (midiChannel == channel) {
             switch (type) {
                 case 144: // noteOn message

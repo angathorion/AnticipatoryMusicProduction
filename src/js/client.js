@@ -63,6 +63,11 @@ var Client = function(Client, $, undefined) {
 
     // Whenever the server emits 'new message', update the chat body
     var slower = null;
+
+    socket.on('receive_midi_signals', function (data) {
+        anticipatoryMusicProducer.Scheduler.playBar(data[1], 0);
+    });
+
     socket.on('receive_canvas', function (data) {
         var quantized_bars = JSON.parse(data.quantizedBars);
         quantized_bars.forEach(function(bar) {
@@ -74,7 +79,8 @@ var Client = function(Client, $, undefined) {
         });
         var theirDrawOffset = data.offset;
         var timeDiff = performance.now() - data.now;
-        Client.state = { bars: quantized_bars, drawOffset: theirDrawOffset, barLag: data.barLag };
+        Client.state = { bars: quantized_bars, midiSignals: data.midiSignals,
+            drawOffset: theirDrawOffset, barLag: data.barLag };
     });
 
     socket.on('wait_for_heartbeat', function() {

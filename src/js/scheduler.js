@@ -123,6 +123,8 @@
     var previouslyLooping = false;
     var distanceFromPartner = null;
 
+    var midiSignals = null;
+
     Scheduler.eventLoop = function () {
         // run every tick
         // update beat offset
@@ -169,9 +171,11 @@
 
             bars.push(new Scheduler.Bar(7, timeSignature, []));
             bars[bars.length - 1].mergeLoopsIntoBar(Scheduler.looper.getCurrentBarsAndAdvance());
+            midiSignals = $.extend({}, bars);
+            socket.emit('send_midi_signals', midiSignals);
             Scheduler.playBar($.extend({}, bars[1]), 0);
             if (anticipatoryMusicProducer.Client.state) {
-                //Scheduler.playBar($.extend({}, anticipatoryMusicProducer.Client.state.bars[1]), 0);
+                //Scheduler.playBar($.extend({}, anticipatoryMusicProducer.Client.state.midiSignals[1]), 0);
             }
             bar = bars[Scheduler.currentBar];
         }
@@ -211,10 +215,11 @@
             } else {
                 anticipatoryMusicProducer.interval.rate = "unchanged";
             }
-            //Scheduler.playBar($.extend({}, clientBars[1]), 0);
         }
+
         socket.emit('broadcast_canvas', {
             quantizedBars: JSON.stringify(quantizedBars),
+            midiSignals  : midiSignals,
             offset       : Scheduler.drawOffset,
             now          : now,
             barLag       : barLag

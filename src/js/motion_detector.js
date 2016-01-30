@@ -87,7 +87,6 @@
 })(window.anticipatoryMusicProducer.motionDetector =
     window.anticipatoryMusicProducer.motionDetector || {}, jQuery);
 
-
 // headtrackr module
 (function (motionDetector, $, undefined) {
     var headtrackrModule = {};
@@ -108,12 +107,6 @@
                 console.log(event.angle);
             }
         );
-        /*
-        document.addEventListener('headtrackingEvent',
-            function (event) {
-                console.log(event.x);
-            }
-        );*/
     };
 
     headtrackrModule.start = function() {
