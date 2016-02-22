@@ -1,4 +1,5 @@
 (function (Player, $, undefined) {
+    Player.previous = {};
     Player.init = function() {
         var instrumentNameSelector = document.getElementById("instrument_name");
         var instrumentName = "acoustic_grand_piano";
@@ -13,6 +14,7 @@
                 MIDI.programChange(0, MIDI.GM.byName[instrumentName].number);
             }
         });
+        Player.previous[0] = instrumentName;
         checkAndLoadInstruments();
     };
 
@@ -22,8 +24,31 @@
         // load if they are
     }
 
-    Player.playBar = function(bar, channel) {
+    Player.playBar = function(bar, instrumentName, channel) {
         checkAndLoadInstruments();
+        if (channel in Player.previous) {
+            if (Player.previous[channel] != instrumentName) {
+                Player.previous[channel] = instrumentName;
+                MIDI.loadPlugin({
+                    soundfontUrl: "./soundfont/",
+                    instrument  : instrumentName,
+                    onprogress  : function (state, progress) {},
+                    onsuccess   : function (note, velocity) {
+                        MIDI.programChange(channel, MIDI.GM.byName[instrumentName].number);
+                    }
+                });
+            }
+        } else {
+            Player.previous[channel] = instrumentName;
+            MIDI.loadPlugin({
+                soundfontUrl: "./soundfont/",
+                instrument  : instrumentName,
+                onprogress  : function (state, progress) {},
+                onsuccess   : function (note, velocity) {
+                    MIDI.programChange(channel, MIDI.GM.byName[instrumentName].number);
+                }
+            });
+        }
         var base = bar.barStart;
         bar.barObjects.forEach(function(barObject) {
             var note = barObject.note.number;

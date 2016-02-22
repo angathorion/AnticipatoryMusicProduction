@@ -65,7 +65,7 @@ var Client = function(Client, $, undefined) {
     var slower = null;
 
     socket.on('receive_midi_signals', function (data) {
-        anticipatoryMusicProducer.Scheduler.playBar(data[1], 0);
+        anticipatoryMusicProducer.Scheduler.playBar(data.midiSignals[1], data.instrumentName, 5);
     });
 
     socket.on('receive_canvas', function (data) {
@@ -78,7 +78,6 @@ var Client = function(Client, $, undefined) {
             });
         });
         var theirDrawOffset = data.offset;
-        var timeDiff = performance.now() - data.now;
         Client.state = { bars: quantized_bars, midiSignals: data.midiSignals,
             drawOffset: theirDrawOffset, barLag: data.barLag };
     });

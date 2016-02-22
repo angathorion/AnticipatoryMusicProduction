@@ -95,7 +95,7 @@
 
     Scheduler.incrementBeat = function () {
         beatOffset = (beatOffset + ((2 / Scheduler.quantizationIntervalDenominator) / Scheduler.refreshMultiplier)) % timeSignature.count;
-    }
+    };
     Scheduler.currentTempo = 120;
     var bps = Scheduler.currentTempo / 60.0;
     var timePerBeat = 1.0 / bps; // in seconds
@@ -172,11 +172,13 @@
             bars.push(new Scheduler.Bar(7, timeSignature, []));
             bars[bars.length - 1].mergeLoopsIntoBar(Scheduler.looper.getCurrentBarsAndAdvance());
             midiSignals = $.extend({}, bars);
-            socket.emit('send_midi_signals', midiSignals);
-            Scheduler.playBar($.extend({}, bars[1]), 0);
-            if (anticipatoryMusicProducer.Client.state) {
-                //Scheduler.playBar($.extend({}, anticipatoryMusicProducer.Client.state.midiSignals[1]), 0);
+            var instrumentNameSelector = document.getElementById("instrument_name");
+            var instrumentName = instrumentNameSelector.options[instrumentNameSelector.selectedIndex].value;
+            if (Scheduler.currentBar == 1) {
+                socket.emit('send_midi_signals', {midiSignals: midiSignals, instrumentName: instrumentName});
             }
+
+            Scheduler.playBar($.extend({}, bars[1]), instrumentName, 0);
             bar = bars[Scheduler.currentBar];
         }
 
@@ -215,6 +217,11 @@
             } else {
                 anticipatoryMusicProducer.interval.rate = "unchanged";
             }
+
+            if (Math.abs(barLag) > 3) {
+                // Desync code here:
+                // Destroy all loops
+            }
         }
 
         socket.emit('broadcast_canvas', {
@@ -228,15 +235,15 @@
 
         var animate = function () {
             if (anticipatoryMusicProducer.Client.state) {
-                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
+                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, anticipatoryMusicProducer.Client.state.drawOffset)();
             }
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset, Scheduler.currentBar)();
         };
         requestAnimationFrame(animate);
     };
 
-    Scheduler.playBar = function (bar, channel) {
-        anticipatoryMusicProducer.Player.playBar(bar, channel);
+    Scheduler.playBar = function (bar, instrumentName, channel) {
+        anticipatoryMusicProducer.Player.playBar(bar, instrumentName, channel);
     };
 
     Scheduler.quantizeBar = function (bar) {
@@ -245,7 +252,6 @@
         // returns an array of objects with the MIDI data, and the quantized beats. Those with the same beat length
         // should be grouped together
         // values returned are relative to the beginning of the bar
-        //var quantized_bar = new Scheduler.Bar(0, timeSignature, []);
         var quantized_bar = $.extend({}, bar);
         var bar_start = bar.barStart;
         quantized_bar.barStart = bar.barStart;

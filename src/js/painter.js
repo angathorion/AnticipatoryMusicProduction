@@ -9,6 +9,9 @@ var Painter = function (Painter, canvas, $, undefined) {
     Painter.unprocessedCache = [{}, {}, {}, {}, {}, {}];
     Painter.cachedResults = [null, null, null, null, null, null];
     Painter.canvas = canvas;
+    Painter.renderer = new Vex.Flow.Renderer(Painter.canvas, Vex.Flow.Renderer.Backends.CANVAS);
+    Painter.player_context = Painter.renderer.getContext();
+    Painter.player_context.scale(0.8,0.8);
     /**
      * A callback that adds a given note to be drawn on the canvas
      * @param {number} note The MIDI value of the note
@@ -41,15 +44,15 @@ var Painter = function (Painter, canvas, $, undefined) {
 
     Painter.drawNowMarker = function () {
         Painter.player_context.beginPath();
-        Painter.player_context.moveTo(230,60);
-        Painter.player_context.lineTo(230,800);
+        Painter.player_context.moveTo(230,0);
+        Painter.player_context.lineTo(230,300);
         Painter.player_context.stroke();
     };
 
     Painter.markCurrentBar = function (totalOffset, width, currentBar) {
         Painter.player_context.beginPath();
-        Painter.player_context.moveTo(totalOffset + currentBar * width, 100);
-        Painter.player_context.lineTo(totalOffset + (currentBar + 1) * width, 100);
+        Painter.player_context.moveTo(totalOffset + currentBar * width, 10);
+        Painter.player_context.lineTo(totalOffset + (currentBar + 1) * width, 10);
         Painter.player_context.stroke();
     };
 
@@ -74,7 +77,7 @@ var Painter = function (Painter, canvas, $, undefined) {
     Painter.drawBars = function (barDrawOffset, bars, label, currentBar) {
         var x, y, width, y_separation, drawStaffBrackets, drawFrontConnector, drawEndConnector;
         width = 400;
-        y = 110;
+        y = 10;
         x = -160 - barDrawOffset * width;
         Painter.markCurrentBar(x, width, currentBar);
         y_separation = 90;
@@ -132,8 +135,6 @@ var Painter = function (Painter, canvas, $, undefined) {
         while (Painter.canvas.lastChild) {
             Painter.canvas.removeChild(Painter.canvas.lastChild);
         }
-        Painter.renderer = new Vex.Flow.Renderer(Painter.canvas, Vex.Flow.Renderer.Backends.CANVAS);
-        Painter.player_context = Painter.renderer.getContext();
         Painter.player_context.clearRect(0, 0, 2000, 500);
     };
 

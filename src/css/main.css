@@ -164,11 +164,11 @@ ul {
 }
 
 .login.page .intro {
-    font-size: 150%;
+    font-size: 75%;
 }
 
 .login.page .loginInput {
-    font-size: 200%;
+    font-size: 100%;
     letter-spacing: 3px;
 }
 
