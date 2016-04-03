@@ -63,19 +63,14 @@
     gestModule.initialize = function () {
         gest.options.subscribeWithCallback(function(gesture) {
             //handle gesture .direction .up .down .left .right .error
-            switch(gesture.direction) {
-                case "Left":
-                    motionDetector.toggleLooping();
-                    break;
-                case "Right":
-                    if (motionDetector.getOffset() == 1) {
-                        motionDetector.setOffset(4);
-                    } else {
-                        motionDetector.setOffset(1);
-                    }
-                    break;
-                default:
-                    noop();
+            if (gesture.direction == "Left") {
+                motionDetector.toggleLooping();
+            } else if (gesture.direction == "Right") {
+                if (motionDetector.getOffset() == 1) {
+                    motionDetector.setOffset(4);
+                } else {
+                    motionDetector.setOffset(1);
+                }
             }
         });
         gest.options.sensitivity(85);
