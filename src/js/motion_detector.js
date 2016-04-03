@@ -2,7 +2,7 @@
 
 (function (motionDetector, $, undefined) {
     var barOffsetSelector = document.getElementById("bar_offset");
-
+    var loopSelector = document.getElementById("looping");
     motionDetector.modules = {};
     var defaultModule = "gestModule";
     var currentModule = null;
@@ -38,7 +38,21 @@
 
     motionDetector.setOffset = function(offset) {
         barOffsetSelector.value = offset;
+    };
+
+    motionDetector.getOffset = function(offset) {
+        return barOffsetSelector.value;
+    };
+
+    motionDetector.toggleLooping = function() {
+        if (loopSelector.value == 1) {
+            loopSelector.value = 0;
+        } else {
+            loopSelector.value = 1;
+        }
     }
+
+
 })(window.anticipatoryMusicProducer.motionDetector =
     window.anticipatoryMusicProducer.motionDetector || {}, jQuery);
 
@@ -50,23 +64,15 @@
         gest.options.subscribeWithCallback(function(gesture) {
             //handle gesture .direction .up .down .left .right .error
             switch(gesture.direction) {
-                case "Up":
-                    motionDetector.setOffset(1);
-                    break;
-                case "Long up":
-                    motionDetector.setOffset(1);
-                    break;
-                case "Down":
-                    motionDetector.setOffset(2);
-                    break;
-                case "Long down":
-                    motionDetector.setOffset(2);
-                    break;
                 case "Left":
-                    motionDetector.setOffset(3);
+                    motionDetector.toggleLooping();
                     break;
                 case "Right":
-                    motionDetector.setOffset(4);
+                    if (motionDetector.getOffset() == 1) {
+                        motionDetector.setOffset(4);
+                    } else {
+                        motionDetector.setOffset(1);
+                    }
                     break;
                 default:
                     throw(gesture.error);

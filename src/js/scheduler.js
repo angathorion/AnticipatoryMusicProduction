@@ -217,11 +217,6 @@
             } else {
                 anticipatoryMusicProducer.interval.rate = "unchanged";
             }
-
-            if (Math.abs(barLag) > 3) {
-                // Desync code here:
-                // Destroy all loops
-            }
         }
 
         socket.emit('broadcast_canvas', {
