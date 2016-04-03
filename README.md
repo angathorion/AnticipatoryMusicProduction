@@ -42,6 +42,8 @@ rewriting for any such use.
 
 Alternatively, you can visit the Heroku-hosted version at: https://amp-online.herokuapp.com/
 
+Note that the https prefix is important; camera access fails on non-secure HTTP connections.
+
 ## Usage as an Application
 
 This is a multi-user platform, based on `socket.io`. Rooms can be created at will, denoted by a session name. A user
