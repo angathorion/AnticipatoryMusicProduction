@@ -75,7 +75,7 @@
                     }
                     break;
                 default:
-                    throw(gesture.error);
+                    throw("Unrecognized gesture.");
             }
         });
         gest.options.sensitivity(85);
