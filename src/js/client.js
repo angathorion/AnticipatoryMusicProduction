@@ -61,7 +61,6 @@ var Client = function(Client, $, undefined) {
         $playParameters.fadeIn();
     });
 
-    // Whenever the server emits 'new message', update the chat body
     var slower = null;
 
     socket.on('receive_midi_signals', function (data) {
@@ -87,12 +86,10 @@ var Client = function(Client, $, undefined) {
         waitForHeartbeat = true;
     });
 
-    // Whenever the server emits 'user joined', log it in the chat body
     socket.on('user joined', function (data) {
         console.log(data.username + ' joined ' + data.sessionName);
     });
 
-    // Whenever the server emits 'user left', log it in the chat body
     socket.on('user left', function (data) {
         console.log(data.username + ' left ' + data.sessionName);
     });
