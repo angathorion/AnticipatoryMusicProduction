@@ -20,18 +20,3 @@ function functionReviver(key, value) {
     }
     return value;
 }
-
-/*
-var person = {
-    name : 'John Smith',
-    age : 42,
-    isJohn: function() {
-        return !!this.name.match(/John/);
-    }
-};
-
-var jsonString = JSON.stringify(person, functionReplacer);
-var restoredPerson = JSON.parse(jsonString, functionReviver);
-
-console.log(restoredPerson.isJohn());
-*/
