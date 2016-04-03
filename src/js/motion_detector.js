@@ -40,7 +40,7 @@
         barOffsetSelector.value = offset;
     };
 
-    motionDetector.getOffset = function(offset) {
+    motionDetector.getOffset = function() {
         return barOffsetSelector.value;
     };
 
