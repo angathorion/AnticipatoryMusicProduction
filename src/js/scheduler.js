@@ -230,7 +230,7 @@
 
         var animate = function () {
             if (anticipatoryMusicProducer.Client.state) {
-                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, anticipatoryMusicProducer.Client.state.drawOffset)();
+                anticipatoryMusicProducer.collaboratorPainter.show.bind(anticipatoryMusicProducer.collaboratorPainter, "", clientBars, clientOffset)();
             }
             anticipatoryMusicProducer.playerPainter.show.bind(anticipatoryMusicProducer.playerPainter, "", quantizedBars, Scheduler.drawOffset, Scheduler.currentBar)();
         };
