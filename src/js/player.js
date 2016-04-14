@@ -49,12 +49,14 @@
                 }
             });
         }
+        console.log("playing");
         var base = bar.barStart;
         bar.barObjects.forEach(function(barObject) {
             var note = barObject.note.number;
             var velocity = barObject.velocity;
             var timeOn = (barObject.timeOn - base) / 1000;
             var timeOff = (barObject.timeOff - base) / 1000;
+            MIDI.setVolume(0, 127);
             MIDI.noteOn(channel, note, velocity, timeOn);
             MIDI.noteOff(channel, note, timeOff);
         });

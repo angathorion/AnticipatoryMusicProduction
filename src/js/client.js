@@ -64,7 +64,8 @@ var Client = function(Client, $, undefined) {
     var slower = null;
 
     socket.on('receive_midi_signals', function (data) {
-        anticipatoryMusicProducer.Scheduler.playBar(data.midiSignals[1], data.instrumentName, 5);
+        console.log(data.midiSignals[1]);
+        anticipatoryMusicProducer.Scheduler.playBar($.extend({}, data.midiSignals[1]), data.instrumentName, 0);
     });
 
     socket.on('receive_canvas', function (data) {
